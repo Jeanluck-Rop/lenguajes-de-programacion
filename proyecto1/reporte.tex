@@ -1,0 +1,43 @@
+\documentclass[12pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{listings, float, xcolor}
+\usepackage{algorithm,algpseudocode, chngcntr}
+\usepackage{graphicx, enumitem, geometry, amssymb}
+\geometry{margin=2.5cm}
+
+\renewcommand{\lstlistingname}{Código}
+
+%------ Definimos los colores para la sintaxis del código --------%
+\definecolor{keywordcolor}{rgb}{0.5, 0.0, 0.5}  % Morado para palabras clave
+\definecolor{commentcolor}{rgb}{0.25, 0.5, 0.35} % Verde para comentarios
+\definecolor{stringcolor}{rgb}{0.88, 0.68, 0.18}  % Mostaza anaranjado para los strings
+\definecolor{backgroundcolor}{rgb}{0.95, 0.95, 0.95} % Gris claro para fondo
+
+%------ Configuración para mostrar código en Python --------%
+\lstdefinestyle{pythonstyle}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{keywordcolor}\bfseries,
+  commentstyle=\color{commentcolor}\itshape,
+  stringstyle=\color{stringcolor},
+  numbers=left,
+  numberstyle=\tiny,
+  stepnumber=1,
+  numbersep=8pt,
+  backgroundcolor=\color{backgroundcolor},
+  tabsize=4,
+  showspaces=false,
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  captionpos=b
+}
+
+\begin{document}
+
+\input{portada} % Importa el archivo portada.tex
+
+\end{document}
