@@ -1,7 +1,8 @@
-module LexerManual where
+module Lexer where
 
+import Token
 import Data.Char
-import ASA -- Asumiendo que ASA.hs define el tipo Token
+
 
 -- Función principal del lexer
 lexer :: String -> [Token]

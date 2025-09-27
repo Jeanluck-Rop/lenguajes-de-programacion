@@ -1,4 +1,4 @@
-\documentclass[12pt,letterpaper]{article}
+\documentclass[12pt,letterpaper]{book}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -6,9 +6,12 @@
 \usepackage{listings, float, xcolor}
 \usepackage{algorithm,algpseudocode, chngcntr}
 \usepackage{graphicx, enumitem, geometry}
-\usepackage{tcolorbox}
-%------ Paquetes matemáticos básicos --------%
 \usepackage{amsmath, amssymb, amsthm}
+
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}
+\usepackage{lipsum}
+
 \geometry{margin=2.5cm}
 
 \newcommand{\imp}{\rightarrow}
@@ -43,16 +46,25 @@
   captionpos=b
 }
 
+\titleformat{\chapter}[display]
+  {\bfseries\huge} % formato de letra
+  {Capítulo \thechapter} % lo que aparece arriba
+  {0.5ex} % espacio entre número y título
+  {\Huge} % formato del título
+
 \begin{document}
 
 \input{portada} % Importa el archivo portada.tex
 
+\tableofcontents  % genera el índice
+
+\chapter{Introducción}
 \noindent
 Definimos la Gramática para \large M\small INI\large L\small ISP \normalsize en \textbf{EBNF}:
 
 \begin{tcolorbox}[colback=azulin!5!white, colframe=azulin!80, title=Gramática MINILISP]
   \[
-  \renewcommand{\arraystretch}{1.2}
+  \renewcommand{\arraystretch}{1.1}
   \begin{array}{rcl}
     Expr &::=& Var \\
     &\mid& Num \\
@@ -85,7 +97,7 @@ Definimos la Gramática para \large M\small INI\large L\small ISP \normalsize en
     &\mid& [\ \{Expr,\}\ ] \\
     &\mid& (head\ Expr) \\
     &\mid& (tail\ Expr) \\
-    &\mid& (cond\ [Expr\ Expr]\ \{[Expr\ Expr]\}\ [else\ Expr]) \\\\
+    &\mid& (cond\ [Expr\ Expr]\ \{[Expr\ Expr]\}\ [else\ Expr]) \\
     Var &::=& \textit{Identificador de variable} \\
     Num &::=& \textit{Constante entera} \\
     Bool &::=& \#t \mid \#f
@@ -93,6 +105,12 @@ Definimos la Gramática para \large M\small INI\large L\small ISP \normalsize en
   \]
 \end{tcolorbox}
 
+\chapter{Principios básicos}
+\section{Algoritmos y computadoras}
+\subsection{Breve historia del concepto de algoritmo}
 
-  
+
+\section{Representación de la información}
+\subsection{Sistemas numéricos}
+
 \end{document}
