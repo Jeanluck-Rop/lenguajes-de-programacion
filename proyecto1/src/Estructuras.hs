@@ -75,7 +75,7 @@ data Token
 
   -- Funciones y aplicación
   | TokenLambda   -- lambda
-  | TokenApp      -- app (opcional si se quiere sintaxis explícita)
+  -- | TokenApp      -- app (opcional)
 
   -- Pares y listas
   | TokenPair     -- pair
@@ -92,35 +92,35 @@ data ASA
   = Var String              -- variable
   | Num Int                 -- enteros
   | Bool Bool               -- booleanos
-  | Add [ASA]               -- suma variádica
-  | Sub [ASA]               -- resta variádica
-  | Mul [ASA]               -- multiplicación variádica
-  | Div [ASA]               -- división variádica
+  | Add ASA [ASA]           -- suma variádica
+  | Sub ASA [ASA]           -- resta variádica
+  | Mul ASA [ASA]           -- multiplicación variádica
+  | Div ASA [ASA]           -- división variádica
   | Not ASA                 -- negación
-  | Let [(String, ASA)] ASA -- let paralelo
-  | LetRec [(String, ASA)] ASA -- letrec
-  | LetStar [(String, ASA)] ASA -- let* secuencial
+  | Let (Var ASA) ASA       -- let paralelo
+  | LetRec (Var ASA) ASA    -- letrec
+  | LetStar (Var ASA) ASA   -- let* secuencial
   | If0 ASA ASA ASA         -- if0
   | If ASA ASA ASA          -- if booleano
-  | Lambda [ASA] ASA     -- funciones anónimas (variádicas)
-  | App ASA [ASA]           -- aplicación: (f x y z)
+  | Lambda (Var) ASA        -- funciones anónimas (variádicas)
+  | App ASA ASA             -- aplicación: (f x y z)
   | Add1 ASA                -- incremento
   | Sub1 ASA                -- decremento
   | Sqrt ASA                -- raíz cuadrada
   | Expt ASA ASA            -- potencia
-  | Equal [ASA]             -- igualdad variádica
-  | Greater [ASA]           -- mayor que (variádica)
-  | Less [ASA]              -- menor que (variádica)
-  | GEqual [ASA]            -- >=
-  | LEqual [ASA]            -- <=
-  | Diff [ASA]              -- !=
+  | Equal ASA [ASA]         -- igualdad variádica
+  | Greater ASA [ASA]       -- mayor que (variádica)
+  | Less ASA [ASA]          -- menor que (variádica)
+  | GEqual ASA [ASA]        -- >=
+  | LEqual ASA [ASA]        -- <=
+  | Diff ASA [ASA]          -- !=
   | Pair ASA ASA            -- pares ordenados
   | Fst ASA                 -- proyección 1
   | Snd ASA                 -- proyección 2
   | List [ASA]              -- listas [1,2,3]
   | Head ASA                -- cabeza
   | Tail ASA                -- cola
-  | Cond [(ASA, ASA)]       -- cond [(cond, expr), ..., (else, expr)]
+  | Cond [ASA] ASA          -- cond [(cond, expr), ..., (else, expr)]
   deriving (Show, Eq)
 
 
@@ -136,7 +136,7 @@ data AST
   | CMul AST AST
   | CDiv AST AST
   | CIf AST AST AST
-  | CLambda String AST
+  | CLambda CVar AST
   | CAPP AST AST
   | CPair AST AST
   | CFst AST
@@ -144,5 +144,5 @@ data AST
   | CList [AST]
   | CHead AST
   | CTail AST
-  | CCond [(AST, AST)]
+  | CCond [AST] AST
   deriving (Show, Eq)
