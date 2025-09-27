@@ -1,115 +1,70 @@
 {
-{
 module Lexer where
-import Data.Functor.Identity
-import ASA
+import Tokens
 }
 
-%wrapper "monad"
+%wrapper "basic"
 
-$digit = [0-9]
-$alpha = [a-zA-Z]
-$alphanum = {$alpha} | {$digit}
+-- Definiciones de patrones
+$digit   = 0-9
+$alpha   = [a-zA-Z]
+$alnum   = [a-zA-Z0-9]
 
 tokens :-
-    $white+                     ;
 
-    "--".* ;
+-- Espacios y saltos de línea (se ignoran)
+$white+                       ;
 
-    "("                         { TokenPA }
-    ")"                         { TokenPC }
-    "["                         { TokenLI }
-    "]"                         { TokenLD }
-    ","                         { TokenComma }
+-- Paréntesis y corchetes
+"("                            { \_ -> TokenPA }
+")"                            { \_ -> TokenPC }
+"["                            { \_ -> TokenLI }
+"]"                            { \_ -> TokenLD }
+","                            { \_ -> TokenComma }
 
-    "+"                         { TokenAdd }
-    "-"                         { TokenSub }
-    "*"                         { TokenMul }
-    "/"                         { TokenDiv }
-    "add1"                      { TokenAdd1 }
-    "sub1"                      { TokenSub1 }
-    "sqrt"                      { TokenSqrt }
-    "expt"                      { TokenExpt }
+-- Operadores aritméticos
+"+"                            { \_ -> TokenAdd }
+"-"                            { \_ -> TokenSub }
+"*"                            { \_ -> TokenMul }
+"/"                            { \_ -> TokenDiv }
+"add1"                         { \_ -> TokenAdd1 }
+"sub1"                         { \_ -> TokenSub1 }
+"sqrt"                         { \_ -> TokenSqrt }
+"expt"                         { \_ -> TokenExpt }
 
-    "#t"                        { TokenBool BTrue }
-    "#f"                        { TokenBool BFalse }
+-- Comparaciones y booleanos
+"="                            { \_ -> TokenEq }
+"!="                           { \_ -> TokenNeq }
+"<="                           { \_ -> TokenLeq }
+">="                           { \_ -> TokenGeq }
+"<"                            { \_ -> TokenLt }
+">"                            { \_ -> TokenGt }
+"not"                          { \_ -> TokenNot }
+"true"                         { \_ -> TokenBool True }
+"false"                        { \_ -> TokenBool False }
 
-    "="                         { TokenEq }
-    "!="                        { TokenNeq }
-    "<"                         { TokenLt }
-    ">"                         { TokenGt }
-    "<="                        { TokenLeq }
-    ">="                        { TokenGeq }
+-- Palabras clave
+"let"                          { \_ -> TokenLet }
+"letrec"                       { \_ -> TokenLetRec }
+"let*"                         { \_ -> TokenLetStar }
+"if0"                          { \_ -> TokenIf0 }
+"if"                           { \_ -> TokenIf }
+"cond"                         { \_ -> TokenCond }
+"else"                         { \_ -> TokenElse }
+"lambda"                       { \_ -> TokenLambda }
 
-    "not"                       { TokenNot }
+-- Pares y listas
+"pair"                         { \_ -> TokenPair }
+"fst"                          { \_ -> TokenFst }
+"snd"                          { \_ -> TokenSnd }
+"head"                         { \_ -> TokenHead }
+"tail"                         { \_ -> TokenTail }
 
-    "letrec"                    { TokenLetRec }
-    "let"                       { TokenLet }
-    "let*"                      { TokenLetStar }
-    "if0"                       { TokenIf0 }
-    "if"                        { TokenIf }
-    "cond"                      { TokenCond }
-    "else"                      { TokenElse }
-
-    "lambda"                    { TokenLambda }
-    "pair"                      { TokenPair }
-    "fst"                       { TokenFst }
-    "snd"                       { TokenSnd }
-    "head"                      { TokenHead }
-    "tail"                      { TokenTail }
-
-    {$digit}+                   { TokenNum . read }
-
-    {$alpha}{$alphanum}* { TokenVar }
-    
-
+-- Literales
+$digit+                        { \s -> TokenNum (read s) }
+$alpha $alnum*                 { \s -> TokenVar s }
 {
--- The token type:
-data Token
-  = TokenVar String
-  | TokenNum Int
-  | TokenBool Bool
-  | TokenPA
-  | TokenPC
-  | TokenLI
-  | TokenLD
-  | TokenComma
-  | TokenAdd
-  | TokenSub
-  | TokenMul
-  | TokenDiv
-  | TokenAdd1
-  | TokenSub1
-  | TokenSqrt
-  | TokenExpt
-  | TokenNot
-  | TokenEq
-  | TokenNeq
-  | TokenLt
-  | TokenGt
-  | TokenLeq
-  | TokenGeq
-  | TokenLet
-  | TokenLetRec
-  | TokenLetStar
-  | TokenIf0
-  | TokenIf
-  | TokenCond
-  | TokenElse
-  | TokenLambda
-  | TokenPair
-  | TokenFst
-  | TokenSnd
-  | TokenHead
-  | TokenTail
-  deriving (Show, Eq)
-
-type Lexer a = Alex a
-
-alexScanTokens :: String -> [Token]
-alexScanTokens str = runIdentity (alexMonadScan (alexStartPos, str))
-
--- A utility function for converting a token to a string.
-showToken :: Token -> String
-showToken t = show t
+lexer :: String -> [Token]
+lexer = alexScanTokens
 }
+
