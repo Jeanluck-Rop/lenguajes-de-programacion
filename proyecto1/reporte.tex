@@ -1,4 +1,4 @@
-\documentclass[12pt,letterpaper]{book}
+\documentclass[12pt,letterpaper]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -7,15 +7,14 @@
 \usepackage{algorithm,algpseudocode, chngcntr}
 \usepackage{graphicx, enumitem, geometry}
 \usepackage{amsmath, amssymb, amsthm}
-
-\usepackage[most]{tcolorbox}
-\usepackage{titlesec}
-\usepackage{lipsum}
+\usepackage{tcolorbox}
 
 \geometry{margin=2.5cm}
 
 \newcommand{\imp}{\rightarrow}
 \newcommand{\vep}{\varepsilon}
+\newcommand{\nt}[1]{\texttt{<#1>}}
+
 \definecolor{azulin}{HTML}{130F87}
 \definecolor{grisin}{HTML}{6D6C91}
 \renewcommand{\lstlistingname}{Código}
@@ -46,71 +45,55 @@
   captionpos=b
 }
 
-\titleformat{\chapter}[display]
-  {\bfseries\huge} % formato de letra
-  {Capítulo \thechapter} % lo que aparece arriba
-  {0.5ex} % espacio entre número y título
-  {\Huge} % formato del título
-
 \begin{document}
 
 \input{portada} % Importa el archivo portada.tex
 
-\tableofcontents  % genera el índice
-
-\chapter{Introducción}
+\section*{Introducción}
 \noindent
 Definimos la Gramática para \large M\small INI\large L\small ISP \normalsize en \textbf{EBNF}:
-
 \begin{tcolorbox}[colback=azulin!5!white, colframe=azulin!80, title=Gramática MINILISP]
-  \[
-  \renewcommand{\arraystretch}{1.1}
-  \begin{array}{rcl}
-    Expr &::=& Var \\
-    &\mid& Num \\
-    &\mid& Bool \\
-    &\mid& (+\ Expr\ \{Expr\}) \\
-    &\mid& (-\ Expr\ \{Expr\}) \\
-    &\mid& (*\ Expr\ \{Expr\}) \\
-    &\mid& (/\ Expr\ \{Expr\}) \\
-    &\mid& (add1\ Expr) \\
-    &\mid& (sub1\ Expr) \\
-    &\mid& (sqrt\ Expr) \\
-    &\mid& (expt\ Expr) \\
-    &\mid& (not\ Expr) \\
-    &\mid& (=\ Expr\ \{Expr\}) \\
-    &\mid& (<\ Expr\ \{Expr\}) \\
-    &\mid& (>\ Expr\ \{Expr\}) \\
-    &\mid& (<=\ Expr\ \{Expr\}) \\
-    &\mid& (>=\ Expr\ \{Expr\}) \\
-    &\mid& (!=\ Expr\ \{Expr\}) \\
-    &\mid& (Expr,\ Expr) \\
-    &\mid& (fst\ Expr) \\
-    &\mid& (snd\ Expr) \\
-    &\mid& (let\ (Var\ Expr)\ \{Expr\}) \\
-    &\mid& (letrec\ (Var\ Expr)\ \{Expr\}) \\
-    &\mid& (let*\ (Var\ Expr)\ \{Expr\}) \\
-    &\mid& (if0\ Expr\ Expr\ Expr) \\
-    &\mid& (if\ Expr\ Expr\ Expr) \\ 
-    &\mid& (lambda\ (\{Var\})\ \{Expr\}) \\
-    &\mid& (Expr\ Expr) \\
-    &\mid& [\ \{Expr,\}\ ] \\
-    &\mid& (head\ Expr) \\
-    &\mid& (tail\ Expr) \\
-    &\mid& (cond\ [Expr\ Expr]\ \{[Expr\ Expr]\}\ [else\ Expr]) \\
-    Var &::=& \textit{Identificador de variable} \\
-    Num &::=& \textit{Constante entera} \\
-    Bool &::=& \#t \mid \#f
-  \end{array}
-  \]
+\renewcommand{\arraystretch}{1.1}
+\[
+\begin{array}{rcl}
+\nt{Expr} &::=& \nt{Var} \\
+          &\mid& \nt{Num} \\
+          &\mid& \nt{Bool} \\
+          &\mid& \texttt{(+ \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
+          &\mid& \texttt{(- \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
+          &\mid& \texttt{(* \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
+          &\mid& \texttt{(/ \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
+          &\mid& \texttt{(add1 \nt{Expr})} \\
+          &\mid& \texttt{(sub1 \nt{Expr})} \\
+          &\mid& \texttt{(sqrt \nt{Expr})} \\
+          &\mid& \texttt{(expt \nt{Expr})} \\
+          &\mid& \texttt{(not \nt{Expr})} \\
+          &\mid& \texttt{(= \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
+          &\mid& \texttt{(< \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
+          &\mid& \texttt{(> \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
+          &\mid& \texttt{(<= \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
+          &\mid& \texttt{(>= \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
+          &\mid& \texttt{(!= \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
+          &\mid& \texttt{(\nt{Expr}, \nt{Expr})} \\
+          &\mid& \texttt{(fst \nt{Expr})} \\
+          &\mid& \texttt{(snd \nt{Expr})} \\
+          &\mid& \texttt{(let ((\nt{Var} \nt{Expr}) \{\nt{Var} \nt{Expr}\}) \nt{Expr})} \\
+          &\mid& \texttt{(letrec \nt{Var} \nt{Expr} \nt{Expr})} \\
+          &\mid& \texttt{(let* ((\nt{Var} \nt{Expr}) \{\nt{Var} \nt{Expr}\}) \nt{Expr})} \\
+          &\mid& \texttt{(if0 \nt{Expr} \nt{Expr} \nt{Expr})} \\
+          &\mid& \texttt{(if \nt{Expr} \nt{Expr} \nt{Expr})} \\ 
+          &\mid& \texttt{(lambda (\nt{Var} \{\nt{Var}\}) \nt{Expr})} \\
+          &\mid& \texttt{(\nt{Expr} \nt{Expr})} \\
+          &\mid& \texttt{([\nt{Expr} \{, \nt{Expr}\}])} \\
+          &\mid& \texttt{(head \nt{Expr})} \\
+          &\mid& \texttt{(tail \nt{Expr})} \\
+          &\mid& \texttt{(cond [\nt{Expr} \nt{Expr}] \{[\nt{Expr} \nt{Expr}]\} [else \nt{Expr}])} \\
+\\
+\nt{Var} &::=& \textit{Identificador de variable} \\
+\nt{Num} &::=& \textit{Constante entera} \\
+\nt{Bool} &::=& \texttt{\#t} \mid \texttt{\#f}
+\end{array}
+\]
 \end{tcolorbox}
-
-\chapter{Principios básicos}
-\section{Algoritmos y computadoras}
-\subsection{Breve historia del concepto de algoritmo}
-
-
-\section{Representación de la información}
-\subsection{Sistemas numéricos}
 
 \end{document}

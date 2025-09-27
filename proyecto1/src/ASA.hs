@@ -2,36 +2,36 @@ module ASA where
 
 --- ASA con azucar (ASA)
 data ASA
-  = Var String              -- variable
-  | Num Int                 -- enteros
-  | Bool Bool               -- booleanos
-  | Add ASA [ASA]           -- suma variádica
-  | Sub ASA [ASA]           -- resta variádica
-  | Mul ASA [ASA]           -- multiplicación variádica
-  | Div ASA [ASA]           -- división variádica
-  | Not ASA                 -- negación
-  | Let     [(String, ASA)] ASA      -- let paralelo
-  | LetRec  [(String, ASA)] ASA   -- letrec
-  | LetStar [(String, ASA)] ASA  -- let* secuencial
-  | If0 ASA ASA ASA         -- if0
-  | If ASA ASA ASA          -- if booleano
-  | Lambda [String] ASA     -- funciones anónimas (variádicas)
-  | App ASA ASA             -- aplicación: (f x y z)
-  | Add1 ASA                -- incremento
-  | Sub1 ASA                -- decremento
-  | Sqrt ASA                -- raíz cuadrada
-  | Expt ASA ASA            -- potencia
-  | Equal ASA [ASA]         -- igualdad variádica
-  | Greater ASA [ASA]       -- mayor que (variádica)
-  | Less ASA [ASA]          -- menor que (variádica)
-  | GEqual ASA [ASA]        -- >=
-  | LEqual ASA [ASA]        -- <=
-  | Diff ASA [ASA]          -- !=
-  | Pair ASA ASA            -- pares ordenados
-  | Fst ASA                 -- proyección 1
-  | Snd ASA                 -- proyección 2
-  | List [ASA]              -- listas [1,2,3]
-  | Head ASA                -- cabeza
-  | Tail ASA                -- cola
-  | Cond [(ASA, ASA)] (Maybe ASA)  -- cond [(cond, expr), ..., (else, expr)]
+  = Var String                  -- variable
+  | Num Int                     -- enteros
+  | Boolean Bool                -- booleanos
+  | Add [ASA]                   -- suma
+  | Sub [ASA]                   -- resta
+  | Mul [ASA]                   -- multiplicación
+  | Div [ASA]                   -- división
+  | Not ASA                     -- negación
+  | Let [(Var, ASA)] ASA        -- let paralelo
+  | LetRec [(Var, ASA)] ASA     -- letrec
+  | LetStar [(Var, ASA)] ASA    -- let* secuencial
+  | If0 ASA ASA ASA             -- if0
+  | If ASA ASA ASA              -- if booleano
+  | Lambda [Var] ASA            -- funcion anónima
+  | App ASA ASA                 -- aplicación
+  | Add1 ASA                    -- incremento
+  | Sub1 ASA                    -- decremento
+  | Sqrt ASA                    -- raíz cuadrada
+  | Expt ASA                    -- potencia
+  | Equal [ASA]                 -- igualdad
+  | Less [ASA]                  -- <
+  | Greater [ASA]               -- >
+  | LEqual [ASA]                -- <=
+  | GEqual [ASA]                -- >=
+  | Diff [ASA]                  -- !=
+  | Pair ASA ASA                -- pares ordenados
+  | Fst ASA                     -- primero
+  | Snd ASA                     -- segundo
+  | List [ASA]                  -- listas
+  | Head ASA                    -- cabeza
+  | Tail ASA                    -- cola
+  | Cond [(ASA, ASA)] Maybe ASA -- cond [(cond, expr), ..., (else, expr)]
   deriving (Show, Eq)
