@@ -9,7 +9,20 @@ data ASA
   | Sub [ASA]                   -- resta
   | Mul [ASA]                   -- multiplicación
   | Div [ASA]                   -- división
+  | Add1 ASA                    -- incremento
+  | Sub1 ASA                    -- decremento
+  | Sqrt ASA                    -- raíz cuadrada
+  | Expt ASA                    -- potencia
   | Not ASA                     -- negación
+  | Equal [ASA]                 -- igualdad
+  | Less [ASA]                  -- <
+  | Greater [ASA]               -- >
+  | Diff [ASA]                  -- !=
+  | Leq [ASA]                   -- <=
+  | Geq [ASA]                   -- >=
+  | Pair ASA ASA                -- pares ordenados
+  | Fst ASA                   -- primero
+  | Snd ASA                  -- segundo
   | Let [(Var, ASA)] ASA        -- let paralelo
   | LetRec [(Var, ASA)] ASA     -- letrec
   | LetStar [(Var, ASA)] ASA    -- let* secuencial
@@ -17,21 +30,8 @@ data ASA
   | If ASA ASA ASA              -- if booleano
   | Lambda [Var] ASA            -- funcion anónima
   | App ASA ASA                 -- aplicación
-  | Add1 ASA                    -- incremento
-  | Sub1 ASA                    -- decremento
-  | Sqrt ASA                    -- raíz cuadrada
-  | Expt ASA                    -- potencia
-  | Equal [ASA]                 -- igualdad
-  | Less [ASA]                  -- <
-  | Greater [ASA]               -- >
-  | LEqual [ASA]                -- <=
-  | GEqual [ASA]                -- >=
-  | Diff [ASA]                  -- !=
-  | Pair ASA ASA                -- pares ordenados
-  | Fst ASA                     -- primero
-  | Snd ASA                     -- segundo
   | List [ASA]                  -- listas
   | Head ASA                    -- cabeza
   | Tail ASA                    -- cola
-  | Cond [(ASA, ASA)] Maybe ASA -- cond [(cond, expr), ..., (else, expr)]
+  | Cond [(ASA, ASA)] Maybe ASA -- cond [(cond, expr) (else, expr)]
   deriving (Show, Eq)

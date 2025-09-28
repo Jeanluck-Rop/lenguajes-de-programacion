@@ -18,19 +18,15 @@ data Token
   -- Operadores booleanos / comparaciones
   | TokenNot     -- not
   | TokenEq      -- =
-  | TokenNeq     -- !=
   | TokenLt      -- <
   | TokenGt      -- >
+  | TokenNeq     -- !=
   | TokenLeq     -- <=
   | TokenGeq     -- >=
   -- Pares
-  | TokenPair    -- pair
-  | TokenFst     -- fst
-  | TokenSnd     -- snd
-  -- Corchetes y listas
-  | TokenLI      -- [
-  | TokenLD      -- ]
-  | TokenComma   -- ,
+  | TokenFirst     -- fst
+  | TokenSecond     -- snd
+  -- Listas
   | TokenHead    -- head
   | TokenTail    -- tail
   -- Lets
@@ -45,7 +41,10 @@ data Token
   -- Funciones y aplicación
   | TokenLambda  -- lambda
   | TokenApp     -- app
-    -- Paréntesis
+  -- Corchetes y Paréntesis
+  | TokenLI      -- [
+  | TokenLD      -- ]
+  | TokenComma   -- ,
   | TokenPA      -- (
   | TokenPC      -- )
   deriving (Show, Eq)

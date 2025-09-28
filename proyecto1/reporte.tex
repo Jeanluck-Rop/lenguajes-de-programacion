@@ -1,8 +1,8 @@
-\documentclass[12pt,letterpaper]{article}
-
+\documentclass[12pt]{book}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[spanish]{babel}
+\usepackage{fancyhdr}
 \usepackage{listings, float, xcolor}
 \usepackage{algorithm,algpseudocode, chngcntr}
 \usepackage{graphicx, enumitem, geometry}
@@ -11,10 +11,34 @@
 
 \geometry{margin=2.5cm}
 
-\newcommand{\imp}{\rightarrow}
-\newcommand{\vep}{\varepsilon}
-\newcommand{\nt}[1]{\texttt{<#1>}}
+\pagestyle{fancy}
+\fancyhf{}
 
+% Quitar mayúsculas automáticas
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{#1}}
+
+% Encabezados
+\lhead{LDP}
+\rhead{\leftmark{}. \rightmark{}}
+\cfoot{\thepage} % número centrado abajo
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ----- Cambiar el título del índice -----
+\addto\captionsspanish{%
+  \renewcommand{\contentsname}{Índice} % cambia "Índice general" a "Índice"
+}
+
+% ----- Evitar mayúsculas en el encabezado del índice -----
+\makeatletter
+\renewcommand{\tableofcontents}{%
+  \chapter*{\contentsname}% título "Índice"
+  \markboth{\contentsname}{}% encabezado sin mayúsculas
+  \@starttoc{toc}% genera el contenido real
+}
+\makeatother
+
+\newcommand{\nt}[1]{\texttt{<#1>}}
 \definecolor{azulin}{HTML}{130F87}
 \definecolor{grisin}{HTML}{6D6C91}
 \renewcommand{\lstlistingname}{Código}
@@ -49,11 +73,42 @@
 
 \input{portada} % Importa el archivo portada.tex
 
-\section*{Introducción}
+\clearpage
+\pagenumbering{arabic} % reinicia numeración con números arábigos
+\setcounter{page}{1}   % empieza en la página 1
+
+% Encabezado especial para TOC
+\fancypagestyle{tocpage}{%
+  \fancyhf{}
+  \lhead{LDP}
+  \rhead{Proyecto1. Reporte}
+  \cfoot{\thepage}
+  \renewcommand{\headrulewidth}{0.4pt}
+}
+\thispagestyle{tocpage}
+
+\tableofcontents
+
+\chapter{Introducción}
+
+Como hemos visto en el curso Leguajes de Programación, al menos hasta la fecha de entrega del presente proyecto, en el desarrollo de un lenguaje de programación resulta fundamental comprender cómo se definen formalmente sus componentes y cómo estos se traducen a estructuras que una computadora puede interpretar y ejecutar.
+
+\section{Motivación}
+En el desarrollo de lenguajes de programación, Una de las motivaciones principales de este proyecto es acercarse al diseño de un lenguaje minimalista —en este caso, MINILISP— que permita practicar la construcción de gramáticas formales, analizadores léxicos y sintácticos, así como el modelado de árboles de sintaxis abstracta en un entorno académico.
+
+\section{Objetivos}
+
+El objetivo del proyecto es implementar un subconjunto del lenguaje Lisp con un conjunto reducido pero representativo de operaciones: expresiones aritméticas y booleanas, estructuras de control (if, cond), mecanismos de definición local (let, letrec, let*), funciones anónimas (lambda), listas y pares. Para ello, se diseña una gramática en notación BNF/EBNF, se define un conjunto de tokens para el análisis léxico y se construyen las estructuras de datos necesarias en Haskell para representar el árbol de sintaxis abstracta (ASA). De esta manera, se busca no solo capturar la semántica básica del lenguaje, sino también poner en práctica técnicas de diseño de compiladores a pequeña escala.
+
+\section{Delimitación del Proyecto}
+La delimitación del proyecto consiste en que MINILISP no pretende ser una implementación completa de Lisp, sino una versión simplificada con fines didácticos. Se restringe el conjunto de operaciones soportadas, se omite el manejo de macros y de entrada/salida, y se centra únicamente en el análisis sintáctico y la representación interna de programas. Con esto, se logra un balance entre la complejidad teórica y la viabilidad de implementación en el tiempo disponible.
+
+\newpage
+
 \noindent
 Definimos la Gramática para \large M\small INI\large L\small ISP \normalsize en \textbf{EBNF}:
 \begin{tcolorbox}[colback=azulin!5!white, colframe=azulin!80, title=Gramática MINILISP]
-\renewcommand{\arraystretch}{1.1}
+\renewcommand{\arraystretch}{1.05}
 \[
 \begin{array}{rcl}
 \nt{Expr} &::=& \nt{Var} \\
@@ -69,8 +124,8 @@ Definimos la Gramática para \large M\small INI\large L\small ISP \normalsize en
           &\mid& \texttt{(expt \nt{Expr})} \\
           &\mid& \texttt{(not \nt{Expr})} \\
           &\mid& \texttt{(= \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
-          &\mid& \texttt{(< \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
-          &\mid& \texttt{(> \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
+          &\mid& \texttt{(<\: \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
+          &\mid& \texttt{(>\: \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
           &\mid& \texttt{(<= \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
           &\mid& \texttt{(>= \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
           &\mid& \texttt{(!= \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
@@ -84,7 +139,7 @@ Definimos la Gramática para \large M\small INI\large L\small ISP \normalsize en
           &\mid& \texttt{(if \nt{Expr} \nt{Expr} \nt{Expr})} \\ 
           &\mid& \texttt{(lambda (\nt{Var} \{\nt{Var}\}) \nt{Expr})} \\
           &\mid& \texttt{(\nt{Expr} \nt{Expr})} \\
-          &\mid& \texttt{([\nt{Expr} \{, \nt{Expr}\}])} \\
+          &\mid& \texttt{\textbf{[}\nt{Expr} \{, \nt{Expr}\}\textbf{]}} \\
           &\mid& \texttt{(head \nt{Expr})} \\
           &\mid& \texttt{(tail \nt{Expr})} \\
           &\mid& \texttt{(cond [\nt{Expr} \nt{Expr}] \{[\nt{Expr} \nt{Expr}]\} [else \nt{Expr}])} \\
@@ -95,5 +150,33 @@ Definimos la Gramática para \large M\small INI\large L\small ISP \normalsize en
 \end{array}
 \]
 \end{tcolorbox}
+
+Hacemos un abuso de notación para aclarar que el uso de '\textbf{[}' '\textbf{]}' no es para indicar opcionalidad de la notación de EBNF sino que son los símbolos que usamos para representar listas, también por eso están en negritas.
+\chapter{Formalización}
+\section{Sintaxis Concreta/Léxica}
+\section{Sintaxis Libre de Contexto}
+\section{Eliminación de azúcar sintáctica}
+\section{Semántica operacional}
+\subsection{Notaciones, derivaciones y reglas de inferencia correspondientes}
+
+\chapter{Justificaciones}
+
+\chapter{Investigación}
+\section{Contextualización conceptual (ej. syntactic sugar, SOS, EBNF),}
+\section{Referencias históricas y aportes relevantes de la disciplina.}
+
+\chapter{Resultados}
+
+\chapter{Conclusiones}
+
+\chapter*{Bibliografía}          % título sin "Capítulo"
+\addcontentsline{toc}{chapter}{Bibliografía} % lo agrega al índice
+\markboth{Bibliografía}{}        % encabezado correcto
+
+% Aquí tu bibliografía
+\begin{thebibliography}{99}
+  \bibitem{ref1} Autor. *Título del libro*. Editorial, Año.
+  \bibitem{ref2} Autor. "Artículo". Revista, Año.
+\end{thebibliography}
 
 \end{document}

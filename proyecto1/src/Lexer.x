@@ -63,8 +63,8 @@ $white+                       ;
 -- Literales
 $digit+                        { \s -> TokenNum (read s) }
 $alpha $alnum*                 { \s -> TokenVar s }
+
 {
 lexer :: String -> [Token]
 lexer = alexScanTokens
 }
-
