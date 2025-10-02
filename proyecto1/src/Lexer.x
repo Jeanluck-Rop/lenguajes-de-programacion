@@ -1,6 +1,6 @@
 {
 module Lexer where
-import Tokens
+import Token
 }
 
 %wrapper "basic"
@@ -40,8 +40,8 @@ $white+                       ;
 "<"                            { \_ -> TokenLt }
 ">"                            { \_ -> TokenGt }
 "not"                          { \_ -> TokenNot }
-"#t"                           { \_ -> TokenBool True }
-"#f"                           { \_ -> TokenBool False }
+"true"                         { \_ -> TokenBool True }
+"false"                        { \_ -> TokenBool False }
 
 -- Palabras clave
 "let"                          { \_ -> TokenLet }
@@ -63,8 +63,13 @@ $white+                       ;
 -- Literales
 $digit+                        { \s -> TokenNum (read s) }
 $alpha $alnum*                 { \s -> TokenVar s }
+
+-- Catch-all para diagnosticar caracteres inesperados
+  .                     { \s -> error ("Lexical error: caracter no reconocido = "
+                                      ++ show s
+                                      ++ " | codepoints = "
+                                      ++ show (map fromEnum s)) }
 {
 lexer :: String -> [Token]
 lexer = alexScanTokens
 }
-
