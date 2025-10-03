@@ -6,7 +6,7 @@ data Token
   = TokenVar String
   | TokenNum Int
   | TokenBool Bool
-  -- Operadores aritméticos
+  -- Operadores aritmeticos
   | TokenAdd     -- +
   | TokenSub     -- -
   | TokenMul     -- *
@@ -24,8 +24,8 @@ data Token
   | TokenLeq     -- <=
   | TokenGeq     -- >=
   -- Pares
-  | TokenFirst     -- fst
-  | TokenSecond     -- snd
+  | TokenFirst   -- fst
+  | TokenSecond  -- snd
   -- Listas
   | TokenHead    -- head
   | TokenTail    -- tail
@@ -38,10 +38,10 @@ data Token
   | TokenIf      -- if
   | TokenCond    -- cond
   | TokenElse    -- else
-  -- Funciones y aplicación
+  -- Funciones y aplicacion
   | TokenLambda  -- lambda
   | TokenApp     -- app
-  -- Corchetes y Paréntesis
+  -- Corchetes y Parentesis
   | TokenLI      -- [
   | TokenLD      -- ]
   | TokenComma   -- ,

@@ -17,6 +17,7 @@
 % Quitar mayúsculas automáticas
 \renewcommand{\chaptermark}[1]{\markboth{#1}{}}
 \renewcommand{\sectionmark}[1]{\markright{#1}}
+\renewcommand{\bibname}{Bibliografía} % redefine el título que pone thebibliography
 
 % Encabezados
 \lhead{LDP}
@@ -43,17 +44,21 @@
 \definecolor{grisin}{HTML}{6D6C91}
 \renewcommand{\lstlistingname}{Código}
 
-%------ Definimos los colores para la sintaxis del código --------%
-\definecolor{keywordcolor}{rgb}{0.5, 0.0, 0.5}  % Morado para palabras clave
-\definecolor{commentcolor}{rgb}{0.25, 0.5, 0.35} % Verde para comentarios
-\definecolor{stringcolor}{rgb}{0.88, 0.68, 0.18}  % Mostaza anaranjado para los strings
-\definecolor{backgroundcolor}{rgb}{0.95, 0.95, 0.95} % Gris claro para fondo
+% ----- Colores -----
+\definecolor{keywordcolor1}{rgb}{0.5, 0.0, 0.5}   % Morado - palabras clave principales
+\definecolor{keywordcolor2}{rgb}{0.0, 0.3, 0.7}   % Azul - tipos y construcciones
+\definecolor{keywordcolor3}{rgb}{0.7, 0.2, 0.2}   % Rojo oscuro - funciones predefinidas
+\definecolor{commentcolor}{rgb}{0.25, 0.5, 0.35}  % Verde comentarios
+\definecolor{stringcolor}{rgb}{0.88, 0.68, 0.18}  % Mostaza strings
+\definecolor{backgroundcolor}{rgb}{0.95, 0.95, 0.95} % Gris claro fondo
 
-%------ Configuración para mostrar código en Python --------%
-\lstdefinestyle{pythonstyle}{
-  language=Python,
+% ----- Estilo Haskell -----
+\lstdefinestyle{haskellstyle}{
+  language=Haskell,
   basicstyle=\ttfamily\footnotesize,
-  keywordstyle=\color{keywordcolor}\bfseries,
+  keywordstyle=[1]\color{keywordcolor1}\bfseries, % if, then, else, let, in ...
+  keywordstyle=[2]\color{keywordcolor2}\bfseries, % data, type, class ...
+  keywordstyle=[3]\color{keywordcolor3},          % where, do, deriving ...
   commentstyle=\color{commentcolor}\itshape,
   stringstyle=\color{stringcolor},
   numbers=left,
@@ -66,7 +71,10 @@
   showstringspaces=false,
   breaklines=true,
   frame=single,
-  captionpos=b
+  captionpos=b,
+  morekeywords=[1]{if,then,else,let,in,case,of},           % grupo 1
+  morekeywords=[2]{data,type,class,instance,where},        % grupo 2
+  morekeywords=[3]{do,deriving,newtype,module,import},     % grupo 3
 }
 
 \begin{document}
@@ -102,6 +110,75 @@ El objetivo del proyecto es implementar un subconjunto del lenguaje Lisp con un 
 
 \section{Delimitación del Proyecto}
 La delimitación del proyecto consiste en que MINILISP no pretende ser una implementación completa de Lisp, sino una versión simplificada con fines didácticos. Se restringe el conjunto de operaciones soportadas, se omite el manejo de macros y de entrada/salida, y se centra únicamente en el análisis sintáctico y la representación interna de programas. Con esto, se logra un balance entre la complejidad teórica y la viabilidad de implementación en el tiempo disponible.
+
+\chapter{Sintaxis Concreta/Léxica}
+
+El análisis léxico constituye la fase inicial en el proceso de interpretación de lenguajes de programación. Su objetivo es transformar una secuencia de caracteres sin estructura en una secuencia de tokens, que representan las unidades mínimas con significado léxico en nuestro lenguaje. Cada token encapsula información sobre el tipo de elemento reconocido y, cuando es relevante, su valor específico.
+
+Herramienta Utilizada: Alex
+Para la implementación del analizador léxico de nuestro miniLisp, seleccionamos Alex, el generador de analizadores léxicos estándar para Haskell. Esta elección se fundamenta en varias ventajas significativas:
++ Reducción de errores: Alex automatiza la generación de código robusto, minimizando errores comunes en implementaciones manuales.
++ Expresividad: Utiliza expresiones regulares extendidas para definir patrones léxicos de manera clara y concisa.
++ Integración con Haskell: Genera código Haskell nativo que se integra perfectamente con el resto de nuestro intérprete.
++ Eficiencia: Produce analizadores de alto rendimiento mediante algoritmos de coincidencia optimizados.
+
+Estructura del Archivo Lexer.x
+Lo primero que hacemos es importar las definiciones de tokens desde Tokens, que contiene el tipo de datos Token con todos los constructores necesarios. Después, definimos los patrones básicos que establecen los bloques fundamentales para construir patrones más complejos, promoviendo la reutilización y claridad. Estas líneas no son código Haskell, sino instrucciones para Alex. Le indican a Alex: "Cuando veas \$digit en las reglas, reemplázalo por 0-9".
+Continuamos con los delimitadores estructurales compuestos por:
++ Patrón o expresión regular (lo que buscamos): La secuencia de caracteres que el lexer debe reconocer; en este caso nos referimos a “(“, “let”, “+”, etc. Es importante mencionar que los caracteres los podemos definir a gusto personal, pero para evitar crear un lenguaje confuso usaremos para cada token los ya reconocidos; es decir, para la suma “+”, para la resta “-”, etc.
++ Bloque de acción: Es el código Haskell que se ejecuta cuando se reconoce el patrón. Su propósito es generar el token correspondiente {...}.
++ Expresión lambda: Es todo lo que está en el bloque de acción, es decir, “\_ -> TokenPA”, donde \_ representa la cadena de texto que coincidió con el patrón, -> separa el parámetro del resultado, y TokenPA es el constructor del token que devolvemos.
+
+Continuamos con las literales e identificadores: son los elementos fundamentales que representan los valores básicos y nombres en nuestro lenguaje. Son las “palabras” que contienen datos específicos en el programa. Para realizar el lexer tomamos como referencia lo visto en clase con el profesor (en su GitHub), además de usar la documentación oficial de Alex para desarrollar nuestro lexer.
+
+\begin{lstlisting}[style=haskellstyle, caption={Estructura de Tokens}]
+data Token
+  = TokenVar String
+  | TokenNum Int
+  | TokenBool Bool
+  | TokenAdd
+  | TokenSub
+  | TokenMul
+  | TokenDiv
+  | TokenAdd1
+  | TokenSub1
+  | TokenSqrt
+  | TokenExpt
+  | TokenNot
+  | TokenEq
+  | TokenLt
+  | TokenGt
+  | TokenNeq
+  | TokenLeq
+  | TokenGeq
+  | TokenFirst 
+  | TokenSecond
+  | TokenHead
+  | TokenTail
+  | TokenLet
+  | TokenLetRec
+  | TokenLetStar
+  | TokenIf0
+  | TokenIf
+  | TokenCond
+  | TokenElse
+  | TokenLambda
+  | TokenApp
+  | TokenLI
+  | TokenLD
+  | TokenComma
+  | TokenPA
+  | TokenPC
+  deriving (Show, Eq)
+\end{lstlisting}
+
+Para ello usamos la dicumetación oficial de Alex.
+The Alex Lexer Generator for Haskell
+https://www.haskell.org/alex/
+Programming in Haskell (Graham Hutton, 2nd Edition).
+Sección sobre parsers y lexers.
+
+\chapter{Sintaxis Libre de Contexto}
 
 \newpage
 
@@ -152,31 +229,36 @@ Definimos la Gramática para \large M\small INI\large L\small ISP \normalsize en
 \end{tcolorbox}
 
 Hacemos un abuso de notación para aclarar que el uso de '\textbf{[}' '\textbf{]}' no es para indicar opcionalidad de la notación de EBNF sino que son los símbolos que usamos para representar listas, también por eso están en negritas.
-\chapter{Formalización}
-\section{Sintaxis Concreta/Léxica}
-\section{Sintaxis Libre de Contexto}
-\section{Eliminación de azúcar sintáctica}
-\section{Semántica operacional}
-\subsection{Notaciones, derivaciones y reglas de inferencia correspondientes}
 
-\chapter{Justificaciones}
+\newpage
 
-\chapter{Investigación}
-\section{Contextualización conceptual (ej. syntactic sugar, SOS, EBNF),}
-\section{Referencias históricas y aportes relevantes de la disciplina.}
+\chapter{Sintaxis Abstracta}
+
+\chapter{Azúcar sintáctica}
+\section{Sintaxis Abstracta sin azúcar}
+\section{Desugar}
+
+\chapter{Semántica operacional}
+\section{Paso pequeño}
+\subsection{Evaluación perezosa}
+\subsection{Evaluación ansiosa}
+
+\chapter{Intérprete}
 
 \chapter{Resultados}
+\section{Funciones de prueba}
+\subsection{Suma primeros $n$ números naturales}
+\subsection{Factorial}
+\subsection{Fibonacci}
+\subsection{Función \texttt{map} para listas}
+\subsection{Función \texttt{filter} para listas}
 
 \chapter{Conclusiones}
 
-\chapter*{Bibliografía}          % título sin "Capítulo"
-\addcontentsline{toc}{chapter}{Bibliografía} % lo agrega al índice
-\markboth{Bibliografía}{}        % encabezado correcto
-
-% Aquí tu bibliografía
 \begin{thebibliography}{99}
   \bibitem{ref1} Autor. *Título del libro*. Editorial, Año.
   \bibitem{ref2} Autor. "Artículo". Revista, Año.
 \end{thebibliography}
+
 
 \end{document}
