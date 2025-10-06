@@ -1,9 +1,9 @@
 {
-  module Grammar where
+module Grammar where
 
-  import Lexer
-  import Token
-  import ASA
+import Lexer
+import Token
+import ASA
 }
 
 %name parse
@@ -15,79 +15,124 @@
   var             { TokenVar $$ }
   num             { TokenNum $$ }
   boolean         { TokenBool $$ }
+  '('             { TokenPA }
+  ')'             { TokenPC }
+  '['             { TokenLI }
+  ']'             { TokenLD }
+  ','             { TokenComma }
   '+'             { TokenAdd }
   '-'             { TokenSub }
   '*'             { TokenMul }
   '/'             { TokenDiv }
-  "add1"          { TokenAdd1 }
-  "sub1"          { TokenSub1 }
-  "sqrt"          { TokenSqrt }
-  "expt"          { TokenExpt }
-  "not"           { TokenNot }
+  '^'             { TokenExpt }
   '='             { TokenEq }
   '<'             { TokenLt }
   '>'             { TokenGt }
-  '!='            { TokenNeq }
-  '<='            { TokenLeq }
-  '>='            { TokenGeq }
-  -- "pair"          { TokenPair } Creo este no es necesario
-  "fst"           { TokenFst }
-  "snd"           { TokenSnd }
-  "head"          { TokenHead }
-  "tail"          { TokenTail }
+  "!="            { TokenNeq }
+  "<="            { TokenLeq }
+  ">="            { TokenGeq }
+  "++"            { TokenAdd1 }
+  "--"            { TokenSub1 }
+  "sqrt"          { TokenSqrt }
+  "not"           { TokenNot }
+  "if0"           { TokenIf0 }
+  "if"            { TokenIf }
+  "first"         { TokenFst }
+  "second"        { TokenSnd }
   "let"           { TokenLet }
   "letrec"        { TokenLetRec }
   "let*"          { TokenLetStar }
-  "if0"           { TokenIf0 }
-  "if"            { TokenIf }
+  "head"          { TokenHead }
+  "tail"          { TokenTail }
+  "lambda"        { TokenLambda }
   "cond"          { TokenCond }
   "else"          { TokenElse }
-  "lambda"        { TokenLambda }
-  "app"           { TokenApp }
-  '['             { TokenLI }
-  ']'             { TokenLD }
-  ','             { TokenComma }
-  '('             { TokenPA }
-  ')'             { TokenPC }
-  
+    
 %%
-
+  
 ASA
-  : var                                  { Var $1 }
-  | num                                  { Num $1 }
-  | boolean                              { Boolean $1 }
-  | '(' '+' ASA ASA ')'                  { Add $3 $4 }
-  | '(' '-' ASA ASA ')'                  { Sub $3 $4 }
-  | '(' '*' ASA ASA ')'                  { Mul $3 $4 }
-  | '(' '/' ASA ASA ')'                  { Div $3 $4 }
-  | '(' "add1" ASA ')'                   { Add1 $3 }
-  | '(' "sub1" ASA ')'                   { Sub1 $3 }
-  | '(' "sqrt" ASA ')'                   { Sqrt $3 }
-  | '(' "expt" ASA ')'                   { Expt $3 }
-  | '(' "not" ASA ')'                    { Not $3 }
-  | '(' '=' ASA ')'                      { Equal $3 }
-  | '(' '<' ASA ASA ')'                  { Less $3 $4 }
-  | '(' '>' ASA ASA ')'                  { Greater $3 $4 }
-  | '(' '!=' ASA ASA ')'                 { Diff $3 $4 }
-  | '(' '<=' ASA ASA ')'                 { Leq $3 $4 }
-  | '(' '>=' ASA ASA ')'                 { Geq $3 $4 }
-  | '(' ASA ',' ASA ')'                  { Pair $2 $4 }
-  | '(' "fst" ASA ')'                    { Fst $3 }
-  | '(' "snd" ASA ')'                    { Snd $3 }
-  | '(' "let" '(' Var ASA ')' ASA ')'    { Let $4 $5 $7 }
-  | '(' "letrec" '(' Var ASA ')' ASA ')' { LetRec $4 $5 $7 }
-  | '(' "let*" '(' Var ASA ')' ASA ')'   { LetStar $4 $5 $7 }
-  | '(' "if0" ASA ASA ASA ')'            { If0 $3 $4 $5 }
-  | '(' "if" ASA ASA ASA ')'             { If $3 $4 $5 }
-  | '(' "lambda" Var ASA ')'             { Lambda $3  $4 }
-  | '(' "app" ASA ASA ')'                { App $3 $4 }
-  | '[' ASA ']'                          { List $2 }
-  | '(' "head" ASA ')'                   { Head $3 }
-  | '(' "tail" ASA ')'                   { Tail $3 }
-  | '(' "cond" '[' ASA ASA ']' '[' "else" ASA ']' ')'   { LetStar $4 $5 $9 }
+  : var                                                 { Var $1 }
+  | num                                                 { Num $1 }
+  | boolean                                             { Boolean $1 }
+  
+  | '(' '+' opArgs ')'                                  { Add (reverse $3) }
+  | '(' '-' opArgs ')'                                  { Sub (reverse $3) }
+  | '(' '*' opArgs ')'                                  { Mul (reverse $3) }
+  | '(' '/' opArgs ')'                                  { Div (reverse $3) }
+  | '(' '=' opArgs ')'                                  { Equal (reverse $3) }
+  | '(' '<' opArgs ')'                                  { Less (reverse $3) }
+  | '(' '>' opArgs ')'                                  { Greater (reverse $3) }
+  | '(' "!=" opArgs ')'                                 { Diff (reverse $3) }
+  | '(' "<=" opArgs ')'                                 { Leq (reverse $3) }
+  | '(' ">=" opArgs ')'                                 { Geq (reverse $3) }
 
+  | '(' "++" ASA ')'                                    { Add1 $3 }
+  | '(' "--" ASA ')'                                    { Sub1 $3 }
+  | '(' "sqrt" ASA ')'                                  { Sqrt $3 }
+  | '(' '^' ASA ')'                                     { Expt $3 }
+  | '(' "not" ASA ')'                                   { Not $3 }
+  
+  | '(' ASA ',' ASA ')'                                 { Pair $2 $4 }
+  | '(' "first" ASA ')'                                 { Fst $3 }
+  | '(' "second" ASA ')'                                { Snd $3 }
+  
+  | '(' "let" '(' ids ')' ASA ')'                       { Let (reverse $4) $6 }
+  | '(' "letrec" '(' ids ')' ASA ')'                    { LetRec (reverse $4) $6 }
+  | '(' "let*" '(' ids ')' ASA ')'                      { LetStar (reverse $4) $6 }
+  
+  | '(' "if0" ASA ASA ASA ')'                           { If0 $3 $4 $5 }
+  | '(' "if" ASA ASA ASA ')'                            { If $3 $4 $5 }
+  
+  | '(' "lambda" vars ASA ')'                           { Lambda (reverse $3)  $4 }
+  | '(' ASA appArgs ')'                                 { App $2 (reverse $3) }
+  
+  | '(' '[' listArgs ']' ')'                            { List (reverse $3) }
+  | '(' "head" ASA ')'                                  { Head $3 }
+  | '(' "tail" ASA ')'                                  { Tail $3 }
+
+  | '(' "cond" condis '[' "else" ASA ']' ')'      { Cond (reverse $3) $6 }
+
+
+
+opArgs
+  : ASA ASA                               { [$2, $1] }
+  | opArgs ASA                            { $2 : $1 }
+
+
+ids
+  : id                                    { [$1] }
+  | ids id                                { $2 : $1 }
+
+id
+  : '(' var ASA ')'                       { ($2, $3) }
+
+  
+vars
+  : var                                   { [$1] }
+  | vars var                              { $2 : $1 }
+
+
+appArgs
+  : ASA                                   { [$1] }
+  | appArgs ASA                           { $2 : $1 }
+
+
+listArgs
+  : ASA                                   { [$1] }
+  | listArgs ',' ASA                      { $3 : $1 }
+
+
+condis
+  : condy                                 { [$1] }
+  | condis condy                          { $2 : $1 }
+
+condy
+  : '[' ASA ASA ']'                       { ($2, $3) }
+
+
+    
 -- Error al 'Parsear'
 {
 parseError :: [Token] -> a
-parseError _ = error "Sintaxis Error in Parser"
+parseError _ = error "Parser Error"
 }

@@ -21,17 +21,17 @@ data ASA
   | Leq [ASA]                   -- <=
   | Geq [ASA]                   -- >=
   | Pair ASA ASA                -- pares ordenados
-  | Fst ASA                   -- primero
-  | Snd ASA                  -- segundo
-  | Let [(Var, ASA)] ASA        -- let paralelo
-  | LetRec [(Var, ASA)] ASA     -- letrec
-  | LetStar [(Var, ASA)] ASA    -- let* secuencial
+  | Fst ASA                     -- primero
+  | Snd ASA                     -- segundo
+  | Let [(String, ASA)] ASA     -- let paralelo
+  | LetRec [(String, ASA)] ASA  -- letrec
+  | LetStar [(String, ASA)] ASA -- let* secuencial
   | If0 ASA ASA ASA             -- if0
   | If ASA ASA ASA              -- if booleano
-  | Lambda [Var] ASA            -- funcion anónima
-  | App ASA ASA                 -- aplicación
+  | Lambda [String] ASA         -- funcion anónima
+  | App ASA [ASA]               -- aplicación
   | List [ASA]                  -- listas
   | Head ASA                    -- cabeza
   | Tail ASA                    -- cola
-  | Cond [(ASA, ASA)] Maybe ASA -- cond [(cond, expr) (else, expr)]
+  | Cond [(ASA, ASA)] ASA -- cond [(cond, expr) (else, expr)]
   deriving (Show, Eq)

@@ -11,7 +11,7 @@ data AST
   | CDiv AST AST
   | CIf AST AST AST
   | CLambda CVar AST
-  | CAPP AST AST
+  | CApp AST AST
   | CPair AST AST
   | CFst AST
   | CSnd AST

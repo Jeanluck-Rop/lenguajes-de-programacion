@@ -1,6 +1,8 @@
 {
 module Lexer where
-import Tokens
+
+import Token
+import Data.Char (isSpace)
 }
 
 %wrapper "basic"
@@ -10,61 +12,68 @@ $digit   = 0-9
 $alpha   = [a-zA-Z]
 $alnum   = [a-zA-Z0-9]
 
+-- Usamos códigos hex para los espacios en blanco Unicode más comunes:
+--   \x20 = ' ' (space), \x09 = tab, \x0A = LF, \x0D = CR, \x0C = FF, \x0B = VT
+$white = [\x20\x09\x0A\x0D\x0C\x0B]
+
 tokens :-
 
--- Espacios y saltos de línea (se ignoran)
+-- Ignoramos espacios y saltos de línea
 $white+                       ;
 
--- Paréntesis y corchetes
-"("                            { \_ -> TokenPA }
-")"                            { \_ -> TokenPC }
-"["                            { \_ -> TokenLI }
-"]"                            { \_ -> TokenLD }
-","                            { \_ -> TokenComma }
 
--- Operadores aritméticos
-"+"                            { \_ -> TokenAdd }
-"-"                            { \_ -> TokenSub }
-"*"                            { \_ -> TokenMul }
-"/"                            { \_ -> TokenDiv }
-"add1"                         { \_ -> TokenAdd1 }
-"sub1"                         { \_ -> TokenSub1 }
-"sqrt"                         { \_ -> TokenSqrt }
-"expt"                         { \_ -> TokenExpt }
 
--- Comparaciones y booleanos
-"="                            { \_ -> TokenEq }
-"!="                           { \_ -> TokenNeq }
-"<="                           { \_ -> TokenLeq }
-">="                           { \_ -> TokenGeq }
-"<"                            { \_ -> TokenLt }
-">"                            { \_ -> TokenGt }
-"not"                          { \_ -> TokenNot }
-"#t"                           { \_ -> TokenBool True }
-"#f"                           { \_ -> TokenBool False }
+\(                            { \_ -> TokenPA }
+\)                            { \_ -> TokenPC }
+\[                            { \_ -> TokenLI }
+\]                            { \_ -> TokenLD }
+\,                            { \_ -> TokenComma }
+\+                            { \_ -> TokenAdd }
+\-                            { \_ -> TokenSub }
+\*                            { \_ -> TokenMul }
+\/                            { \_ -> TokenDiv }
+\^                            { \_ -> TokenExpt }
+\=                            { \_ -> TokenEq }
+\<                            { \_ -> TokenLt }
+\>                            { \_ -> TokenGt }
+"++"                          { \_ -> TokenAdd1 }
+"--"                          { \_ -> TokenSub1 }
+"sqrt"                        { \_ -> TokenSqrt }
+"!="                          { \_ -> TokenNeq }
+"<="                          { \_ -> TokenLeq }
+">="                          { \_ -> TokenGeq }
+"not"                         { \_ -> TokenNot }
+"if0"                         { \_ -> TokenIf0 }
+"if"                          { \_ -> TokenIf }
+"first"                       { \_ -> TokenFst }
+"second"                      { \_ -> TokenSnd }
+"letrec"                      { \_ -> TokenLetRec }
+"let*"                        { \_ -> TokenLetStar }
+"let"                         { \_ -> TokenLet }
+"lambda"                      { \_ -> TokenLambda }
+"head"                        { \_ -> TokenHead }
+"tail"                        { \_ -> TokenTail }
+"cond"                        { \_ -> TokenCond }
+"else"                        { \_ -> TokenElse }
+"#t"                          { \_ -> TokenBool True }
+"#f"                          { \_ -> TokenBool False }
+$digit+                       { \s -> TokenNum (read s) }
+$alpha ($alnum)*              { \s -> TokenVar s }
 
--- Palabras clave
-"let"                          { \_ -> TokenLet }
-"letrec"                       { \_ -> TokenLetRec }
-"let*"                         { \_ -> TokenLetStar }
-"if0"                          { \_ -> TokenIf0 }
-"if"                           { \_ -> TokenIf }
-"cond"                         { \_ -> TokenCond }
-"else"                         { \_ -> TokenElse }
-"lambda"                       { \_ -> TokenLambda }
 
--- Pares y listas
-"pair"                         { \_ -> TokenPair }
-"fst"                          { \_ -> TokenFst }
-"snd"                          { \_ -> TokenSnd }
-"head"                         { \_ -> TokenHead }
-"tail"                         { \_ -> TokenTail }
+-- Catch-all para diagnosticar caracteres inesperados
+.                     { \s -> error ("Lexical error: caracter no reconocido = "
+                                    ++ show s
+                                    ++ " | codepoints = "
+                                    ++ show (map fromEnum s)) }
 
--- Literales
-$digit+                        { \s -> TokenNum (read s) }
-$alpha $alnum*                 { \s -> TokenVar s }
 
 {
+-- Normaliza cualquier espacios en blanco Unicode a ' ' para que $white+ lo consuma
+normalizeSpaces :: String -> String
+normalizeSpaces = map (\c -> if isSpace c then '\x20' else c)
+
+
 lexer :: String -> [Token]
-lexer = alexScanTokens
+lexer = alexScanTokens . normalizeSpaces
 }
