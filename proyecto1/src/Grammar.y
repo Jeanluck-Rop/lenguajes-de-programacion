@@ -24,7 +24,6 @@ import ASA
   '-'             { TokenSub }
   '*'             { TokenMul }
   '/'             { TokenDiv }
-  '^'             { TokenExpt }
   '='             { TokenEq }
   '<'             { TokenLt }
   '>'             { TokenGt }
@@ -34,6 +33,7 @@ import ASA
   "++"            { TokenAdd1 }
   "--"            { TokenSub1 }
   "sqrt"          { TokenSqrt }
+  "**"            { TokenExpt }
   "not"           { TokenNot }
   "if0"           { TokenIf0 }
   "if"            { TokenIf }
@@ -69,7 +69,7 @@ ASA
   | '(' "++" ASA ')'                                    { Add1 $3 }
   | '(' "--" ASA ')'                                    { Sub1 $3 }
   | '(' "sqrt" ASA ')'                                  { Sqrt $3 }
-  | '(' '^' ASA ')'                                     { Expt $3 }
+  | '(' "**" ASA ')'                                    { Expt $3 }
   | '(' "not" ASA ')'                                   { Not $3 }
   
   | '(' ASA ',' ASA ')'                                 { Pair $2 $4 }

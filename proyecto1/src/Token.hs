@@ -12,7 +12,7 @@ data Token
   | TokenAdd1       -- ++
   | TokenSub1       -- --
   | TokenSqrt       -- sqrt
-  | TokenExpt       -- ^
+  | TokenExpt       -- **
   | TokenNot        -- not
   | TokenEq         -- =
   | TokenLt         -- <

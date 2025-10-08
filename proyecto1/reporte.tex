@@ -1,27 +1,38 @@
 \documentclass[12pt]{book}
+
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[spanish]{babel}
-\usepackage{fancyhdr}
-\usepackage{listings, float, xcolor}
-\usepackage{algorithm,algpseudocode, chngcntr}
+\usepackage[normalem]{ulem}
+\usepackage[hidelinks]{hyperref}
+
+\usepackage{listings, tcolorbox, xcolor, float}
+\usepackage{algorithm, algpseudocode, chngcntr}
 \usepackage{graphicx, enumitem, geometry}
 \usepackage{amsmath, amssymb, amsthm}
-\usepackage{tcolorbox}
+\usepackage{fancyhdr}
 
+% ----- Custom Page -----
 \geometry{margin=2.5cm}
-
 \pagestyle{fancy}
 \fancyhf{}
+%------------------------
 
-% Quitar mayúsculas automáticas
+% ----- Custom Commands -----
+\newcommand{\nt}[1]{\texttt{<#1>}}
+\renewcommand{\lstlistingname}{Código}
+\renewcommand{\bibname}{Bibliografía}
+\newcommand{\minilisp}{  {M\footnotesize INI\normalsize L\footnotesize ISP \normalsize}  }
+%----------------------------
+
+% ----- Book Document -----
+% ----- Quitar mayúsculas automáticas -----
 \renewcommand{\chaptermark}[1]{\markboth{#1}{}}
 \renewcommand{\sectionmark}[1]{\markright{#1}}
-\renewcommand{\bibname}{Bibliografía} % redefine el título que pone thebibliography
 
-% Encabezados
-\lhead{LDP}
-\rhead{\leftmark{}. \rightmark{}}
+% ----- Encabezados -----
+\lhead{\minilisp}
+\rhead{\leftmark{}.}
 \cfoot{\thepage} % número centrado abajo
 \renewcommand{\headrulewidth}{0.4pt}
 
@@ -38,27 +49,27 @@
   \@starttoc{toc}% genera el contenido real
 }
 \makeatother
+%--------------------------
 
-\newcommand{\nt}[1]{\texttt{<#1>}}
+% ----- Custom Colors -----
 \definecolor{azulin}{HTML}{130F87}
 \definecolor{grisin}{HTML}{6D6C91}
-\renewcommand{\lstlistingname}{Código}
+\definecolor{links}{HTML}{0D1894}
+\definecolor{mainkeywordcolor}{HTML}{400440}
+\definecolor{secondkeywordcolor}{HTML}{0D1894}
+\definecolor{thirdkeywordcolor}{HTML}{0D1894}
+\definecolor{commentcolor}{HTML}{087008}
+\definecolor{stringcolor}{HTML}{AD8318}
+\definecolor{backgroundcolor}{rgb}{0.95, 0.95, 0.95}
+%--------------------------
 
-% ----- Colores -----
-\definecolor{keywordcolor1}{rgb}{0.5, 0.0, 0.5}   % Morado - palabras clave principales
-\definecolor{keywordcolor2}{rgb}{0.0, 0.3, 0.7}   % Azul - tipos y construcciones
-\definecolor{keywordcolor3}{rgb}{0.7, 0.2, 0.2}   % Rojo oscuro - funciones predefinidas
-\definecolor{commentcolor}{rgb}{0.25, 0.5, 0.35}  % Verde comentarios
-\definecolor{stringcolor}{rgb}{0.88, 0.68, 0.18}  % Mostaza strings
-\definecolor{backgroundcolor}{rgb}{0.95, 0.95, 0.95} % Gris claro fondo
-
-% ----- Estilo Haskell -----
+% ----- Haskell Code Style -----
 \lstdefinestyle{haskellstyle}{
   language=Haskell,
   basicstyle=\ttfamily\footnotesize,
-  keywordstyle=[1]\color{keywordcolor1}\bfseries, % if, then, else, let, in ...
-  keywordstyle=[2]\color{keywordcolor2}\bfseries, % data, type, class ...
-  keywordstyle=[3]\color{keywordcolor3},          % where, do, deriving ...
+  keywordstyle=[1]\color{mainkeywordcolor}\bfseries, % if, then, else, let, in ...
+  keywordstyle=[2]\color{secondkeywordcolor}\bfseries, % data, type, class ...
+  keywordstyle=[3]\color{thirdkeywordcolor},          % where, do, deriving ...
   commentstyle=\color{commentcolor}\itshape,
   stringstyle=\color{stringcolor},
   numbers=left,
@@ -72,70 +83,128 @@
   breaklines=true,
   frame=single,
   captionpos=b,
-  morekeywords=[1]{if,then,else,let,in,case,of},           % grupo 1
-  morekeywords=[2]{data,type,class,instance,where},        % grupo 2
-  morekeywords=[3]{do,deriving,newtype,module,import},     % grupo 3
+  morekeywords=[1]{if,then,else,let,in,case,of},
+  morekeywords=[2]{data,type,class,instance,where},
+  morekeywords=[3]{do,deriving,newtype,module,import},
+  literate=
+  {Maybe}{{{\textcolor{azulin}{Maybe}}}}5
+  {Just}{{{\textcolor{azulin}{Just}}}}4
+  {Nothing}{{{\textcolor{azulin}{Nothing}}}}7
+  {True}{{{\textcolor{azulin}{True}}}}4
+  {False}{{{\textcolor{azulin}{False}}}}5
+  {IO}{{{\textcolor{azulin}{IO}}}}2
+  {Show}{{{\textcolor{azulin}{Show}}}}4
+  {Eq}{{{\textcolor{azulin}{Eq}}}}2
 }
+%-------------------------------
 
+%-------------------------------
 \begin{document}
 
-\input{portada} % Importa el archivo portada.tex
+% ----- Importamos la portada -----
+\input{portada}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% ----- Ajustes para el pdf -----
 \clearpage
-\pagenumbering{arabic} % reinicia numeración con números arábigos
-\setcounter{page}{1}   % empieza en la página 1
+\pagenumbering{arabic}
+\setcounter{page}{1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Encabezado especial para TOC
-\fancypagestyle{tocpage}{%
-  \fancyhf{}
-  \lhead{LDP}
-  \rhead{Proyecto1. Reporte}
-  \cfoot{\thepage}
-  \renewcommand{\headrulewidth}{0.4pt}
-}
-\thispagestyle{tocpage}
-
+% ----- Iniciamos el indice -----
 \tableofcontents
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Introducción}
+Como hemos visto en el curso Leguajes de Programación, al menos hasta la fecha de entrega del presente proyecto,
+en el desarrollo de un lenguaje de programación resulta fundamental comprender cómo se definen formalmente sus
+componentes y cómo estos se traducen a estructuras que una computadora puede interpretar y ejecutar.
 
-Como hemos visto en el curso Leguajes de Programación, al menos hasta la fecha de entrega del presente proyecto, en el desarrollo de un lenguaje de programación resulta fundamental comprender cómo se definen formalmente sus componentes y cómo estos se traducen a estructuras que una computadora puede interpretar y ejecutar.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Motivación}
-En el desarrollo de lenguajes de programación, Una de las motivaciones principales de este proyecto es acercarse al diseño de un lenguaje minimalista —en este caso, MINILISP— que permita practicar la construcción de gramáticas formales, analizadores léxicos y sintácticos, así como el modelado de árboles de sintaxis abstracta en un entorno académico.
+En el desarrollo de lenguajes de programación, Una de las motivaciones principales de este proyecto es acercarse
+al diseño de un lenguaje minimalista —en este caso, \minilisp— que permita practicar la construcción de
+gramáticas formales, analizadores léxicos y sintácticos, así como el modelado de árboles de sintaxis abstracta
+en un entorno académico.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Objetivos}
+El objetivo del proyecto es implementar un subconjunto del lenguaje Lisp con un conjunto reducido pero
+representativo de operaciones: expresiones aritméticas y booleanas, estructuras de control (if, cond),
+mecanismos de definición local (let, letrec, let*), funciones anónimas (lambda), listas y pares.
+Para ello, se diseña una gramática en notación BNF/EBNF, se define un conjunto de tokens para el análisis léxico
+y se construyen las estructuras de datos necesarias en Haskell para representar el árbol de sintaxis abstracta
+(ASA). De esta manera, se busca no solo capturar la semántica básica del lenguaje, sino también poner en
+práctica técnicas de diseño de compiladores a pequeña escala.
 
-El objetivo del proyecto es implementar un subconjunto del lenguaje Lisp con un conjunto reducido pero representativo de operaciones: expresiones aritméticas y booleanas, estructuras de control (if, cond), mecanismos de definición local (let, letrec, let*), funciones anónimas (lambda), listas y pares. Para ello, se diseña una gramática en notación BNF/EBNF, se define un conjunto de tokens para el análisis léxico y se construyen las estructuras de datos necesarias en Haskell para representar el árbol de sintaxis abstracta (ASA). De esta manera, se busca no solo capturar la semántica básica del lenguaje, sino también poner en práctica técnicas de diseño de compiladores a pequeña escala.
+En conclusión, con la \textbf{\textit{sintaxis concreta}} de nuestro lenguaje\minilisp definimos las reglas exactas de escritura con las que creamos un lenguaje de programación. Lo que nos da una visión como programadores de como se crea esta herramienta que mas usamos, los lenguajes, y más adelante ver como el intérprete maneja lo que nosotros entedemos a como, de manera al menos sencilla por ser\minilisp, lo convierte en un resultado.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Delimitación del Proyecto}
-La delimitación del proyecto consiste en que MINILISP no pretende ser una implementación completa de Lisp, sino una versión simplificada con fines didácticos. Se restringe el conjunto de operaciones soportadas, se omite el manejo de macros y de entrada/salida, y se centra únicamente en el análisis sintáctico y la representación interna de programas. Con esto, se logra un balance entre la complejidad teórica y la viabilidad de implementación en el tiempo disponible.
+La delimitación del proyecto consiste en que\minilisp no pretende ser una implementación completa de Lisp, sino
+una versión simplificada con fines didácticos. Se restringe el conjunto de operaciones soportadas, se omite el
+manejo de macros y de entrada/salida, y se centra únicamente en el análisis sintáctico y la representación
+interna de programas. Con esto, se logra un balance entre la complejidad teórica y la viabilidad de
+implementación en el tiempo disponible.
 
-\chapter{Sintaxis Concreta/Léxica}
 
-El análisis léxico constituye la fase inicial en el proceso de interpretación de lenguajes de programación. Su objetivo es transformar una secuencia de caracteres sin estructura en una secuencia de tokens, que representan las unidades mínimas con significado léxico en nuestro lenguaje. Cada token encapsula información sobre el tipo de elemento reconocido y, cuando es relevante, su valor específico.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newcap
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Herramienta Utilizada: Alex
-Para la implementación del analizador léxico de nuestro miniLisp, seleccionamos Alex, el generador de analizadores léxicos estándar para Haskell. Esta elección se fundamenta en varias ventajas significativas:
-+ Reducción de errores: Alex automatiza la generación de código robusto, minimizando errores comunes en implementaciones manuales.
-+ Expresividad: Utiliza expresiones regulares extendidas para definir patrones léxicos de manera clara y concisa.
-+ Integración con Haskell: Genera código Haskell nativo que se integra perfectamente con el resto de nuestro intérprete.
-+ Eficiencia: Produce analizadores de alto rendimiento mediante algoritmos de coincidencia optimizados.
 
-Estructura del Archivo Lexer.x
-Lo primero que hacemos es importar las definiciones de tokens desde Tokens, que contiene el tipo de datos Token con todos los constructores necesarios. Después, definimos los patrones básicos que establecen los bloques fundamentales para construir patrones más complejos, promoviendo la reutilización y claridad. Estas líneas no son código Haskell, sino instrucciones para Alex. Le indican a Alex: "Cuando veas \$digit en las reglas, reemplázalo por 0-9".
-Continuamos con los delimitadores estructurales compuestos por:
-+ Patrón o expresión regular (lo que buscamos): La secuencia de caracteres que el lexer debe reconocer; en este caso nos referimos a “(“, “let”, “+”, etc. Es importante mencionar que los caracteres los podemos definir a gusto personal, pero para evitar crear un lenguaje confuso usaremos para cada token los ya reconocidos; es decir, para la suma “+”, para la resta “-”, etc.
-+ Bloque de acción: Es el código Haskell que se ejecuta cuando se reconoce el patrón. Su propósito es generar el token correspondiente {...}.
-+ Expresión lambda: Es todo lo que está en el bloque de acción, es decir, “\_ -> TokenPA”, donde \_ representa la cadena de texto que coincidió con el patrón, -> separa el parámetro del resultado, y TokenPA es el constructor del token que devolvemos.
+\chapter{Sintaxis Concreta}
 
-Continuamos con las literales e identificadores: son los elementos fundamentales que representan los valores básicos y nombres en nuestro lenguaje. Son las “palabras” que contienen datos específicos en el programa. Para realizar el lexer tomamos como referencia lo visto en clase con el profesor (en su GitHub), además de usar la documentación oficial de Alex para desarrollar nuestro lexer.
+Antes de entrar de fondo en programar nuestro\minilisp en \texttt{Haskell}, es necesario definir la \textbf{\textit{sintaxis concreta}} que utilizaremos para el lenguaje.
+
+Citando al profesor, en su archivo \texttt{PDF} compartido \textbf{\textit{Especificación Formal de los Lenguajes de Programación. Sintaxis Concreta}}.
+
+\begin{quote}
+  \textit{En el contexto de la teoría de lenguajes de programación y lenguajes formales, la
+    \textbf{sintaxis concreta} se refiere a la estructura específica de un lenguaje de programación que define
+    exactamente cómo se deben escribir los programas. Matemáticamente, esto se describe mediante una gramática
+    formal que especifica las reglas de formación para las secuencias válidas de símbolos en el lenguaje.}
+\end{quote}
+
+Esta especificación formal se divide en \textbf{\textit{sintaxis léxica}} y \textbf{\textit{sintaxis libre de contexto}}, con los cuales podemos construir programas válidos y sin ambigüedades, asegurando que nuestro lenguaje pueda transformarse sin problemas en su correspondiente representación abstracta. En términos simples, la sintaxis describe \textit{cómo se ve el programa}, es la forma exacta en la que el usuario debe escribir las expresiones, instrucciones y estructuras del lenguaje.\\
+
+Podemos decir que la sintaxis, constituye la \textbf{puerta de entrada entre el usuario y el compilador o intérprete}, definiendo los símbolos, operadores, delimitadores y palabras reservadas que el lenguaje reconoce. Mientras que la \textit{sintaxis abstracta} (\textbf{ASA}, Árbol de Sintaxis Abstracta) representa la estructura lógica del programa, la sintaxis concreta establece las \textbf{reglas formales de escritura} que garantizan que un programa pueda ser reconocido y analizado correctamente. Su correcta definición es fundamental para el funcionamiento del analizador léxico (\textit{Lexer}) y del analizador sintáctico (\textit{Parser}), ya que determina las entradas válidas que ambos deben procesar.
+
+\bigskip
+
+Para nuestro lenguaje\minilisp, hemos definido las expresiones:
+
+\begin{itemize}
+  \item \textbf{Variables:} cualquier secuencia de caracteres de la forma $[a-z + A-Z][a-zA-Z0-9]^*$.
+  \item \textbf{Números enteros:} $x \in \mathbb{Z}$.
+  \item \textbf{Booleanos:} \texttt{\#t} (verdadero) y \texttt{\#f} (falso), junto con la negación \texttt{(not)}.
+  \item \textbf{Operadores aritméticos:} \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{{+}{+}}, \texttt{{-}{-}}, raíz cuadrada (\texttt{sqrt}) y potencia (\texttt{**}).
+  \item \textbf{Predicados y comparaciones:} igualdad y desigualdad (\texttt{=}, \texttt{!=}), así como comparaciones numéricas (\texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=}).
+  \item \textbf{Asignaciones y funciones:} construcciones \texttt{let}, \texttt{let*}, \texttt{letrec}, funciones anónimas con \texttt{lambda}, y aplicación de funciones.
+  \item \textbf{Pares ordenados y proyecciones:} \texttt{(e1, e2)}, \texttt{first} y \texttt{second}.
+  \item \textbf{Condicionales:} \texttt{if}, \texttt{if0} y \texttt{cond}.
+  \item \textbf{Listas:} delimitadas por corchetes \texttt{[} y \texttt{]}, con elementos separados por comas \texttt{,}, junto con operaciones básicas \texttt{head} y \texttt{tail}.
+\end{itemize}
+
+Cabe destacar que, algunas de las operaciones dadas, tendrán la característica de ser variádicas. Entraremos en este tema más adelante.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Sintaxis Léxica}
+El análisis léxico constituye la fase inicial en el proceso de interpretación de lenguajes de programación. Su objetivo es transformar una secuencia de caracteres sin estructura en una secuencia de \textit{tokens}, que representan las unidades mínimas con significado léxico en nuestro lenguaje. Cada token encapsula información sobre el tipo de elemento reconocido y, cuando es relevante, su valor específico.
+
+Para ayudarnos con el análisis léxico y transformar esa cadena ingresada por el usuario, utilizamos la herramienta Alex.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Tokens}
 
 \begin{lstlisting}[style=haskellstyle, caption={Estructura de Tokens}]
 data Token
-  = TokenVar String
-  | TokenNum Int
-  | TokenBool Bool
+  = TokenVar String | TokenNum Int | TokenBool Bool
   | TokenAdd
   | TokenSub
   | TokenMul
@@ -151,19 +220,18 @@ data Token
   | TokenNeq
   | TokenLeq
   | TokenGeq
-  | TokenFirst 
+  | TokenIf0
+  | TokenIf
+  | TokenCond
+  | TokenElse
+  | TokenFirst
   | TokenSecond
   | TokenHead
   | TokenTail
   | TokenLet
   | TokenLetRec
   | TokenLetStar
-  | TokenIf0
-  | TokenIf
-  | TokenCond
-  | TokenElse
   | TokenLambda
-  | TokenApp
   | TokenLI
   | TokenLD
   | TokenComma
@@ -172,18 +240,36 @@ data Token
   deriving (Show, Eq)
 \end{lstlisting}
 
-Para ello usamos la dicumetación oficial de Alex.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Alex como Analizador Léxico}
+
+Alex es el generador de analizadores léxicos estándar para Haskell. Esta elección se fundamenta en varias ventajas significativas:
++ Reducción de errores: Alex automatiza la generación de código robusto, minimizando errores comunes en implementaciones manuales.
++ Expresividad: Utiliza expresiones regulares extendidas para definir patrones léxicos de manera clara y concisa.
++ Integración con Haskell: Genera código Haskell nativo que se integra perfectamente con el resto de nuestro intérprete.
++ Eficiencia: Produce analizadores de alto rendimiento mediante algoritmos de coincidencia optimizados.
+
+Estructura del Archivo Lexer.x
+Lo primero que hacemos es importar las definiciones de tokens desde Tokens, que contiene el tipo de datos Token con todos los constructores necesarios. Después, definimos los patrones básicos que establecen los bloques fundamentales para construir patrones más complejos, promoviendo la reutilización y claridad. Estas líneas no son código Haskell, sino instrucciones para Alex. Le indican a Alex: "Cuando veas \$digit en las reglas, reemplázalo por 0-9".
+Continuamos con los delimitadores estructurales compuestos por:
++ Patrón o expresión regular (lo que buscamos): La secuencia de caracteres que el lexer debe reconocer; en este caso nos referimos a “(“, “let”, “+”, etc. Es importante mencionar que los caracteres los podemos definir a gusto personal, pero para evitar crear un lenguaje confuso usaremos para cada token los ya reconocidos; es decir, para la suma “+”, para la resta “-”, etc.
++ Bloque de acción: Es el código Haskell que se ejecuta cuando se reconoce el patrón. Su propósito es generar el token correspondiente {...}.
++ Expresión lambda: Es todo lo que está en el bloque de acción, es decir, “\_ -> TokenPA”, donde \_ representa la cadena de texto que coincidió con el patrón, -> separa el parámetro del resultado, y TokenPA es el constructor del token que devolvemos.
+
+Continuamos con las literales e identificadores: son los elementos fundamentales que representan los valores básicos y nombres en nuestro lenguaje. Son las “palabras” que contienen datos específicos en el programa. Para realizar el lexer tomamos como referencia lo visto en clase con el profesor (en su GitHub), además de usar la documentación oficial de Alex para desarrollar nuestro lexer.
+
+Para ello usamos la dicumetación oficial de Alex \cite{ref1}.
 The Alex Lexer Generator for Haskell
 https://www.haskell.org/alex/
 Programming in Haskell (Graham Hutton, 2nd Edition).
 Sección sobre parsers y lexers.
 
-\chapter{Sintaxis Libre de Contexto}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\newpage
+\section{Sintaxis Libre de Contexto}
 
-\noindent
-Definimos la Gramática para \large M\small INI\large L\small ISP \normalsize en \textbf{EBNF}:
+Definimos la Gramática para\minilisp en \textbf{EBNF}:
 \begin{tcolorbox}[colback=azulin!5!white, colframe=azulin!80, title=Gramática MINILISP]
 \renewcommand{\arraystretch}{1.05}
 \[
@@ -195,10 +281,10 @@ Definimos la Gramática para \large M\small INI\large L\small ISP \normalsize en
           &\mid& \texttt{(- \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
           &\mid& \texttt{(* \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
           &\mid& \texttt{(/ \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
-          &\mid& \texttt{(add1 \nt{Expr})} \\
-          &\mid& \texttt{(sub1 \nt{Expr})} \\
+          &\mid& \texttt{({+}{+} \nt{Expr})} \\
+          &\mid& \texttt{({-}{-} \nt{Expr})} \\
           &\mid& \texttt{(sqrt \nt{Expr})} \\
-          &\mid& \texttt{(expt \nt{Expr})} \\
+          &\mid& \texttt{({*}{*} \nt{Expr})} \\
           &\mid& \texttt{(not \nt{Expr})} \\
           &\mid& \texttt{(= \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
           &\mid& \texttt{(<\: \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
@@ -216,7 +302,7 @@ Definimos la Gramática para \large M\small INI\large L\small ISP \normalsize en
           &\mid& \texttt{(if \nt{Expr} \nt{Expr} \nt{Expr})} \\ 
           &\mid& \texttt{(lambda (\nt{Var} \{\nt{Var}\}) \nt{Expr})} \\
           &\mid& \texttt{(\nt{Expr} \nt{Expr})} \\
-          &\mid& \texttt{(\textbf{[}\nt{Expr} \{, \nt{Expr}\}\textbf{]})} \\
+          &\mid& \texttt{([\nt{Expr} \{, \nt{Expr}\}])} \\
           &\mid& \texttt{(head \nt{Expr})} \\
           &\mid& \texttt{(tail \nt{Expr})} \\
           &\mid& \texttt{(cond [\nt{Expr} \nt{Expr}] \{[\nt{Expr} \nt{Expr}]\} [else \nt{Expr}])} \\
@@ -228,37 +314,120 @@ Definimos la Gramática para \large M\small INI\large L\small ISP \normalsize en
 \]
 \end{tcolorbox}
 
-Hacemos un abuso de notación para aclarar que el uso de '\textbf{[}' '\textbf{]}' no es para indicar opcionalidad de la notación de EBNF sino que son los símbolos que usamos para representar listas, también por eso están en negritas.
+\bigskip
 
-\newpage
+Hacemos un abuso de notación para aclarar que el uso de \texttt{[ } y \texttt{ ]} no es para indicar opcionalidad de la notación de EBNF sino que son los símbolos que usamos para representar listas, en general, en nuestra gramática no tenemos expreciones opcionales.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newcap
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \chapter{Sintaxis Abstracta}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Parser con Happy}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newcap
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 \chapter{Azúcar sintáctica}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \section{Sintaxis Abstracta sin azúcar}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \section{Desugar}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newcap
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \chapter{Semántica operacional}
 \section{Paso pequeño}
 \subsection{Evaluación perezosa}
 \subsection{Evaluación ansiosa}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newcap
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 \chapter{Intérprete}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Paso pequeño}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Evaluación}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newcap
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 \chapter{Resultados}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Menú interactivo}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \section{Funciones de prueba}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \subsection{Suma primeros $n$ números naturales}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \subsection{Factorial}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \subsection{Fibonacci}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \subsection{Función \texttt{map} para listas}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \subsection{Función \texttt{filter} para listas}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newcap
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \chapter{Conclusiones}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\biblio
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{chapter}{Bibliografía}
 \begin{thebibliography}{99}
-  \bibitem{ref1} Autor. *Título del libro*. Editorial, Año.
+  \bibitem{ref1} Documentación Alex(Haskell). Disponible en: \textcolor{links}{\uline{\url{https://www.haskell.org/alex/}}}
   \bibitem{ref2} Autor. "Artículo". Revista, Año.
 \end{thebibliography}
 
 
 \end{document}
+%-------------------------------
