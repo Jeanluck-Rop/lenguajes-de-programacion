@@ -22,7 +22,9 @@
 \newcommand{\nt}[1]{\texttt{<#1>}}
 \renewcommand{\lstlistingname}{Código}
 \renewcommand{\bibname}{Bibliografía}
-\newcommand{\minilisp}{  {M\footnotesize INI\normalsize L\footnotesize ISP \normalsize}  }
+\newcommand{\minilisp}{
+  {M\footnotesize INI\normalsize L\footnotesize ISP \normalsize}
+}
 %----------------------------
 
 % ----- Book Document -----
@@ -55,11 +57,16 @@
 \definecolor{azulin}{HTML}{130F87}
 \definecolor{grisin}{HTML}{6D6C91}
 \definecolor{links}{HTML}{0D1894}
-\definecolor{mainkeywordcolor}{HTML}{400440}
-\definecolor{secondkeywordcolor}{HTML}{0D1894}
-\definecolor{thirdkeywordcolor}{HTML}{0D1894}
+\definecolor{mainkeywordcolor}{HTML}{610E61}
 \definecolor{commentcolor}{HTML}{087008}
 \definecolor{stringcolor}{HTML}{AD8318}
+\definecolor{ops}{HTML}{3374A1}
+\definecolor{tok}{HTML}{B39309}
+\definecolor{tkns}{HTML}{560769}
+
+\definecolor{secondkeywordcolor}{HTML}{0D1894}
+\definecolor{thirdkeywordcolor}{HTML}{0D1894}
+
 \definecolor{backgroundcolor}{rgb}{0.95, 0.95, 0.95}
 %--------------------------
 
@@ -67,9 +74,7 @@
 \lstdefinestyle{haskellstyle}{
   language=Haskell,
   basicstyle=\ttfamily\footnotesize,
-  keywordstyle=[1]\color{mainkeywordcolor}\bfseries, % if, then, else, let, in ...
-  keywordstyle=[2]\color{secondkeywordcolor}\bfseries, % data, type, class ...
-  keywordstyle=[3]\color{thirdkeywordcolor},          % where, do, deriving ...
+  keywordstyle=[1]\color{mainkeywordcolor}\bfseries,
   commentstyle=\color{commentcolor}\itshape,
   stringstyle=\color{stringcolor},
   numbers=left,
@@ -83,9 +88,8 @@
   breaklines=true,
   frame=single,
   captionpos=b,
-  morekeywords=[1]{if,then,else,let,in,case,of},
-  morekeywords=[2]{data,type,class,instance,where},
-  morekeywords=[3]{do,deriving,newtype,module,import},
+  morekeywords=[1]{if,then,else,let,in,case,of,Show,Eq,
+    data,type,class,instance,where, do,deriving,newtype,module,import},
   literate=
   {Maybe}{{{\textcolor{azulin}{Maybe}}}}5
   {Just}{{{\textcolor{azulin}{Just}}}}4
@@ -93,8 +97,13 @@
   {True}{{{\textcolor{azulin}{True}}}}4
   {False}{{{\textcolor{azulin}{False}}}}5
   {IO}{{{\textcolor{azulin}{IO}}}}2
-  {Show}{{{\textcolor{azulin}{Show}}}}4
-  {Eq}{{{\textcolor{azulin}{Eq}}}}2
+  {=}{{{\textcolor{ops}{=}}}}1
+  {|}{{{\textcolor{ops}{|}}}}1
+  {::}{{{\textcolor{ops}{::}}}}2,
+  classoffset=1,
+  morekeywords={Token},
+  keywordstyle=\color{tok},
+  classoffset=0,
 }
 %-------------------------------
 
@@ -113,52 +122,47 @@
 
 % ----- Iniciamos el indice -----
 \tableofcontents
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\cap1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Introducción}
-Como hemos visto en el curso Leguajes de Programación, al menos hasta la fecha de entrega del presente proyecto,
-en el desarrollo de un lenguaje de programación resulta fundamental comprender cómo se definen formalmente sus
-componentes y cómo estos se traducen a estructuras que una computadora puede interpretar y ejecutar.
+Lorem ipsum dolor sit amet consectetur adipiscing elit, varius dictum egestas quisque hac rutrum. Posuere sociosqu leo vitae dui metus proin massa feugiat laoreet non sodales potenti, fusce cursus pharetra risus elementum hendrerit litora pretium cubilia dapibus vulputate luctus, dictumst egestas enim nibh tellus id in mattis orci ut quis. Non phasellus molestie luctus curae turpis viverra condimentum pretium, proin dis auctor odio nunc facilisis eros morbi mauris, nam penatibus senectus vel placerat quisque convallis.
+
+Convallis feugiat ullamcorper massa nisi dictum justo vitae, suscipit luctus proin libero tortor mattis, felis dictumst lobortis ac est leo. Sagittis imperdiet urna vehicula pretium platea porta fames nam mollis massa facilisis laoreet accumsan, aptent molestie ligula dictumst neque ad ullamcorper dictum class interdum quis dignissim. Laoreet fringilla nam orci ut aptent luctus, venenatis quis a dictum bibendum scelerisque nec, aliquet habitant felis sagittis suscipit.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Motivación}
-En el desarrollo de lenguajes de programación, Una de las motivaciones principales de este proyecto es acercarse
-al diseño de un lenguaje minimalista —en este caso, \minilisp— que permita practicar la construcción de
-gramáticas formales, analizadores léxicos y sintácticos, así como el modelado de árboles de sintaxis abstracta
-en un entorno académico.
+Lorem ipsum dolor sit amet consectetur adipiscing elit, varius dictum egestas quisque hac rutrum. Posuere sociosqu leo vitae dui metus proin massa feugiat laoreet non sodales potenti, fusce cursus pharetra risus elementum hendrerit litora pretium cubilia dapibus vulputate luctus, dictumst egestas enim nibh tellus id in mattis orci ut quis. Non phasellus molestie luctus curae turpis viverra condimentum pretium, proin dis auctor odio nunc facilisis eros morbi mauris, nam penatibus senectus vel placerat quisque convallis.
+
+Convallis feugiat ullamcorper massa nisi dictum justo vitae, suscipit luctus proin libero tortor mattis, felis dictumst lobortis ac est leo. Sagittis imperdiet urna vehicula pretium platea porta fames nam mollis massa facilisis laoreet accumsan, aptent molestie ligula dictumst neque ad ullamcorper dictum class interdum quis dignissim. Laoreet fringilla nam orci ut aptent luctus, venenatis quis a dictum bibendum scelerisque nec, aliquet habitant felis sagittis suscipit.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Objetivos}
-El objetivo del proyecto es implementar un subconjunto del lenguaje Lisp con un conjunto reducido pero
-representativo de operaciones: expresiones aritméticas y booleanas, estructuras de control (if, cond),
-mecanismos de definición local (let, letrec, let*), funciones anónimas (lambda), listas y pares.
-Para ello, se diseña una gramática en notación BNF/EBNF, se define un conjunto de tokens para el análisis léxico
-y se construyen las estructuras de datos necesarias en Haskell para representar el árbol de sintaxis abstracta
-(ASA). De esta manera, se busca no solo capturar la semántica básica del lenguaje, sino también poner en
-práctica técnicas de diseño de compiladores a pequeña escala.
+Lorem ipsum dolor sit amet consectetur adipiscing elit, varius dictum egestas quisque hac rutrum. Posuere sociosqu leo vitae dui metus proin massa feugiat laoreet non sodales potenti, fusce cursus pharetra risus elementum hendrerit litora pretium cubilia dapibus vulputate luctus, dictumst egestas enim nibh tellus id in mattis orci ut quis. Non phasellus molestie luctus curae turpis viverra condimentum pretium, proin dis auctor odio nunc facilisis eros morbi mauris, nam penatibus senectus vel placerat quisque convallis.
 
-En conclusión, con la \textbf{\textit{sintaxis concreta}} de nuestro lenguaje\minilisp definimos las reglas exactas de escritura con las que creamos un lenguaje de programación. Lo que nos da una visión como programadores de como se crea esta herramienta que mas usamos, los lenguajes, y más adelante ver como el intérprete maneja lo que nosotros entedemos a como, de manera al menos sencilla por ser\minilisp, lo convierte en un resultado.
+Convallis feugiat ullamcorper massa nisi dictum justo vitae, suscipit luctus proin libero tortor mattis, felis dictumst lobortis ac est leo. Sagittis imperdiet urna vehicula pretium platea porta fames nam mollis massa facilisis laoreet accumsan, aptent molestie ligula dictumst neque ad ullamcorper dictum class interdum quis dignissim. Laoreet fringilla nam orci ut aptent luctus, venenatis quis a dictum bibendum scelerisque nec, aliquet habitant felis sagittis suscipit.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Delimitación del Proyecto}
-La delimitación del proyecto consiste en que\minilisp no pretende ser una implementación completa de Lisp, sino
-una versión simplificada con fines didácticos. Se restringe el conjunto de operaciones soportadas, se omite el
-manejo de macros y de entrada/salida, y se centra únicamente en el análisis sintáctico y la representación
-interna de programas. Con esto, se logra un balance entre la complejidad teórica y la viabilidad de
-implementación en el tiempo disponible.
+Lorem ipsum dolor sit amet consectetur adipiscing elit, varius dictum egestas quisque hac rutrum. Posuere sociosqu leo vitae dui metus proin massa feugiat laoreet non sodales potenti, fusce cursus pharetra risus elementum hendrerit litora pretium cubilia dapibus vulputate luctus, dictumst egestas enim nibh tellus id in mattis orci ut quis. Non phasellus molestie luctus curae turpis viverra condimentum pretium, proin dis auctor odio nunc facilisis eros morbi mauris, nam penatibus senectus vel placerat quisque convallis.
+
+Convallis feugiat ullamcorper massa nisi dictum justo vitae, suscipit luctus proin libero tortor mattis, felis dictumst lobortis ac est leo. Sagittis imperdiet urna vehicula pretium platea porta fames nam mollis massa facilisis laoreet accumsan, aptent molestie ligula dictumst neque ad ullamcorper dictum class interdum quis dignissim. Laoreet fringilla nam orci ut aptent luctus, venenatis quis a dictum bibendum scelerisque nec, aliquet habitant felis sagittis suscipit.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\newcap
+%\cap2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \chapter{Sintaxis Concreta}
 
-Antes de entrar de fondo en programar nuestro\minilisp en \texttt{Haskell}, es necesario definir la \textbf{\textit{sintaxis concreta}} que utilizaremos para el lenguaje.
+Antes de entrar de fondo en programar nuestro\minilisp en Haskell, es necesario definir la \textbf{\textit{sintaxis concreta}} que utilizaremos para el lenguaje.
 
 Citando al profesor, en su archivo \texttt{PDF} compartido \textbf{\textit{Especificación Formal de los Lenguajes de Programación. Sintaxis Concreta}}.
 
@@ -169,108 +173,424 @@ Citando al profesor, en su archivo \texttt{PDF} compartido \textbf{\textit{Espec
     formal que especifica las reglas de formación para las secuencias válidas de símbolos en el lenguaje.}
 \end{quote}
 
-Esta especificación formal se divide en \textbf{\textit{sintaxis léxica}} y \textbf{\textit{sintaxis libre de contexto}}, con los cuales podemos construir programas válidos y sin ambigüedades, asegurando que nuestro lenguaje pueda transformarse sin problemas en su correspondiente representación abstracta. En términos simples, la sintaxis describe \textit{cómo se ve el programa}, es la forma exacta en la que el usuario debe escribir las expresiones, instrucciones y estructuras del lenguaje.\\
+Esta especificación formal se divide en \textbf{\textit{sintaxis léxica}} y \textbf{\textit{sintaxis libre de
+    contexto}}, con los cuales podemos construir programas válidos y sin ambigüedades, asegurando que nuestro
+lenguaje pueda transformarse sin problemas en su correspondiente representación abstracta. En términos simples,
+la sintaxis describe \textit{cómo se ve el programa}, es la forma exacta en la que el usuario debe escribir las
+expresiones, instrucciones y estructuras del lenguaje.\\
 
-Podemos decir que la sintaxis, constituye la \textbf{puerta de entrada entre el usuario y el compilador o intérprete}, definiendo los símbolos, operadores, delimitadores y palabras reservadas que el lenguaje reconoce. Mientras que la \textit{sintaxis abstracta} (\textbf{ASA}, Árbol de Sintaxis Abstracta) representa la estructura lógica del programa, la sintaxis concreta establece las \textbf{reglas formales de escritura} que garantizan que un programa pueda ser reconocido y analizado correctamente. Su correcta definición es fundamental para el funcionamiento del analizador léxico (\textit{Lexer}) y del analizador sintáctico (\textit{Parser}), ya que determina las entradas válidas que ambos deben procesar.
+Podemos decir que la sintaxis, constituye la \textbf{puerta de entrada entre el usuario y el compilador o
+  intérprete}, definiendo los símbolos, operadores, delimitadores y palabras reservadas que el lenguaje reconoce.
 
 \bigskip
 
-Para nuestro lenguaje\minilisp, hemos definido las expresiones:
+Para nuestro lenguaje\minilisp\hspace{-0.2cm}, como una introducción a la implementación que mostraremos, hemos definido las expresiones:
 
 \begin{itemize}
+  \item \textbf{Variables.}
+  \item \textbf{Números entero.}
+  \item \textbf{Booleanos.}
+  \item \textbf{Operadores aritméticos.}
+  \item \textbf{Predicados y comparaciones.}
+  \item \textbf{Asignaciones y funciones.}
+  \item \textbf{Pares ordenados y proyecciones.}
+  \item \textbf{Condicionales.}
+  \item \textbf{Listas.}
+\end{itemize}
+
+Cabe destacar que, algunas de las operaciones dadas, tendrán la característica de ser
+variádicas. Entraremos en este tema más adelante.
+
+En conclusión, podemos pensar en la sintaxis concreta como las secuencias de caracteres del alfabeto $\Sigma$
+que se convierten en programas válidos del lenguaje. Mientras que la \textit{sintaxis abstracta} (\textbf{ASA},
+Árbol de Sintaxis Abstracta) representa la estructura lógica del programa, la sintaxis concreta establece las
+\textbf{reglas formales de escritura} que garantizan que un programa pueda ser reconocido y analizado
+correctamente. Su correcta definición es fundamental para el funcionamiento del analizador léxico
+(\textit{Lexer}) y del analizador sintáctico (\textit{Parser}), ya que determina las entradas válidas que ambos
+deben procesar. Esto se logra mediante un \textbf{Análisis léxico} y un \textbf{Análisis sintáctico}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Sintaxis Léxica}
+La definición léxica se establece mediante un conjunto de \textbf{expresiones regulares}, las cuales constituyen
+la base formal sobre la que se construyen los componentes básicos de un lenguaje de programación.
+Dichas expresiones definen los patrones válidos de caracteres que pueden formar identificadores, números,
+operadores, palabras reservadas y otros símbolos que componen el vocabulario fundamental del lenguaje.
+
+En pocas palabras, citando al profesor:
+\begin{quote}
+  ``\textit{Formalmente, la sintaxis léxica se define usando \textbf{expresiones regulares} y \textbf{autómatas finitos}}.''
+\end{quote}
+
+La \textbf{sintaxis léxica}, dentro del estudio de los lenguajes formales, representa la primera capa estructural
+de un lenguaje de programación. Su propósito es definir el \textit{alfabeto} del lenguaje y describir cómo las
+secuencias de símbolos de dicho alfabeto se agrupan en unidades con significado propio. No describe la
+estructura lógica o gramatical del programa (de estos e encarga la \textit{\textbf{sintaxis libre de contexto}}),
+sino que se encarga de definir los elementos básicos que lo conforman.
+
+En términos prácticos, esta especificación léxica permitirá posteriormente implementar un \textit{analizador
+  léxico}, encargado de recorrer la entrada del usuario y separar cada componente del programa según las reglas
+aquí definidas.
+
+\subsection{Análisis Léxico}
+Nuestra sintaxis se constituye de un \textbf{Análisis léxico}. El análisis léxico constituye la fase inicial en
+el proceso de interpretación de lenguajes de programación. Cumple una función fundamental dentro del proceso de
+compilación o interpretación, ya que actúa como un filtro inicial entre el texto fuente escrito por el usuario
+y las estructuras sintácticas que procesará el analizador sintáctico.\\
+
+Su objetivo es transformar una secuencia de caracteres sin estructura en una secuencia de \textit{Tokens}, que
+representan las unidades mínimas con significado léxico en nuestro lenguaje (palabras reservadas, identificadores
+, literales, operadores y delimitadores) que simplifican el trabajo del parser. Cada token encapsula información
+sobre el tipo de elemento reconocido y, cuando es relevante, su valor específico.
+
+\begin{quote}
+  Definimos una función $\texttt{lexer:} \sum^* \rightarrow \texttt{[}Token\texttt{]}$, que toma una cadena de caracteres y produce la lista de $tokens$ según las expresiones regulares que hayamos definido en nuestro lenguaje.
+\end{quote}
+
+Anteriormente hicimos una breve mención de las expresiones que nuestro\minilisp va a manejar en la sintaxis
+léxica. Ya que el propósito de este proyecto es académico, basta con implementar los tipos de datos más simples,
+como lo son los números (\texttt{Num})y booleanos (\texttt{Boolean}), también implementamos cadenas
+(\texttt{String}) pero no tendremos ningún programa que opere con cadenas de caracteres, únicamente las usaremos
+como asignación de variables.
+
+Tenemos entonces, el alfabeto $\Sigma$ de nuestro lenguaje:
+\[
+\Sigma = \{0,1,2,3,4,5,6,7,8,9,a-z,A-Z,\texttt{-},\texttt{+},\texttt{*},\texttt{/},\texttt{=},\texttt{\textgreater},\texttt{\textless},\texttt{!},\texttt{\#},\texttt{[},\texttt{]},\texttt{,},\texttt{(},\texttt{)}\}
+\]
+
+Ahora, los $Tokens$ de nuestro lenguaje serán justamente las cadenas reservados o caracteres que podemos formar
+con dichos símbolos. Una vez tenemos encuenta todo lo anterior, definimos los siguientes tipos de $Tokens$ para
+nuestro lenguaje\minilisp\hspace{-0.2cm}:
+
+\begin{itemize}
+  \item \textbf{Paréntesis:} \textbf{(} y \textbf{)}, con los que indicamos cuando comienzan y terminan nuestras expresion (por eso se llaman $delimitadores$).
   \item \textbf{Variables:} cualquier secuencia de caracteres de la forma $[a-z + A-Z][a-zA-Z0-9]^*$.
   \item \textbf{Números enteros:} $x \in \mathbb{Z}$.
   \item \textbf{Booleanos:} \texttt{\#t} (verdadero) y \texttt{\#f} (falso), junto con la negación \texttt{(not)}.
   \item \textbf{Operadores aritméticos:} \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{{+}{+}}, \texttt{{-}{-}}, raíz cuadrada (\texttt{sqrt}) y potencia (\texttt{**}).
   \item \textbf{Predicados y comparaciones:} igualdad y desigualdad (\texttt{=}, \texttt{!=}), así como comparaciones numéricas (\texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=}).
   \item \textbf{Asignaciones y funciones:} construcciones \texttt{let}, \texttt{let*}, \texttt{letrec}, funciones anónimas con \texttt{lambda}, y aplicación de funciones.
-  \item \textbf{Pares ordenados y proyecciones:} \texttt{(e1, e2)}, \texttt{first} y \texttt{second}.
+  \item \textbf{Pares ordenados y proyecciones:} \texttt{(}$e1$\texttt{,} $e2${)}, \texttt{first} y \texttt{second}.
   \item \textbf{Condicionales:} \texttt{if}, \texttt{if0} y \texttt{cond}.
   \item \textbf{Listas:} delimitadas por corchetes \texttt{[} y \texttt{]}, con elementos separados por comas \texttt{,}, junto con operaciones básicas \texttt{head} y \texttt{tail}.
 \end{itemize}
 
-Cabe destacar que, algunas de las operaciones dadas, tendrán la característica de ser variádicas. Entraremos en este tema más adelante.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Sintaxis Léxica}
-El análisis léxico constituye la fase inicial en el proceso de interpretación de lenguajes de programación. Su objetivo es transformar una secuencia de caracteres sin estructura en una secuencia de \textit{tokens}, que representan las unidades mínimas con significado léxico en nuestro lenguaje. Cada token encapsula información sobre el tipo de elemento reconocido y, cuando es relevante, su valor específico.
-
-Para ayudarnos con el análisis léxico y transformar esa cadena ingresada por el usuario, utilizamos la herramienta Alex.
+Como primera parte de nuestra implementación en Haskell del \textit{\textbf{análisis léxico}}, utilizamos la
+palabra reservada \textcolor{mainkeywordcolor}{\texttt{data}} que nos permite definir nuevos tipos de datos y
+los constructores asociados a ellos.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Tokens}
+La estructura del tipo \textit{Token} son las piezas fundamentales que permiten construir la sintaxis del
+lenguaje de manera estructurada y libre de ambigüedades. Incluso, no solo nos permiten clasificar y representar
+las unidades léxicas mínimas reconocibles por el lenguaje, sino que también facilitan el trabajo del
+\textit{parser}.
+
+Para nuestro proyecto\minilisp definimos el tipo de dato \texttt{Token} en Haskell dentro del archivo
+\texttt{Tokens.hs}, con el cual representamos cada posible componente léxico del lenguaje.
+
+Queda definido como sigue:
 
 \begin{lstlisting}[style=haskellstyle, caption={Estructura de Tokens}]
-data Token
-  = TokenVar String | TokenNum Int | TokenBool Bool
-  | TokenAdd
-  | TokenSub
-  | TokenMul
-  | TokenDiv
-  | TokenAdd1
-  | TokenSub1
-  | TokenSqrt
-  | TokenExpt
-  | TokenNot
-  | TokenEq
-  | TokenLt
-  | TokenGt
-  | TokenNeq
-  | TokenLeq
-  | TokenGeq
-  | TokenIf0
-  | TokenIf
-  | TokenCond
-  | TokenElse
-  | TokenFirst
-  | TokenSecond
-  | TokenHead
-  | TokenTail
-  | TokenLet
-  | TokenLetRec
-  | TokenLetStar
-  | TokenLambda
-  | TokenLI
-  | TokenLD
-  | TokenComma
-  | TokenPA
-  | TokenPC
-  deriving (Show, Eq)
+  data Token
+    = TokenVar String
+    | TokenNum Int
+    | TokenBool Bool
+    | TokenAdd
+    | TokenSub
+    | TokenMul
+    | TokenDiv
+    | TokenAdd1
+    | TokenSub1
+    | TokenSqrt
+    | TokenExpt
+    | TokenNot
+    | TokenEq
+    | TokenLt
+    | TokenGt
+    | TokenNeq
+    | TokenLeq
+    | TokenGeq
+    | TokenIf0
+    | TokenIf
+    | TokenCond
+    | TokenElse
+    | TokenFirst
+    | TokenSecond
+    | TokenHead
+    | TokenTail
+    | TokenLet
+    | TokenLetRec
+    | TokenLetStar
+    | TokenLambda
+    | TokenLI
+    | TokenLD
+    | TokenComma
+    | TokenPA
+    | TokenPC
+    deriving (Show, Eq)
 \end{lstlisting}
+
+Nótese que, los $Tokens$:\: \texttt{TokenVar}, \texttt{TokenNum}, \texttt{TokenBool}, además de encapsular el
+tipo de elemento reconocido, guardan su valor específico asociado a dichos $Tokens$ con los tipos de datos en el
+lenguaje anfitrión (\texttt{String}, \texttt{Int} y \texttt{Bool}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Alex como Analizador Léxico}
+\subsection{Alex}
+Cada vez que el analizador léxico identifica un patrón en la entrada, genera el token correspondiente y al final,
+esta función \texttt{lexer}, construirá una lista de $Tokens$ la cual recibirá wl analizador sintáctico.
+Utilizamos la herramienta \texttt{Alex} que nos ayudará con la implementación de este \texttt{lexer} en Haskell.\\
+    
+Alex es el generador de analizadores léxicos estándar para Haskell, toma una descripción de tokens basada en
+expresiones regulares y genera un Haskell \texttt{module} que contiene código para escanear texto de manera
+eficiente. Esta elección se fundamenta en varias ventajas significativas:
 
-Alex es el generador de analizadores léxicos estándar para Haskell. Esta elección se fundamenta en varias ventajas significativas:
-+ Reducción de errores: Alex automatiza la generación de código robusto, minimizando errores comunes en implementaciones manuales.
-+ Expresividad: Utiliza expresiones regulares extendidas para definir patrones léxicos de manera clara y concisa.
-+ Integración con Haskell: Genera código Haskell nativo que se integra perfectamente con el resto de nuestro intérprete.
-+ Eficiencia: Produce analizadores de alto rendimiento mediante algoritmos de coincidencia optimizados.
+\begin{itemize}
+\item \textbf{Reducción de errores:} Alex automatiza la generación de código robusto, minimizando errores comunes en implementaciones manuales.
+\item \textbf{Expresividad:} Utiliza expresiones regulares extendidas para definir patrones léxicos de manera clara y concisa.
+\item \textbf{Integración con Haskell:} Genera código Haskell nativo que se integra perfectamente con el resto de nuestro intérprete.
+\item \textbf{Eficiencia:} Produce analizadores de alto rendimiento mediante algoritmos de coincidencia optimizados.
+\end{itemize}
 
-Estructura del Archivo Lexer.x
-Lo primero que hacemos es importar las definiciones de tokens desde Tokens, que contiene el tipo de datos Token con todos los constructores necesarios. Después, definimos los patrones básicos que establecen los bloques fundamentales para construir patrones más complejos, promoviendo la reutilización y claridad. Estas líneas no son código Haskell, sino instrucciones para Alex. Le indican a Alex: "Cuando veas \$digit en las reglas, reemplázalo por 0-9".
-Continuamos con los delimitadores estructurales compuestos por:
-+ Patrón o expresión regular (lo que buscamos): La secuencia de caracteres que el lexer debe reconocer; en este caso nos referimos a “(“, “let”, “+”, etc. Es importante mencionar que los caracteres los podemos definir a gusto personal, pero para evitar crear un lenguaje confuso usaremos para cada token los ya reconocidos; es decir, para la suma “+”, para la resta “-”, etc.
-+ Bloque de acción: Es el código Haskell que se ejecuta cuando se reconoce el patrón. Su propósito es generar el token correspondiente {...}.
-+ Expresión lambda: Es todo lo que está en el bloque de acción, es decir, “\_ -> TokenPA”, donde \_ representa la cadena de texto que coincidió con el patrón, -> separa el parámetro del resultado, y TokenPA es el constructor del token que devolvemos.
+\bigskip
 
-Continuamos con las literales e identificadores: son los elementos fundamentales que representan los valores básicos y nombres en nuestro lenguaje. Son las “palabras” que contienen datos específicos en el programa. Para realizar el lexer tomamos como referencia lo visto en clase con el profesor (en su GitHub), además de usar la documentación oficial de Alex para desarrollar nuestro lexer.
+Implementamos Alex en el archivo \texttt{Lexer.x}, su estructura es la siguiente:\\
 
-Para ello usamos la dicumetación oficial de Alex \cite{ref1}.
-The Alex Lexer Generator for Haskell
-https://www.haskell.org/alex/
-Programming in Haskell (Graham Hutton, 2nd Edition).
-Sección sobre parsers y lexers.
+Lo primero que hacemos es importar los $Tokens$ definidos y construidos en el archivo \texttt{Tokens.hs} e
+importar \texttt{Data.Char} para usar la función \texttt{isSpace} con la que normalizaremos espacios Unicode.\\
 
+Después, definimos los patrones básicos que establecen los bloques fundamentales para construir patrones más
+complejos, promoviendo la reutilización y claridad. Estas líneas no son código Haskell, sino instrucciones para
+Alex, con ellos le indicamos a Alex: ``\textit{Cuando veas \$digit en las reglas, reemplázalo por 0-9}''. Lo
+mismo para $\$alpha$ con \texttt{[a-zA-Z]} y $\$alphnum$ \texttt{[a-zZ-Z0-9]}.\\
+
+Además de incluir con la definición de los espacios ($whitespaces$): espacio ASCII ($\backslash$ x20), tabulador
+($\backslash$ x09), LF ($\backslash$ x0A), CR ($\backslash$ x0D), FF ($\backslash$ x0C), VT ($\backslash$ x0B).
+Definirlos explícitamente nos ayuda a ignorarlos al definir la regla de construcción o de lectura para generar
+los $Tokens$ de la cadena recibida.\\
+
+Por último \texttt{tokens :-} marca el comienzo de la sección de patrones de las expresiones regulares que Alex
+convertirá en la lista de $Tokens$ \texttt{regex \{ Token \}}. Declarando también la regla de ignorar los
+espacios y salto de (\texttt{\$white+}).\\
+
+\bigskip
+
+\begin{lstlisting}[style=haskellstyle, caption={Lexer con Alex.}]
+  {
+  module Lexer where
+    
+  import Token
+  import Data.Char (isSpace)
+  }
+  
+  %wrapper "basic"
+
+  -- Definiciones de patrones
+  $digit   = 0-9
+  $alpha   = [a-zA-Z]
+  $alnum   = [a-zA-Z0-9]
+  
+  -- Usamos codigos hex para los espacios en blanco Unicode mas comunes:
+  --   \x20 = ' ' (space), \x09 = tab, \x0A = LF, \x0D = CR, \x0C = FF, \x0B = VT
+  $white = [\x20\x09\x0A\x0D\x0C\x0B]
+  
+  tokens :-
+  
+  -- Ignoramos espacios y saltos de linea
+  $white+                       ;
+\end{lstlisting}
+
+Continuamos con la definición de los \textbf{delimitadores estructurales} y los \textbf{operadores básicos} de
+nuestro lenguaje, los cuales constituyen los símbolos fundamentales que permiten organizar y expresar la
+estructura de los programas en\minilisp.\\
+
+Cada una de estas reglas dentro del analizador léxico de Alex consta de dos componentes principales:
+
+\begin{itemize}
+\item \textbf{Patrón o expresión regular:} Es la secuencia de caracteres que el lexer debe reconocer. En este
+  caso, se trata de los símbolos estructurales o palabras clave como \texttt{(}, \texttt{let}, \texttt{+}, etc.
+  Cabe mencionar que estos caracteres pueden definirse de manera personalizada; sin embargo, para mantener la
+  coherencia con la notación tradicional de los lenguajes de programación, utilizamos los símbolos comúnmente
+  aceptados, como \texttt{+} para la suma y \texttt{-} para la resta.  
+\item \textbf{Bloque de acción:} Es el fragmento de código en Haskell que se ejecuta cuando se reconoce el
+  patrón. Su función es generar el token correspondiente, por ejemplo:\\ \texttt{\{ \_ -> TokenPA \}}. 
+\item \textbf{Expresión lambda:} Dentro del bloque de acción, la expresión lambda define cómo se construye el
+  token. En el ejemplo anterior, \texttt{\_ -> TokenPA}, el símbolo \texttt{\_} representa la cadena de texto
+  que coincidió con el patrón (la entrada reconocida), el operador \texttt{->} separa el parámetro del resultado,
+  y \texttt{TokenPA} es el constructor del token que se devuelve al análisis sintáctico.
+\end{itemize}
+
+Es importante resaltar el caso de las \textbf{palabras reservadas}, como \texttt{let*}, \texttt{letrec},
+\texttt{!=}, \texttt{++}, entre otros. En el diseño del lexer, estas reglas deben escribirse \textit{antes} que
+las reglas más generales o más cortas (por ejemplo, \texttt{let}, \texttt{<}, \texttt{!}, \texttt{+}).\\
+
+Esto se debe a que el generador de analizadores léxicos Alex aplica la estrategia conocida como \textit{longest
+  match}, que selecciona la coincidencia más larga posible. En caso de empate entre dos patrones de igual
+longitud, prevalece la primera regla definida en el archivo.\\
+
+Por lo tanto, si definiéramos la regla de \texttt{let} antes que \texttt{let*}, la cadena \texttt{let*} nunca
+coincidiría correctamente, ya que la primera regla (más corta) interceptaría el patrón. Este ordenamiento de las
+reglas garantiza un análisis léxico preciso y evita ambigüedades en el reconocimiento de tokens.
+
+\bigskip
+
+\begin{lstlisting}[style=haskellstyle, caption={Lexer con Alex.}]
+  \(                            { \_ -> TokenPA }
+  \)                            { \_ -> TokenPC }
+  \[                            { \_ -> TokenLI }
+  \]                            { \_ -> TokenLD }
+  \,                            { \_ -> TokenComma }
+  \+                            { \_ -> TokenAdd }
+  \-                            { \_ -> TokenSub }
+  \*                            { \_ -> TokenMul }
+  \/                            { \_ -> TokenDiv }
+  \=                            { \_ -> TokenEq }
+  \<                            { \_ -> TokenLt }
+  \>                            { \_ -> TokenGt }
+  "++"                          { \_ -> TokenAdd1 }
+  "--"                          { \_ -> TokenSub1 }
+  "sqrt"                        { \_ -> TokenSqrt }
+  "**"                          { \_ -> TokenExpt }
+  "!="                          { \_ -> TokenNeq }
+  "<="                          { \_ -> TokenLeq }
+  ">="                          { \_ -> TokenGeq }
+  "not"                         { \_ -> TokenNot }
+  "if0"                         { \_ -> TokenIf0 }
+  "if"                          { \_ -> TokenIf }
+  "first"                       { \_ -> TokenFst }
+  "second"                      { \_ -> TokenSnd }
+  "letrec"                      { \_ -> TokenLetRec }
+  "let*"                        { \_ -> TokenLetStar }
+  "let"                         { \_ -> TokenLet }
+  "lambda"                      { \_ -> TokenLambda }
+  "head"                        { \_ -> TokenHead }
+  "tail"                        { \_ -> TokenTail }
+  "cond"                        { \_ -> TokenCond }
+  "else"                        { \_ -> TokenElse }
+  "#t"                          { \_ -> TokenBool True }
+  "#f"                          { \_ -> TokenBool False }
+  $digit+                       { \s -> TokenNum (read s) }
+  $alpha ($alnum)*              { \s -> TokenVar s }
+\end{lstlisting}
+
+\newpage
+
+Nótese que tenemos las reglas para booleanos y literales con \texttt{$\#$t} y \texttt{$\#$f} para
+\texttt{TokenBool}, \texttt{$\$$digit+} para uno o más digitos a partir de la cadena $s$ y las variables con
+\texttt{$\$$alpha} (\texttt{$\$$alnum$^*$}). Son los elementos fundamentales que representan los valores básicos
+y nombres en nuestro lenguaje, son las expresiones que contienen datos específicos en el programa usando el
+lenguaje anfitrión para guardar estos datos.\\
+
+Por último definimos un \textit{catch-all} para diagnosticar caracteres inesperados. Es una depuración útil, si
+el usuario introduce un carácter inválido, el \texttt{lexer} falla con un mensaje claro y el código Unicode del
+carácter. Además definimos la función normalizeSpaces para que los espacios en Unicode los consuma
+\texttt{$\$$white+}.\footnotemark{}
+
+\bigskip
+
+\begin{lstlisting}[style=haskellstyle, caption={Lexer con Alex.}]  
+  -- Catch-all para diagnosticar caracteres inesperados
+  .                     { \s -> error ("Lexical error: caracter no reconocido = "
+                                      ++ show s
+                                      ++ " | codepoints = "
+                                      ++ show (map fromEnum s)) }
+
+  {
+    -- Normaliza cualquier espacios en blanco Unicode a ' ' para que $white+ lo consuma
+    normalizeSpaces :: String -> String
+    normalizeSpaces = map (\c -> if isSpace c then '\x20' else c)
+    
+    lexer :: String -> [Token]
+    lexer = alexScanTokens . normalizeSpaces
+  }
+\end{lstlisting}
+
+\medskip
+
+Finalmente, definimos la firma del \texttt{lexer} como \texttt{lexer :: String -> [Token]}, cumpliendo así con la
+función esencial del \textit{análisis léxico}: recibir una cadena de entrada (el código fuente escrito por el
+usuario en nuestro lenguaje\minilisp\hspace{-0.2cm}) y transformarla en una secuencia de \texttt{Tokens} reconocibles.\\
+
+En el capítulo dedicado a los \textbf{Resultados}~(\ref{cap:resultados}), se muestran distintos ejemplos de
+ejecución de esta módulo, donde mostramos la $tokenización$ de expresiones dadas dentro del lenguaje\minilisp\hspace{-0.2cm}.
+
+\footnotetext{Para realizar el lexer tomamos como referencia lo visto en clase con el profesor y el material compartido en su GitHub, además de usar la documentación oficial de Alex\cite{ref4} para desarrollar nuestro lexer.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Sintaxis Libre de Contexto}
+La \textit{\textbf{sintaxis libre de contexto}} se refiere a la estructura de un lenguaje de programación en la
+que las reglas de formación de sus sentencias se pueden describir mediante una gramática libre de contexto. En
+ella especificamos cómo se pueden combinar las secuencias de \textit{tokens} para formar expresiones y
+sentencias válidas para el lenguaje. Sin la gramática no podemos darle la estructura necesaria a para que, tanto el usuario como el interprete puedan hacer su trabajo.\\
 
-Definimos la Gramática para\minilisp en \textbf{EBNF}:
-\begin{tcolorbox}[colback=azulin!5!white, colframe=azulin!80, title=Gramática MINILISP]
+En otras palabras, la \textit{\textbf{sintaxis libre de contexto}} constituye el \textit{esqueleto sintáctico} del lenguaje. Si el \textbf{análisis léxico} segmenta la entrada en \textit{Tokens}, el \textbf{análisis sintáctico} (guiado por una \textit{gramática libre de contexto}) se encarga de verificar que dichos $Tokens$ se ensamblen de manera coherente conforme a las reglas del lenguaje. Sin una gramática bien definida, no sería posible darle forma ni estructura a los programas escritos en\minilisp\hspace{-0.2cm}, ni mucho menos permitir que el intérprete los procese correctamente. Necesitamos de la gramática para dar orden, decidir qué aceptamos y cómo lo aceptamos, de este modo damos más formalidad y menos ambigüedad al lenguaje.
+
+\subsection{La gramática de\minilisp}
+Formalmente, una \textit{\textbf{gramática libre de contexto}} es una tupla:
+\[
+G = (V, \Sigma, P, S)
+\]
+donde:
+\begin{itemize}
+\item $V$ es un conjunto finito de símbolos \textbf{no terminales} o variables las cuales representan conjuntos
+  de cadenas que están siendo definidos recursivamente, es decir, cada variable genera un lenguaje.
+\item $\Sigma$ es un conjunto finito de símbolos \textbf{terminales}. Son los símbolos básicos del lenguaje.
+\item $P$ es el conjunto finito de \textbf{reglas de producción}, o reglas gramaticales, que contiene a las
+definiciones recursivas.
+\item $S$ es el símbolo inicial, $S \in V$. Es una variable especial que genera a derivación de las cadenas
+del lenguaje deseado.
+\end{itemize}
+
+\bigskip
+
+En nuestro proyecto, la gramática de\minilisp\hspace{-0.2cm} está definida mediante la notación \textbf{BNF} (\textit{Backus-Naur Form}), en particular la notación de \textbf{EBNF}.\\
+
+Al rededor de los años 1950 y 1960, John Backus y Peter Naur desarrollaron esta notación (\textbf{BNF}) como una
+solución a la necesidad de definir de manera clara y precisa la sintaxis de los lenguajes de programación.
+Sin embargo, aunque \textbf{BNF} es efectiva, tiene ciertas limitaciones en términos de expresividad,
+especialmente para describir repeticiones y agrupaciones de una manera más compacta.
+
+Con la notación \textbf{EBNF}:
+\begin{itemize}
+\item Las \textbf{variables} o no terminales se denotan entre los símbolos \texttt{<}\texttt{>}.
+\item Las \textbf{reglas de producción} se escriben con el operador \texttt{::=}.
+\item El símbolo \texttt{|} se utiliza para indicar \textbf{alternativas}, permitiendo expresar diferentes formas de una misma construcción sintáctica.
+\item La extensión de \textbf{EBNF} agrega el uso de \texttt{\{} \texttt{\}} para indicar \textbf{repetición} de cero o más veces.
+\end{itemize}
+
+\bigskip
+
+De esta manera, cada producción de la gramática define cómo los \textit{tokens} generados por el analizador
+léxico (como \texttt{TokenAdd}, \texttt{TokenIf}, \texttt{TokenLet}, etc.) se combinan para formar expresiones
+válidas en el lenguaje. Recordemos que en la sección de \textbf{Sintaxis Léxica} se estableció la correspondencia
+entre patrones de texto y sus respectivos tokens; ahora, en esta etapa, esos mismos tokens se convierten en los
+símbolos terminales de nuestra gramática.\\
+
+Las reglas sintácticas que definen la forma de las expresiones en esta versión de\minilisp\ son las siguientes:
+\begin{itemize}
+\item Toda expresión está delimitada por paréntesis.
+\item Usamos la notación prefija, donde el operador precede a sus argumentos (operandos).
+\item Las operaciones aritméticas \texttt{+}, \texttt{-}, \texttt{*} y \texttt{/} son $n$-$arias$ ($variádicas$), permitiendo una cantidad arbitraria de argumentos.
+\item Los predicados sobre enteros (igualdad y comparaciones) \texttt{=}, \texttt{<}, \texttt{>}, \texttt{>=}, \texttt{<=} y \texttt{!=} también admiten múltiples argumentos.
+\item Las asignaciones \texttt{let} y \texttt{let*} son igualmente son variádicas, es decir, permiten realizar asiganaciones locales con múltiples variables.
+\item Las listas se denotan mediante el uso de \texttt{[} \texttt{]} con la característica de que cada elemento ($expresión$) nuevo en la lista es separado del anterior con una coma \texttt{,} .
+\item Por último la expresión condicional \texttt{cond}, permite escribir múltiples condiciones de forma ordenada.
+\end{itemize}
+
+\bigskip
+
+Cabe resaltar que en nuestra gramática se hace un abuso de notación: el uso de corchetes \texttt{[ } y \texttt{ ]} no son para indicar opcionalidad de la notación en \textbf{EBNF}, sino que son los símbolos literales del lenguaje que usamos para representar listas, y en el caso de \texttt{cond} para delimitar las expresiones de una condición. En general,\minilisp\hspace{-0.2cm} no define expresiones opcionales,
+
+\newpage
+
+Con esto explicado, definimos la Gramática para\minilisp\hspace{-0.2cm} en notación \textbf{EBNF} como sigue:
+
+\begin{tcolorbox}[colback=azulin!5!white, colframe=azulin!80, title=Gramática\minilisp]
 \renewcommand{\arraystretch}{1.05}
 \[
 \begin{array}{rcl}
@@ -301,7 +621,7 @@ Definimos la Gramática para\minilisp en \textbf{EBNF}:
           &\mid& \texttt{(if0 \nt{Expr} \nt{Expr} \nt{Expr})} \\
           &\mid& \texttt{(if \nt{Expr} \nt{Expr} \nt{Expr})} \\ 
           &\mid& \texttt{(lambda (\nt{Var} \{\nt{Var}\}) \nt{Expr})} \\
-          &\mid& \texttt{(\nt{Expr} \nt{Expr})} \\
+          &\mid& \texttt{(\nt{Expr} \{\nt{Expr}\})} \\
           &\mid& \texttt{([\nt{Expr} \{, \nt{Expr}\}])} \\
           &\mid& \texttt{(head \nt{Expr})} \\
           &\mid& \texttt{(tail \nt{Expr})} \\
@@ -316,11 +636,37 @@ Definimos la Gramática para\minilisp en \textbf{EBNF}:
 
 \bigskip
 
-Hacemos un abuso de notación para aclarar que el uso de \texttt{[ } y \texttt{ ]} no es para indicar opcionalidad de la notación de EBNF sino que son los símbolos que usamos para representar listas, en general, en nuestra gramática no tenemos expreciones opcionales.
+\subsection{Análisis sintáctico}
+Una vez definida la \textbf{gramática libre de contexto} para \minilisp, podemos pasar a la etapa de \textbf{análisis sintáctico}, también conocida como \textit{parsing}.
 
+Como bien mencionamos, mientras que el \textbf{análisis léxico} se encarga de transformar la cadena de entrada en una secuencia de \textit{Tokens}, el \textbf{análisis sintáctico} tiene la tarea de verificar que dicha secuencia respete las reglas estructurales del lenguaje, tal como fueron establecidas por la gramática.\\
+
+En otras palabras, el analizador sintáctico organiza los tokens generados por el \texttt{lexer} conforme a las producciones de la gramática, construyendo una representación estructurada del programa. Esta representación se denomina \textbf{árbol de sintaxis abstracta} (\textit{ASA} o \textit{Abstract Syntax Tree}-\textbf{AST}), el cual captura la estructura lógica del programa, eliminando detalles superficiales como los paréntesis o separadores que solo sirven para dar forma a la sintaxis concreta.\\
+
+Formalmente, definimos una función sintáctica \texttt{parser}:
+\[
+\text{\texttt{parser: [Token]}} \rightarrow \text{\texttt{ASA}}
+\]
+
+Toma una secuencia de tokens y produce un \textbf{árbol de sintaxis abstracta} ($ASA$) según la gramática. Si el programa no respeta las reglas de sintaxis, este árbol no puede ser construido, lo que implica un \textbf{error sintáctico}.\\
+
+El análisis sintáctico representa entonces, una etapa intermedia y esencial dentro del proceso de interpretación: traduce la estructura lineal de los tokens en una forma jerárquica que puede ser fácilmente interpretada y evaluada por etapas posteriores de\minilisp\hspace{-0.2cm}.
+
+\bigskip
+
+\noindent
+Con todo lo visto en este capítulo, podemos concebir la \textit{\textbf{Sintaxis Concreta}} de nuestro lenguaje como la composición funcional entre el \textbf{analizador léxico} y el \textbf{analizador sintáctico}, donde ambos trabajan en conjunto para transformar una cadena de caracteres en una estructura interna coherente:
+\[
+\text{\texttt{(parser}} \circ \text{\texttt{lexer):}}\;\; \Sigma^{*} \rightarrow \text{\texttt{ASA}}
+\]
+
+donde $\Sigma^{*}$ representa todas las cadenas posibles de símbolos del alfabeto del lenguaje, y \textbf{ASA} (\textit{Árbol de Sintaxis Abstracta}) es la estructura resultante. Y con esto cubrimos las fases que onforman el puente entre la entrada textual del usuario y las representaciones internas que permiten la evaluación del lenguaje.\\
+
+\noindent
+A partir de este punto, continuaremos con las definiciones formales que dan estructura interna a nuestro lenguaje\minilisp\hspace{-0.2cm}, avanzando hacia la construcción del \textbf{Árbol de Sintaxis Abstracta}, la implementación del \textbf{analizador sintáctico} usando Happy.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\newcap
+%\cap3
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -332,7 +678,7 @@ Hacemos un abuso de notación para aclarar que el uso de \texttt{[ } y \texttt{ 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\newcap
+%\cap4
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -348,7 +694,7 @@ Hacemos un abuso de notación para aclarar que el uso de \texttt{[ } y \texttt{ 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\newcap
+%\cap5
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -359,7 +705,7 @@ Hacemos un abuso de notación para aclarar que el uso de \texttt{[ } y \texttt{ 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\newcap
+%\cap6
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -367,19 +713,24 @@ Hacemos un abuso de notación para aclarar que el uso de \texttt{[ } y \texttt{ 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Paso pequeño}
+\section{Paso pequeño para\minilisp}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Evaluación}
+\section{Ambientes}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Evaluación en Haskell}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\newcap
+%\cap7
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\chapter{Resultados}
+\chapter{Resultados}\label{cap:resultados}
+Bien, una vez hemos visto toda la teoría de nuestro\minilisp y además de que hemos mostrado el código que lo implementa en Haskell, veamos como funciona:
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -411,7 +762,7 @@ Hacemos un abuso de notación para aclarar que el uso de \texttt{[ } y \texttt{ 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\newcap
+%\cap8
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -424,8 +775,12 @@ Hacemos un abuso de notación para aclarar que el uso de \texttt{[ } y \texttt{ 
 
 \addcontentsline{toc}{chapter}{Bibliografía}
 \begin{thebibliography}{99}
-  \bibitem{ref1} Documentación Alex(Haskell). Disponible en: \textcolor{links}{\uline{\url{https://www.haskell.org/alex/}}}
-  \bibitem{ref2} Autor. "Artículo". Revista, Año.
+\bibitem{ref1} Link del profe sintaxis concreta.
+\bibitem{ref2} Otro libro.
+\bibitem{ref3} Docs Haskell.
+\bibitem{ref4} Documentación Alex(Haskell) The Alex Lexer Generator for Haskell Programming in Haskell (Graham Hutton, 2nd Edition). Sección sobre parsers y lexers. Disponible en: \textcolor{links}{\uline{\url{https://www.haskell.org/alex/}}}
+\bibitem{ref4} Docs Happy
+\bibitem{ref5} Autor. "Artículo". Revista, Año.
 \end{thebibliography}
 
 

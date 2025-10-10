@@ -16,11 +16,11 @@ $alnum   = [a-zA-Z0-9]
 --   \x20 = ' ' (space), \x09 = tab, \x0A = LF, \x0D = CR, \x0C = FF, \x0B = VT
 $white = [\x20\x09\x0A\x0D\x0C\x0B]
 
+
 tokens :-
 
 -- Ignoramos espacios y saltos de línea
 $white+                       ;
-
 
 
 \(                            { \_ -> TokenPA }
