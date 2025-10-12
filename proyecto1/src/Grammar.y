@@ -77,7 +77,7 @@ ASA
   | '(' "second" ASA ')'                                { Snd $3 }
   
   | '(' "let" '(' ids ')' ASA ')'                       { Let (reverse $4) $6 }
-  | '(' "letrec" '(' ids ')' ASA ')'                    { LetRec (reverse $4) $6 }
+  | '(' "letrec" '(' var ASA ')' ASA ')'                { LetRec $4 $5 $7 }
   | '(' "let*" '(' ids ')' ASA ')'                      { LetStar (reverse $4) $6 }
   
   | '(' "if0" ASA ASA ASA ')'                           { If0 $3 $4 $5 }

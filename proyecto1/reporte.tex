@@ -10,6 +10,7 @@
 \usepackage{algorithm, algpseudocode, chngcntr}
 \usepackage{graphicx, enumitem, geometry}
 \usepackage{amsmath, amssymb, amsthm}
+\usepackage{forest}
 \usepackage{fancyhdr}
 
 % ----- Custom Page -----
@@ -20,11 +21,12 @@
 
 % ----- Custom Commands -----
 \newcommand{\nt}[1]{\texttt{<#1>}}
-\renewcommand{\lstlistingname}{Código}
-\renewcommand{\bibname}{Bibliografía}
+\newcommand{\Z}{\mathbb{Z}}
 \newcommand{\minilisp}{
   {M\footnotesize INI\normalsize L\footnotesize ISP \normalsize}
 }
+\renewcommand{\lstlistingname}{Código}
+\renewcommand{\bibname}{Bibliografía}
 %----------------------------
 
 % ----- Book Document -----
@@ -265,7 +267,7 @@ nuestro lenguaje\minilisp\hspace{-0.2cm}:
 \begin{itemize}
   \item \textbf{Paréntesis:} \textbf{(} y \textbf{)}, con los que indicamos cuando comienzan y terminan nuestras expresion (por eso se llaman $delimitadores$).
   \item \textbf{Variables:} cualquier secuencia de caracteres de la forma $[a-z + A-Z][a-zA-Z0-9]^*$.
-  \item \textbf{Números enteros:} $x \in \mathbb{Z}$.
+  \item \textbf{Números enteros:} $x \in \Z$.
   \item \textbf{Booleanos:} \texttt{\#t} (verdadero) y \texttt{\#f} (falso), junto con la negación \texttt{(not)}.
   \item \textbf{Operadores aritméticos:} \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{{+}{+}}, \texttt{{-}{-}}, raíz cuadrada (\texttt{sqrt}) y potencia (\texttt{**}).
   \item \textbf{Predicados y comparaciones:} igualdad y desigualdad (\texttt{=}, \texttt{!=}), así como comparaciones numéricas (\texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=}).
@@ -616,12 +618,12 @@ Con esto explicado, definimos la Gramática para\minilisp\hspace{-0.2cm} en nota
           &\mid& \texttt{(fst \nt{Expr})} \\
           &\mid& \texttt{(snd \nt{Expr})} \\
           &\mid& \texttt{(let ((\nt{Var} \nt{Expr}) \{\nt{Var} \nt{Expr}\}) \nt{Expr})} \\
-          &\mid& \texttt{(letrec \nt{Var} \nt{Expr} \nt{Expr})} \\
+          &\mid& \texttt{(letrec (\nt{Var} \nt{Expr}) \nt{Expr})} \\
           &\mid& \texttt{(let* ((\nt{Var} \nt{Expr}) \{\nt{Var} \nt{Expr}\}) \nt{Expr})} \\
           &\mid& \texttt{(if0 \nt{Expr} \nt{Expr} \nt{Expr})} \\
           &\mid& \texttt{(if \nt{Expr} \nt{Expr} \nt{Expr})} \\ 
           &\mid& \texttt{(lambda (\nt{Var} \{\nt{Var}\}) \nt{Expr})} \\
-          &\mid& \texttt{(\nt{Expr} \{\nt{Expr}\})} \\
+          &\mid& \texttt{(\nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
           &\mid& \texttt{([\nt{Expr} \{, \nt{Expr}\}])} \\
           &\mid& \texttt{(head \nt{Expr})} \\
           &\mid& \texttt{(tail \nt{Expr})} \\
@@ -634,36 +636,53 @@ Con esto explicado, definimos la Gramática para\minilisp\hspace{-0.2cm} en nota
 \]
 \end{tcolorbox}
 
-\bigskip
+\bigskip %%%%% Agregar explicacion aqui
 
 \subsection{Análisis sintáctico}
 Una vez definida la \textbf{gramática libre de contexto} para \minilisp, podemos pasar a la etapa de \textbf{análisis sintáctico}, también conocida como \textit{parsing}.
 
-Como bien mencionamos, mientras que el \textbf{análisis léxico} se encarga de transformar la cadena de entrada en una secuencia de \textit{Tokens}, el \textbf{análisis sintáctico} tiene la tarea de verificar que dicha secuencia respete las reglas estructurales del lenguaje, tal como fueron establecidas por la gramática.\\
+Como bien mencionamos, mientras que el \textbf{análisis léxico} se encarga de transformar la cadena de entrada
+en una secuencia de \textit{Tokens}, el \textbf{análisis sintáctico} tiene la tarea de verificar que dicha
+secuencia respete las reglas estructurales del lenguaje, tal como fueron establecidas por la gramática.\\
 
-En otras palabras, el analizador sintáctico organiza los tokens generados por el \texttt{lexer} conforme a las producciones de la gramática, construyendo una representación estructurada del programa. Esta representación se denomina \textbf{árbol de sintaxis abstracta} (\textit{ASA} o \textit{Abstract Syntax Tree}-\textbf{AST}), el cual captura la estructura lógica del programa, eliminando detalles superficiales como los paréntesis o separadores que solo sirven para dar forma a la sintaxis concreta.\\
+En otras palabras, el analizador sintáctico organiza los tokens generados por el \texttt{lexer} conforme a las
+producciones de la gramática, construyendo una representación jerárquica del programa. Esta representación se
+denomina \textbf{árbol de sintaxis abstracta} (\textit{ASA} o \textit{Abstract Syntax Tree}-\textbf{AST}), el
+cual captura la estructura lógica del programa, eliminando detalles superficiales como los paréntesis o
+separadores que solo sirven para dar forma a la sintaxis concreta.\\
 
 Formalmente, definimos una función sintáctica \texttt{parser}:
 \[
 \text{\texttt{parser: [Token]}} \rightarrow \text{\texttt{ASA}}
 \]
 
-Toma una secuencia de tokens y produce un \textbf{árbol de sintaxis abstracta} ($ASA$) según la gramática. Si el programa no respeta las reglas de sintaxis, este árbol no puede ser construido, lo que implica un \textbf{error sintáctico}.\\
+Toma una secuencia de tokens y produce un \textbf{árbol de sintaxis abstracta} ($ASA$) según la gramática. Si el
+programa no respeta las reglas de sintaxis, este árbol no puede ser construido, lo que implica un \textbf{error
+  sintáctico}.\\
 
-El análisis sintáctico representa entonces, una etapa intermedia y esencial dentro del proceso de interpretación: traduce la estructura lineal de los tokens en una forma jerárquica que puede ser fácilmente interpretada y evaluada por etapas posteriores de\minilisp\hspace{-0.2cm}.
+El análisis sintáctico representa entonces, una etapa intermedia y esencial dentro del proceso de interpretación:
+traduce la estructura lineal de los tokens en una forma jerárquica que puede ser fácilmente interpretada y
+evaluada por etapas posteriores de\minilisp\hspace{-0.2cm}.
 
 \bigskip
 
 \noindent
-Con todo lo visto en este capítulo, podemos concebir la \textit{\textbf{Sintaxis Concreta}} de nuestro lenguaje como la composición funcional entre el \textbf{analizador léxico} y el \textbf{analizador sintáctico}, donde ambos trabajan en conjunto para transformar una cadena de caracteres en una estructura interna coherente:
+Con todo lo visto en este capítulo, podemos concebir la \textit{\textbf{Sintaxis Concreta}} de nuestro lenguaje
+como la composición funcional entre el \textbf{analizador léxico} y el \textbf{analizador sintáctico}, donde
+ambos trabajan en conjunto para transformar una cadena de caracteres en una estructura interna coherente:
 \[
 \text{\texttt{(parser}} \circ \text{\texttt{lexer):}}\;\; \Sigma^{*} \rightarrow \text{\texttt{ASA}}
 \]
 
-donde $\Sigma^{*}$ representa todas las cadenas posibles de símbolos del alfabeto del lenguaje, y \textbf{ASA} (\textit{Árbol de Sintaxis Abstracta}) es la estructura resultante. Y con esto cubrimos las fases que onforman el puente entre la entrada textual del usuario y las representaciones internas que permiten la evaluación del lenguaje.\\
+donde $\Sigma^{*}$ representa todas las cadenas posibles de símbolos del alfabeto del lenguaje, y \textbf{ASA}
+(\textit{Árbol de Sintaxis Abstracta}) es la estructura resultante. Y con esto cubrimos las fases que onforman
+el puente entre la entrada textual del usuario y las representaciones internas que permiten la evaluación del
+lenguaje.\\
 
 \noindent
-A partir de este punto, continuaremos con las definiciones formales que dan estructura interna a nuestro lenguaje\minilisp\hspace{-0.2cm}, avanzando hacia la construcción del \textbf{Árbol de Sintaxis Abstracta}, la implementación del \textbf{analizador sintáctico} usando Happy.
+A partir de este punto, continuaremos con las definiciones formales que dan estructura interna a nuestro lenguaje
+\minilisp\hspace{-0.2cm}, entramos en el tema de la construcción del \textbf{Árbol de Sintaxis Abstracta} y la
+implementación del \textbf{analizador sintáctico} (\textit{parser}) usando Happy.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\cap3
@@ -671,11 +690,663 @@ A partir de este punto, continuaremos con las definiciones formales que dan estr
 
 
 \chapter{Sintaxis Abstracta}
+La \textit{sintaxis abstracta} es la representación interna de la estructura del lenguaje, se enfoca en los
+componentes esenciales y en cómo se relacionan entre sí, ignorando los detalles concretos del código fuente
+escritos por el usuario (detalles necesarios para nosotros como programadores, pero generalmente irrelevantes
+para el intérprete).
+
+Está enfocada en capturar la \textbf{lógica} y \textbf{jerarquía} del programa dejando de lado elementos
+puramente sintácticos como los paréntesis o el formato. Formalizar en ella nos permitirá desarrollar un
+intérprete más eficiente y robusto, ya que nos facilita la detección de errores, la optimización del código y de
+incorporar en un futuro nuevas funcionalidades sin mayor problema. Justo como en todo nuestro campo de trabajo,
+buscamos hacer que nuestro código sea expandible y para ello tenemos que definir una estructura sólida desde el
+comienzo.\\
+
+En comparación con la sintaxis concreta, la sintaxis abstracta es más clara y simple, pues elimina los detalles
+sintácticos (como paréntesis), enfocándose en la estructura lógica de las operaciones. Esta simplificación
+reduce la complejidad del análisis y mejora la eficiencia de las herramientas que operan sobre el código, como
+analizadores, optimizadores e intérpretes.
+
+Mientras la sintaxis concreta nos da una representación más cercana al lenguaje humano (legible y expresiva), la sintaxis abstracta nos brinda una representación más adecuada para el procesamiento automático. Ambas son
+complementarias: la primera facilita la escritura del código, y la segunda permite su interpretación y
+evaluación.\\
+
+Cabe mencionar que existe un concepto intermedio denominado \textbf{azúcar sintáctica}, el cual se refiere a
+aquellas construcciones del lenguaje que hacen más legible el código sin agregar nueva funcionalidad. En
+términos prácticos, la relación entre la sintaxis concreta, la abstracta y la azúcar sintáctica puede
+entenderse como un proceso progresivo de simplificación: primero eliminamos los elementos puramente sintácticos
+(paréntesis, separadores, etc.), y posteriormente reducimos aún más la estructura, obteniendo así una versión
+mínima que el intérprete pueda evaluar directamente y nos facilite la implementación del mismo. Profundizaremos
+más adelante en este aspecto al tratar la reducción de expresiones y la eliminación del azúcar sintáctica.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Árboles de Sintaxis Abstracta}
+
+A menudo, la sintaxis abstracta suele representarse como un \textit{\textbf{Árbol de Sintaxis Abstracta}}. Esta
+es una representación jerárquica modela la estructura lógica del programa: cada nodo del árbol corresponde a una
+construcción del lenguaje, y las hojas representan valores o identificadores.
+
+A diferencia de la sintaxis concreta, en un \textbf{ASA} los paréntesis, comas y demás símbolos delimitadores no
+se representan explícitamente, pues su propósito es estructural, no semántico. Lo que sí se conserva es la
+relación jerárquica entre las partes del programa: qué elementos dependen de otros y cómo se combinan.\\
+
+Formalmente, un \textit{Árbol de Sintaxis Abstracta} puede definirse como una tupla ordenada $A =$ ($N, E, R$)
+donde:
+
+\begin{itemize}
+  \item $N$ es un conjunto finito de \textbf{nodos}, que representan las construcciones del lenguaje mediante etiquetas y las hojas representan a sus respectivos valores.
+  \item $E \subseteq N \times N$ es el conjunto de \textbf{aristas dirigidas} que conectan los nodos, representando las relaciones jerárquicas entre ellos.
+  \item $R \in N$ es la \textbf{raíz} del árbol, correspondiente a la expresión o programa principal.
+\end{itemize}
+
+Cada subárbol dentro del \textbf{ASA} puede interpretarse como una subexpresión del programa, lo que permite
+recorrerlo de forma recursiva para su evaluación, análisis o transformación. De esta manera, el \textit{Árbol
+  de Sintaxis Abstracta} constituye el puente entre la entrada textual del usuario y la representación interna
+que manipula el intérprete de nuestro lenguaje\minilisp\hspace{-0.3cm}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{ASA para\minilisp}
+
+Con lo anterior establedico, necesitamos ahora definir formalmente las reglas que nos permitan especificar los
+\textbf{ASA}'\textbf{s} de\minilisp\hspace{-0.2cm}.\\
+
+Para formalizar esta descripción, definimos la relación:
+\[
+X \text{ ASA}
+\]
+que se lee como “\textit{X es un Árbol de Sintaxis Abstracta}”. A partir de esta relación, especificamos las
+reglas que determinan qué estructuras son consideradas válidas como \textbf{ASA} dentro del lenguaje. De forma intuitiva, cada expresión definida en la gramática tiene su respectiva etiqueta, en el \textbf{ASA} es el \textit{nodo padre}, y cada sub-expresión asociada a esta nueva etiqueta serán sus \textit{nodos hijo}.\\
+
+Hacemos la pequeña pero importante aclaración de que, las expresiones para pares, listas, aplicación de funciones, etc., que no hayamos definido una palabra reservada o algún caracter que el usuario deba escribir para identificarlos como tales, tendrán su etiqueta. Pues aunque no tengas estas palabras clave, se disntinguen por su sintaxis definida en la gramática.
+
+Con un extraordinario uso de la imaginación, tenemos las siguientes etiquetas para nuestras expresiones
+de\minilisp\hspace{-0.2cm} y definimos la descripción de sus reglas:
+
+%%%%% Agregar cosas a estos tres
+
+\subsection{Variables}
+\textit{Var}($s$) es un \textbf{ASA} si s es una cadena válida en el lenguaje (en particular si $s$ es de tipo \texttt{String} en el lenguaje anfitrión Haskell).
+\[
+\frac{s \in \text{\texttt{String}}}{\text{\textit{Var}(\textit{s}) \textbf{ASA}}}
+\]
+
+\subsection{Números}
+\textit{Num}($n$) es un \textbf{ASA} si $n \in \Z$ ($n$ es de tipo \texttt{Int} en el lenguaje anfitrión Haskell)
+\[
+\frac{n \in \Z}{\text{\textit{Num}(\textit{n}) \textbf{ASA}}}
+\]
+
+\subsection{Booleanos}
+\textit{Boolean}($b$) es un \textbf{ASA} si b es \texttt{True} o \texttt{False} ($b$ es de tipo \texttt{Bool} en Haskell).
+\[
+\frac{b \in \{\text{\texttt{True}, \texttt{False}\}}}{\text{\textit{Boolean}(\textit{b}) \textbf{ASA}}}
+\]
+
+Las reglas anteriores podemos considerarlas como los \textit{nodos hoja} de\minilisp\hspace{-0.2cm}.
+
+\subsection{Operadores aritméticos}
+Como bien explicamos, dentro de nuestro lenguaje algunos de los operadores aritméticos se caracterizan por ser \textit{variádicos}, por lo que su representación dentro del \textbf{ASA} se confroma de un árbol $n$-$ario$, mientras que el resto de los operadores aplican únicamente a un único argumento, es decir, son $unarios$. De este modo tenemos los dos casos:
+\begin{itemize}
+\item Variádicos
+  
+  Los \textbf{ASA} de estos operadores son prácticamente los mismos, donde el \textit{nodo raíz}\footnote{Aunque no es precisamente un nodo raíz, lo tomamos como tal para indicar que es el nodo principal de donde parten sus expresiones.}
+  corresponde al operador, y cada uno de sus hijos representa un ``sub-árbol'' asociado a las
+  expresiones que son parte de la operación. Cada una de estas expresiones debe ser a su vez un \textbf{ASA} válido, y en última instancia debe corresponder a un \textbf{ASA} de tipo \textit{Num}.
+
+  \hspace{-1.2cm}
+  \begin{minipage}[t]{0.45\textwidth}
+    \textit{Add}($e_1, e_2, \cdots, e_n$) es un \textbf{ASA} si cada $e_i$ es un \textbf{ASA}. Es un árbol $n$-$ario$.
+    \[
+    \frac{e_1, e_2, \dots, e_n \text{\textbf{ ASA}}}{\textit{Add}(e_1, e_2, \dots, e_n)\ \textbf{ASA}}
+    \]
+    \vspace{0.5em}
+    \[
+    \begin{forest}
+      for tree={
+        math content,
+        edge={-}, % solo lineas
+        s sep=10pt, % separacion horizontal
+        l sep=12pt, % separacion vertical
+        align=center,
+      }
+      [Add
+        [ASA
+          [$\vdots$
+            [Num
+              [$k_1$]
+            ]
+          ]
+        ]
+        [ASA
+          [$\vdots$
+            [Num
+              [$k_2$]
+            ]
+          ]
+        ]
+        [ $\vdots$ ]
+        [ASA
+          [$\vdots$
+            [Num
+              [$k_{n-1}$]
+            ]
+          ]
+        ]
+        [ASA
+          [$\vdots$
+            [Num
+              [$k_n$]
+            ]
+          ]
+        ]
+      ]
+    \end{forest}
+    \]
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.45\textwidth}
+    \textit{Sub}($e_1, e_2, \cdots, e_n$) es un \textbf{ASA} si cada $e_i$ es un \textbf{ASA}.
+    \[
+    \frac{e_1, e_2, \dots, e_n \text{\textbf{ ASA}}}{\textit{Sub}(e_1, e_2, \dots, e_n)\ \textbf{ASA}}
+    \]
+    \vspace{0.5em}
+    \[
+    \begin{forest}
+      for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+      [Sub
+        [ASA [$\vdots$ [Num [$k_1$] ] ] ]
+        [ASA [$\vdots$ [Num [$k_2$] ] ] ]
+        [ $\vdots$ ]
+        [ASA [$\vdots$ [Num [$k_{n-1}$] ] ] ]
+        [ASA [$\vdots$ [Num [$k_n$]    ] ] ]
+      ]
+    \end{forest}
+    \]
+  \end{minipage}
+
+  \vspace{2cm}
+  
+  \hspace{-1.2cm}
+  \begin{minipage}[t]{0.45\textwidth}
+    \textit{Mul}($e_1, e_2, \cdots, e_n$) es un \textbf{ASA} si cada $e_i$ es un \textbf{ASA}.
+    \[
+    \frac{e_1, e_2, \dots, e_n \text{\textbf{ ASA}}}{\textit{Mul}(e_1, e_2, \dots, e_n)\ \textbf{ASA}}
+    \]
+    \vspace{0.5em}
+    \[
+    \begin{forest}
+      for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+      [Mul
+        [ASA [$\vdots$ [Num [$k_1$] ] ] ]
+        [ASA [$\vdots$ [Num [$k_2$] ] ] ]
+        [ $\vdots$ ]
+        [ASA [$\vdots$ [Num [$k_{n-1}$] ] ] ]
+        [ASA [$\vdots$ [Num [$k_n$]    ] ] ]
+      ]
+    \end{forest}
+    \]
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.45\textwidth}
+    \textit{Div}($e_1, e_2, \cdots, e_n$) es un \textbf{ASA} si cada $e_i$ es un \textbf{ASA}.
+    \[
+    \frac{e_1, e_2, \dots, e_n \text{\textbf{ ASA}}}{\textit{Div}(e_1, e_2, \dots, e_n)\ \textbf{ASA}}
+    \]
+    \vspace{0.5em}
+    \[
+    \begin{forest}
+      for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+      [Sub
+        [ASA [$\vdots$ [Num [$k_1$] ] ] ]
+        [ASA [$\vdots$ [Num [$k_2$] ] ] ]
+        [ $\vdots$ ]
+        [ASA [$\vdots$ [Num [$k_{n-1}$] ] ] ]
+        [ASA [$\vdots$ [Num [$k_n$]    ] ] ]
+      ]
+    \end{forest}
+    \]
+  \end{minipage}
+
+  \vspace{0.8cm}
+  
+\item No variádicos
+  
+  En su representación abstracta, estos operadores se modelan como árboles \textit{unarios}, en los cuales el \textit{nodo raíz} contiene la etiqueta del operador y posee exactamente un hijo, el cual representa la expresión sobre la que opera. Del mismo modo, la última instancia debe corresponder a un \textbf{ASA} de tipo \textit{Num}.
+
+  \vspace{1cm}
+  
+  \hspace{-1.2cm}
+  \begin{minipage}[t]{0.45\textwidth}
+    \textit{Add1}($e$) es un \textbf{ASA} si $e$ es un \textbf{ASA}.
+    \[
+    \frac{e \text{\textbf{ ASA}}}{\textit{Add1}(e)\ \textbf{ASA}}
+    \]
+    \vspace{0.5em}
+    \[
+    \begin{forest}
+      for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+      [Add1
+        [ASA [$\vdots$ [Num [$n$] ] ] ]
+      ]
+    \end{forest}
+    \]
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.45\textwidth}
+    \textit{Sub1}($e$) es un \textbf{ASA} si $e$ es un \textbf{ASA}.
+    \[
+    \frac{e \text{\textbf{ ASA}}}{\textit{Add1}(e)\ \textbf{ASA}}
+    \]
+    \vspace{0.5em}
+    \[
+    \begin{forest}
+      for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+      [Sub1
+        [ASA [$\vdots$ [Num [$n$] ] ] ]
+      ]
+    \end{forest}
+    \]
+  \end{minipage}
+
+  \vspace{2cm}
+  
+  \hspace{-1.2cm}
+  \begin{minipage}[t]{0.45\textwidth}
+    \textit{Sqrt}($e$) es un \textbf{ASA} si $e$ es un \textbf{ASA}.
+    \[
+    \frac{e \text{\textbf{ ASA}}}{\textit{Sqrt}(e)\ \textbf{ASA}}
+    \]
+    \vspace{0.5em}
+    \[
+    \begin{forest}
+      for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+      [Sqrt
+        [ASA [$\vdots$ [Num [$n$] ] ] ]
+      ]
+    \end{forest}
+    \]
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.45\textwidth}
+    \textit{Expt}($e$) es un \textbf{ASA} si $e$ es un \textbf{ASA}.
+    \[
+    \frac{e \text{\textbf{ ASA}}}{\textit{Expt}(e)\ \textbf{ASA}}
+    \]
+    \vspace{0.5em}
+    \[
+    \begin{forest}
+      for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+      [Expt
+        [ASA [$\vdots$ [Num [$n$] ] ] ]
+      ]
+    \end{forest}
+    \]
+  \end{minipage}
+  
+\end{itemize}
+
+\subsection{Predicados y comparaciones}
+Aquí también tenemos el caso donde la negación es unaria.
+
+\begin{minipage}[t]{0.9\textwidth}
+  \textit{Not}($p$) es un \textbf{ASA} si $p$ es un \textbf{ASA}. Debe concluir en un \textbf{ASA} de tipo \textit{Boolean}.
+  \[
+  \frac{p \text{\textbf{ ASA}}}{\textit{Not}(p)\ \textbf{ASA}}
+  \]
+  \vspace{0.5em}
+  \[
+  \begin{forest}
+    for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+    [Not
+      [ASA [$\vdots$ [Boolean [$n$] ] ] ]
+    ]
+  \end{forest}
+  \]
+\end{minipage}
+
+Para el resto de expresiones, son \textbf{ASA} $n$-$arios$ y cada uno debe terminar con \textbf{ASA} de tipo \textit{Num}:
+
+\vspace{1cm}
+\hspace{-1.2cm}
+\begin{minipage}[t]{0.45\textwidth}
+  \textit{Equal}($e_1, e_2, \cdots, e_n$) es un \textbf{ASA} si cada $e_i$ es un \textbf{ASA}.
+  \[
+  \frac{e_1, e_2, \dots, e_n \text{\textbf{ ASA}}}{\textit{Equal}(e_1, e_2, \dots, e_n)\ \textbf{ASA}}
+  \]
+  \vspace{0.5em}
+  \[
+  \begin{forest}
+    for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+    [Equal
+      [ASA [$\vdots$ [Num [$k_1$] ] ] ]
+      [ASA [$\vdots$ [Num [$k_2$] ] ] ]
+      [ $\vdots$ ]
+      [ASA [$\vdots$ [Num [$k_{n-1}$] ] ] ]
+      [ASA [$\vdots$ [Num [$k_n$]    ] ] ]
+    ]
+  \end{forest}
+  \]
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+  \textit{Diff}($e_1, e_2, \cdots, e_n$) es un \textbf{ASA} si cada $e_i$ es un \textbf{ASA}.
+  \[
+  \frac{e_1, e_2, \dots, e_n \text{\textbf{ ASA}}}{\textit{Diff}(e_1, e_2, \dots, e_n)\ \textbf{ASA}}
+  \]
+  \vspace{0.5em}
+  \[
+  \begin{forest}
+    for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+    [Diff
+      [ASA [$\vdots$ [Num [$k_1$] ] ] ]
+      [ASA [$\vdots$ [Num [$k_2$] ] ] ]
+      [ $\vdots$ ]
+      [ASA [$\vdots$ [Num [$k_{n-1}$] ] ] ]
+      [ASA [$\vdots$ [Num [$k_n$]    ] ] ]
+    ]
+  \end{forest}
+  \]
+\end{minipage}
+
+\newpage
+
+\hspace{-1.2cm}
+\begin{minipage}[t]{0.45\textwidth}
+  \textit{Less}($e_1, e_2, \cdots, e_n$) es un \textbf{ASA} si cada $e_i$ es un \textbf{ASA}.
+  \[
+  \frac{e_1, e_2, \dots, e_n \text{\textbf{ ASA}}}{\textit{Less}(e_1, e_2, \dots, e_n)\ \textbf{ASA}}
+  \]
+  \vspace{0.5em}
+  \[
+  \begin{forest}
+    for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+    [Less
+      [ASA [$\vdots$ [Num [$k_1$] ] ] ]
+      [ASA [$\vdots$ [Num [$k_2$] ] ] ]
+      [ $\vdots$ ]
+      [ASA [$\vdots$ [Num [$k_{n-1}$] ] ] ]
+      [ASA [$\vdots$ [Num [$k_n$]    ] ] ]
+    ]
+  \end{forest}
+  \]
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+  \textit{Greater}($e_1, e_2, \cdots, e_n$) es un \textbf{ASA} si cada $e_i$ es un \textbf{ASA}.
+  \[
+  \frac{e_1, e_2, \dots, e_n \text{\textbf{ ASA}}}{\textit{Greater}(e_1, e_2, \dots, e_n)\ \textbf{ASA}}
+  \]
+  \vspace{0.5em}
+  \[
+  \begin{forest}
+    for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+    [Greater
+      [ASA [$\vdots$ [Num [$k_1$] ] ] ]
+      [ASA [$\vdots$ [Num [$k_2$] ] ] ]
+      [ $\vdots$ ]
+      [ASA [$\vdots$ [Num [$k_{n-1}$] ] ] ]
+      [ASA [$\vdots$ [Num [$k_n$]    ] ] ]
+    ]
+  \end{forest}
+  \]
+\end{minipage}
+
+\vspace{1cm}
+
+\hspace{-1.2cm}
+\begin{minipage}[t]{0.45\textwidth}
+  \textit{Leq}($e_1, e_2, \cdots, e_n$) es un \textbf{ASA} si cada $e_i$ es un \textbf{ASA}.
+  \[
+  \frac{e_1, e_2, \dots, e_n \text{\textbf{ ASA}}}{\textit{Leq}(e_1, e_2, \dots, e_n)\ \textbf{ASA}}
+  \]
+  \vspace{0.5em}
+  \[
+  \begin{forest}
+    for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+    [Leq
+      [ASA [$\vdots$ [Num [$k_1$] ] ] ]
+      [ASA [$\vdots$ [Num [$k_2$] ] ] ]
+      [ $\vdots$ ]
+      [ASA [$\vdots$ [Num [$k_{n-1}$] ] ] ]
+      [ASA [$\vdots$ [Num [$k_n$]    ] ] ]
+    ]
+  \end{forest}
+  \]
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+  \textit{Geq}($e_1, e_2, \cdots, e_n$) es un \textbf{ASA} si cada $e_i$ es un \textbf{ASA}.
+  \[
+  \frac{e_1, e_2, \dots, e_n \text{\textbf{ ASA}}}{\textit{Geq}(e_1, e_2, \dots, e_n)\ \textbf{ASA}}
+  \]
+  \vspace{0.5em}
+  \[
+  \begin{forest}
+    for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+    [Geq
+      [ASA [$\vdots$ [Num [$k_1$] ] ] ]
+      [ASA [$\vdots$ [Num [$k_2$] ] ] ]
+      [ $\vdots$ ]
+      [ASA [$\vdots$ [Num [$k_{n-1}$] ] ] ]
+      [ASA [$\vdots$ [Num [$k_n$]    ] ] ]
+    ]
+  \end{forest}
+  \]
+\end{minipage}
+
+\subsection{Asignaciones y funciones}
+Para estas reglas tenemos un caso especial, ya que no todas las expresiones en cada regla involucradas son variádicas. A diferencia de los operadores aritméticos, aquí las estructuras del \textbf{ASA} reflejan la manera en que se manejan los entornos y la aplicación de funciones dentro de nuestro lenguaje\minilisp\hspace{-0.2cm}.\\
+
+En primer lugar, las expresiones de tipo \texttt{let}, \texttt{let*} y \texttt{letrec} se utilizan para introducir nuevas asociaciones de variables dentro de un entorno local.
+
+Cada una de estas construcciones se representa en el \textbf{ASA} mediante una lista de pares (\texttt{Var}, \texttt{ASA}), donde cada par asocia un identificador con su correspondiente expresión. De este modo, el analizador sintáctico puede reconstruir de manera estructurada las relaciones entre las variables y sus valores dentro del entorno.\\
+
+En particular:
+\begin{itemize}
+\item \texttt{let} define un nuevo entorno donde las variables se evalúan en paralelo (alcance estático).
+\item \texttt{let*} permite una evaluación secuencial, donde las definiciones anteriores pueden ser utilizadas en las siguientes (alcance dinámico).
+\item \texttt{letrec} introduce definiciones recursivas, es decir, variables que pueden hacer referencia a sí mismas dentro de sus expresiones.
+  En este caso, el \textbf{ASA} no es variádico, ya que su estructura se limita a dos componentes bien definidos: la lista de asociaciones y el cuerpo de la expresión.
+\end{itemize}
+
+Por otra parte, nuestras funciones \texttt{Lambda} se representan en el \textbf{ASA} como una lista de encabezados y una expresión que constituye el cuerpo de la función.
+
+Cada parámetro debe ser un identificador válido, por lo que en el \textbf{ASA} estos terminan en nodos del tipo \textbf{ASA} \textit{Var}.
+Este diseño permite modelar funciones con múltiples argumentos de manera flexible, ya que el número de parámetros puede variar según la definición.\\
+
+Finalmente, para la aplicación de funciones (\texttt{App}), la estructura del \textbf{ASA} distingue entre dos partes:
+\begin{enumerate}
+\item La primera expresión representa la función que será aplicada, la cual no es variádica.
+\item La segunda expresión corresponde a la lista de argumentos sobre los cuales se aplicará la función, y sí es variádica, ya que puede contener un número arbitrario de expresiones.
+\end{enumerate}
+
+De esta forma, el \textbf{árbol de sintaxis abstracta} conserva una representación fiel de la semántica funcional de nuestro lenguaje, diferenciando claramente entre los constructores que definen entornos, los que representan funciones y los que expresan su aplicación.\\
+
+Una vez explicado lo anterior, tenemos las siguientes reglas:
+
+\begin{minipage}[t]{0.9\textwidth}
+  \textit{LetRec}($i, v, b$) es un \textbf{ASA} si cada el identifcador $i$ es de tipo \texttt{String}, el valor $v$ y el cuerpo $b$ son todos \textbf{ASA}.
+  \[
+  \frac{i \text{\textbf{ ASA}} v, b \text{\textbf{ ASA}}}{\textit{Let}((i_1, v_1), (i_2, v_2), \cdots, (i_n, v_n), b)\ \textbf{ASA}}
+  \]
+  \vspace{0.5em}
+  \[
+  \begin{forest}
+    for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+    [Let
+      [ASA [$\vdots$ [Var [$i$] ] ] ]
+      [ASA [$\vdots$] ]
+      [ $\vdots$ ]
+      [ASA [$\vdots$] ]
+    ]
+  \end{forest}
+  \]
+\end{minipage}
+
+\vspace{1cm}
+
+\hspace{-1.2cm}
+\begin{minipage}[t]{0.45\textwidth}
+  \textit{Let}(($i_1, v_1$), ($i_2, v_2$), $\cdots$, ($i_n, v_n$), $b$) es un \textbf{ASA} si cada identificador $i_j$, valor $v_j$ y cuerpo $b$ son todos \textbf{ASA}.
+  \[
+  \frac{(i_1, v_1), (i_2, v_2), \cdots, (i_n, v_n) \text{\textbf{ ASA}}\;\; b \text{\textbf{ ASA}}}{\textit{Let}((i_1, v_1), (i_2, v_2), \cdots, (i_n, v_n), b)\ \textbf{ASA}}
+  \]
+  \vspace{0.5em}
+  \[
+  \begin{forest}
+    for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+    [Let
+      [ASA [$\vdots$ [Var [$i$] ] ] ]
+      [ASA [$\vdots$] ]
+      [ $\vdots$ ]
+      [ASA [$\vdots$] ]
+    ]
+  \end{forest}
+  \]
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+  \textit{LetStar}(($i_1, v_1$), ($i_2, v_2$), $\cdots$, ($i_n, v_n$), $b$) es un \textbf{ASA} si cada identificador $i_j$, valor $v_j$ y cuerpo $b$ son todos \textbf{ASA}.
+  \[
+  \frac{(i_1, v_1), (i_2, v_2), \cdots, (i_n, v_n) \text{\textbf{ ASA}}\;\; b \text{\textbf{ ASA}}}{\textit{LetStar}((i_1, v_1), (i_2, v_2), \cdots, (i_n, v_n), b)\ \textbf{ASA}}
+  \]
+  \vspace{0.5em}
+  \[
+  \begin{forest}
+    for tree={ math content, edge={-}, s sep=10pt, l sep=12pt, align=center }
+    [LetStar
+      [ASA [$\vdots$ [Var [$i$] ] ] ]
+      [ASA [$\vdots$] ]
+      [ $\vdots$ ]
+      [ASA [$\vdots$] ]
+    ]
+  \end{forest}
+  \]
+\end{minipage}
+
+\subsection{Pares ordenados y Proyecciones}
+
+\subsection{Condicionales}
+
+\subsection{Listas}
+
+\section{ASA en Haskell para\minilisp}
+
+Dichas etiquetas funcionarán como los constructores de nuestro tipo de dato en Haskell, ya que modelamos el
+tipo de dato \textbf{ASA} (\textit{Árbol de Sintaxis Abstracta}) en Haskell mediante el tipo algebraico de
+datos, así es más sencillo expresar la variedad de formas que pueden adoptar las expresiones en\minilisp\hspace{-0.2cm}.\\
+
+Definimos el tipo de dato \textbf{ASA} en Haskell para\minilisp\hspace{-0.2cm} como sigue:
+
+\bigskip
+
+\begin{lstlisting}[style=haskellstyle, caption={Tipo de dato ASA con azúcar}]
+data ASA
+  = Var String
+  | Num Int
+  | Boolean Bool
+  | Add [ASA]
+  | Sub [ASA]
+  | Mul [ASA]
+  | Div [ASA]
+  | Add1 ASA
+  | Sub1 ASA
+  | Sqrt ASA
+  | Expt ASA
+  | Not ASA
+  | Equal [ASA]
+  | Less [ASA]
+  | Greater [ASA]
+  | Diff [ASA]
+  | Leq [ASA]
+  | Geq [ASA]
+  | Pair ASA ASA
+  | Fst ASA
+  | Snd ASA
+  | Let [(String, ASA)] ASA
+  | LetRec String ASA ASA
+  | LetStar [(String, ASA)] ASA
+  | If0 ASA ASA ASA
+  | If ASA ASA ASA
+  | Lambda [String] ASA
+  | App ASA [ASA]
+  | List [ASA]
+  | Head ASA
+  | Tail ASA
+  | Cond [(ASA, ASA)] ASA
+  deriving (Show, Eq)
+\end{lstlisting}
+
+\bigskip
+
+Con este diseño reflejamos directamente la estructura lógica del lenguaje dadas tanto las reglas gramaticales como las reglas para \textbf{ASA}.
+
+\begin{itemize}
+  \item \textbf{Expresiones atómicas.}  
+  Los constructores \texttt{Var}, \texttt{Num} y \texttt{Boolean} representan las expresiones más simples del lenguaje.  
+  Cada una encapsula directamente un valor del tipo correspondiente en Haskell: una variable como \texttt{String}, un número entero como \texttt{Int}, y un valor booleano como \texttt{Bool}.  
+  Estas constituyen las hojas del árbol, pues no se descomponen en subexpresiones.
+
+  \item \textbf{Operadores aritméticos y lógicos.}  
+  Para los operadores \textbf{variádicos} (\texttt{Add}, \texttt{Sub}, \texttt{Mul}, \texttt{Div}, etc.), se utilizan listas de expresiones \texttt{[ASA]}, de modo que cada operador pueda aplicarse a un número arbitrario de argumentos.  
+  Esto permite representar de manera directa construcciones como:
+  \[
+  (+\ 1\ 2\ 3\ 4) \Rightarrow \texttt{Add [Num 1, Num 2, Num 3, Num 4]}
+  \]
+  En cambio, los operadores \textbf{unarios} (\texttt{Add1}, \texttt{Sub1}, \texttt{Sqrt}, \texttt{Not}, etc.) reciben únicamente un argumento \texttt{ASA}, reflejando su carácter de operación sobre una sola subexpresión.
+
+  \item \textbf{Expresiones \texttt{Let}, \texttt{LetRec} y \texttt{LetStar}.}  
+  Estas construcciones permiten introducir variables locales mediante asociaciones entre identificadores y expresiones.  
+  Se representan como una lista de pares \texttt{[(String, ASA)]}, donde cada par vincula el nombre de la variable con la expresión que se le asigna.  
+  El segundo argumento \texttt{ASA} representa el cuerpo o ámbito en el que dichas variables estarán disponibles.  
+  Por ejemplo:
+  \[
+  (\texttt{let ((x 2) (y 3)) (+ x y)}) \Rightarrow \texttt{Let [("x", Num 2), ("y", Num 3)] (Add [Var "x", Var "y"])}
+  \]
+
+  \item \textbf{Expresiones condicionales.}  
+  Los constructores \texttt{If0} e \texttt{If} representan las estructuras condicionales del lenguaje.  
+  Cada una contiene tres subexpresiones: la condición, la rama verdadera y la rama falsa.  
+  Por su parte, el constructor \texttt{Cond} modela una estructura condicional más general, en la que se evalúan múltiples condiciones.  
+  Este se representa como una lista de pares \texttt{[(ASA, ASA)]}, donde cada par asocia una condición con su expresión correspondiente a ejecutar en caso de que se cumpla, permitiendo así una evaluación secuencial de casos.
+
+  \item \textbf{Funciones y aplicación.}  
+  La abstracción lambda (\texttt{Lambda}) se define con una lista de parámetros \texttt{[String]} y un cuerpo \texttt{ASA}.  
+  Esto permite representar funciones con múltiples argumentos.  
+  Por otro lado, la aplicación de funciones (\texttt{App}) se modela mediante un par formado por la expresión que representa la función y una lista de argumentos \texttt{[ASA]}, que serán evaluados y aplicados en orden.  
+  Por ejemplo:
+  \[
+  ((\lambda (x\ y) (+ x y))\ 2\ 3) \Rightarrow \texttt{App (Lambda ["x","y"] (Add [Var "x", Var "y"])) [Num 2, Num 3]}
+  \]
+
+  \item \textbf{Listas y operaciones sobre listas.}  
+  Las listas se modelan naturalmente como \texttt{List [ASA]}, donde cada elemento de la lista es a su vez un árbol de sintaxis abstracta.  
+  Los constructores \texttt{Head} y \texttt{Tail} representan las operaciones de acceso al primer elemento y al resto de la lista, respectivamente, y poseen un único hijo que corresponde a la lista sobre la que se aplican.
+
+  \item \textbf{Pares y selectores.}  
+  Los constructores \texttt{Pair}, \texttt{Fst} y \texttt{Snd} permiten representar estructuras de pares ordenados, así como las operaciones para obtener su primer y segundo elemento.  
+  Estos casos son binarios y unarios, respectivamente, de acuerdo con su aridad.
+\end{itemize}
+
+En conjunto, esta implementación captura la estructura lógica del lenguaje y permite manipular, transformar o evaluar expresiones de \minilisp\ directamente en Haskell.  
+El uso de tipos algebraicos proporciona una representación compacta, segura y expresiva del \textbf{Árbol de Sintaxis Abstracta}, facilitando tanto el análisis semántico como la posterior implementación del intérprete.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Parser con Happy}
 
+
+
+En conclusión, el estudio de la sintaxis abstracta constituye un paso fundamental en la especificación
+formal de los lenguajes de programación. Al abstraer los detalles superficiales de la sintaxis concreta , el
+Árbol de Sintaxis Abstracta ofrece una representación clara, jerárquica y manipulable de los programas,
+lo que facilita el análisis, la optimización y la implementación de nuevas características en un lenguaje.
+Comprender esta distinción no solo fortalece el diseño y la eficiencia de compiladores e intérpretes, sino que
+también sienta las bases conceptuales para continuar con el estudio de las fases posteriores del proceso de
+traducción, donde la formalización se convierte en una herramienta indispensable para garantizar precisión,
+robustez y coherencia en el desarrollo de software.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\cap4
@@ -775,12 +1446,12 @@ Bien, una vez hemos visto toda la teoría de nuestro\minilisp y además de que h
 
 \addcontentsline{toc}{chapter}{Bibliografía}
 \begin{thebibliography}{99}
-\bibitem{ref1} Link del profe sintaxis concreta.
-\bibitem{ref2} Otro libro.
-\bibitem{ref3} Docs Haskell.
+\bibitem{ref1} \textcolor{links}{\uline{\url{https://weblibrary.mila.edu.my/upload/ebook/engineering/2017_Book_FoundationsOfProgrammingLangua.pdf}}}
+\bibitem{ref2} Aho, A. V., Lam, S. M., Sethi, R., \& Ullman, J. D. Compilers: Principles, Techniques, and Tools. [Second Edition]. 2007.
+\bibitem{ref3} Documentación Haskell. Disponible en: \textcolor{links}{\uline{\url{https://www.haskell.org}}}
 \bibitem{ref4} Documentación Alex(Haskell) The Alex Lexer Generator for Haskell Programming in Haskell (Graham Hutton, 2nd Edition). Sección sobre parsers y lexers. Disponible en: \textcolor{links}{\uline{\url{https://www.haskell.org/alex/}}}
-\bibitem{ref4} Docs Happy
-\bibitem{ref5} Autor. "Artículo". Revista, Año.
+\bibitem{ref5} Marlow, S., Gill, A. (2009). Happy. Disponible en: \textcolor{links}{\uline{\url{https://www.haskell.org/happy/}}}
+\bibitem{ref6} Autor. "Artículo". Revista, Año.
 \end{thebibliography}
 
 
