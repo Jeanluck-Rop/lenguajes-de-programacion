@@ -480,17 +480,18 @@ reglas garantiza un análisis léxico preciso y evita ambigüedades en el recono
   "else"                        { \_ -> TokenElse }
   "#t"                          { \_ -> TokenBool True }
   "#f"                          { \_ -> TokenBool False }
-  -$digit+                       { \s -> TokenNum (read s) }
+  "-"?$digit+                   { \s -> TokenNum (read s) }
   $alpha ($alnum)*              { \s -> TokenVar s }
 \end{lstlisting}
 
 \newpage
 
 Nótese que tenemos las reglas para booleanos y literales con \texttt{$\#$t} y \texttt{$\#$f} para
-\texttt{TokenBool}, \texttt{$\$$digit+} para uno o más digitos a partir de la cadena $s$ y las variables con
-\texttt{$\$$alpha} (\texttt{$\$$alnum$^*$}). Son los elementos fundamentales que representan los valores básicos
-y nombres en nuestro lenguaje, son las expresiones que contienen datos específicos en el programa usando el
-lenguaje anfitrión para guardar estos datos.\\
+\texttt{TokenBool}, mientras que con \texttt{"-"?$\$$digit+} para uno o más digitos a partir de la cadena $s$
+incluyendo los números negativos con \texttt{"-"?} y las variables con \texttt{$\$$alpha}
+(\texttt{$\$$alnum$^*$}). Son los elementos fundamentales que representan los valores básicos y nombres en
+nuestro lenguaje, son las expresiones que contienen datos específicos en el programa usando el lenguaje anfitrión
+para guardar estos datos.\\
 
 Por último definimos un \textit{catch-all} para diagnosticar caracteres inesperados. Es una depuración útil, si
 el usuario introduce un carácter inválido, el \texttt{lexer} falla con un mensaje claro y el código Unicode del
