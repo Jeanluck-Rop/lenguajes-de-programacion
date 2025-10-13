@@ -515,19 +515,19 @@ alex_base = listArray (0 :: Int, 83)
   , 3755
   , 0
   , 97
-  , 96
-  , 0
-  , 0
+  , 104
+  , 99
   , 0
   , 0
   , 81
-  , 88
+  , 89
   , 0
   , 0
   , 3830
   , 3905
   , 0
-  , 89
+  , 0
+  , 90
   , 0
   , 0
   , 3980
@@ -601,9 +601,9 @@ alex_table = listArray (0 :: Int, 4610)
   , 17
   , 43
   , 43
-  , 68
   , 67
-  , 69
+  , 66
+  , 68
   , 43
   , 43
   , 34
@@ -635,7 +635,7 @@ alex_table = listArray (0 :: Int, 4610)
   , 48
   , 43
   , 49
-  , 66
+  , 43
   , 43
   , 43
   , 34
@@ -680,8 +680,8 @@ alex_table = listArray (0 :: Int, 4610)
   , 17
   , 17
   , 17
-  , 70
-  , 71
+  , 69
+  , 73
   , 76
   , 14
   , 45
@@ -689,19 +689,19 @@ alex_table = listArray (0 :: Int, 4610)
   , 45
   , 45
   , 45
+  , 70
   , 77
   , 74
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
-  , 0
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
+  , 17
   , 0
   , 0
   , 0
@@ -3734,7 +3734,7 @@ alex_table = listArray (0 :: Int, 4610)
   , 34
   , 34
   , 34
-  , 73
+  , 72
   , 34
   , 34
   , 34
@@ -4561,7 +4561,7 @@ alex_table = listArray (0 :: Int, 4610)
   , 34
   , 34
   , 34
-  , 72
+  , 71
   , 34
   , 34
   , 34
@@ -5296,7 +5296,7 @@ alex_check = listArray (0 :: Int, 4610)
   , 56
   , 57
   , 43
-  , 45
+  , 42
   , 61
   , 116
   , 9
@@ -5304,19 +5304,19 @@ alex_check = listArray (0 :: Int, 4610)
   , 11
   , 12
   , 13
+  , 45
   , 61
   , 61
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
-  , -1
+  , 48
+  , 49
+  , 50
+  , 51
+  , 52
+  , 53
+  , 54
+  , 55
+  , 56
+  , 57
   , -1
   , -1
   , -1
@@ -10005,8 +10005,8 @@ alex_actions = array (0 :: Int, 73)
   , (14,alex_action_13)
   , (13,alex_action_14)
   , (12,alex_action_15)
-  , (11,alex_action_16)
-  , (10,alex_action_36)
+  , (11,alex_action_36)
+  , (10,alex_action_16)
   , (9,alex_action_17)
   , (8,alex_action_37)
   , (7,alex_action_18)
@@ -10028,13 +10028,13 @@ alex_action_6 = \_ -> TokenAdd
 alex_action_7 = \_ -> TokenSub
 alex_action_8 = \_ -> TokenMul
 alex_action_9 = \_ -> TokenDiv
-alex_action_10 = \_ -> TokenExpt
-alex_action_11 = \_ -> TokenEq
-alex_action_12 = \_ -> TokenLt
-alex_action_13 = \_ -> TokenGt
-alex_action_14 = \_ -> TokenAdd1
-alex_action_15 = \_ -> TokenSub1
-alex_action_16 = \_ -> TokenSqrt
+alex_action_10 = \_ -> TokenEq
+alex_action_11 = \_ -> TokenLt
+alex_action_12 = \_ -> TokenGt
+alex_action_13 = \_ -> TokenAdd1
+alex_action_14 = \_ -> TokenSub1
+alex_action_15 = \_ -> TokenSqrt
+alex_action_16 = \_ -> TokenExpt
 alex_action_17 = \_ -> TokenNeq
 alex_action_18 = \_ -> TokenLeq
 alex_action_19 = \_ -> TokenGeq
@@ -10300,7 +10300,7 @@ alexRightContext IBOX(sc) user__ _ _ input__ =
         -- match when checking the right context, just
         -- the first match will do.
 #endif
-{-# LINE 75 "Lexer.x" #-}
+{-# LINE 71 "Lexer.x" #-}
 -- Normaliza cualquier espacios en blanco Unicode a ' ' para que $white+ lo consuma
 normalizeSpaces :: String -> String
 normalizeSpaces = map (\c -> if isSpace c then '\x20' else c)

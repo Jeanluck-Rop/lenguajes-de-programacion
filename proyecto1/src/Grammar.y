@@ -118,7 +118,8 @@ appArgs
 
 
 listArgs
-  : ASA                                   { [$1] }
+  : {- empty -}                           { [] }
+  | ASA                                   { [$1] }
   | listArgs ',' ASA                      { $3 : $1 }
 
 

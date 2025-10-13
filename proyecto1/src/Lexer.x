@@ -57,7 +57,7 @@ $white+                       ;
 "else"                        { \_ -> TokenElse }
 "#t"                          { \_ -> TokenBool True }
 "#f"                          { \_ -> TokenBool False }
-$digit+                       { \s -> TokenNum (read s) }
+"-"?$digit+                   { \s -> TokenNum (read s) }
 $alpha ($alnum)*              { \s -> TokenVar s }
 
 
