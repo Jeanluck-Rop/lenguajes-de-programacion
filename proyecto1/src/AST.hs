@@ -2,21 +2,26 @@ module AST where
 
 -- ASA sin azucar (AST)
 data AST
-  = CVar String
-  | CNum Int
-  | CBool Bool
-  | CAdd AST AST
-  | CSub AST AST
-  | CMul AST AST
-  | CDiv AST AST
-  | CIf AST AST AST
-  | CLambda CVar AST
-  | CApp AST AST
-  | CPair AST AST
-  | CFst AST
-  | CSnd AST
-  | CList [AST]
-  | CHead AST
-  | CTail AST
-  | CCond [AST] AST
+  = VarC String
+  | NumC Int
+  | BoolC Bool
+  | AddC AST AST
+  | SubC AST AST
+  | MulC AST AST
+  | DivC AST AST
+  | SqrtC AST
+  | ExptC AST
+  | NotC AST
+  | EqualC AST AST
+  | LessC AST AST
+  | GreaterC AST AST
+  | DiffC AST AST
+  | LeqC AST AST
+  | GeqC AST AST
+  | PairC AST AST
+  | FstC AST
+  | SndC AST
+  | IfC AST AST AST
+  | FunC String AST
+  | AppC AST AST
   deriving (Show, Eq)

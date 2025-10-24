@@ -12,7 +12,7 @@ data ASA
   | Add1 ASA
   | Sub1 ASA
   | Sqrt ASA
-  | Expt ASA
+  | Expt ASA    --Eleva al cuadrado
   | Not ASA
   | Equal [ASA]
   | Less [ASA]
@@ -23,11 +23,11 @@ data ASA
   | Pair ASA ASA
   | Fst ASA
   | Snd ASA
-  | Let [(String, ASA)] ASA
-  | LetRec String ASA ASA
-  | LetStar [(String, ASA)] ASA
   | If0 ASA ASA ASA
   | If ASA ASA ASA
+  | Let [(String, ASA)] ASA
+  | LetRec [(String, ASA)] ASA
+  | LetStar [(String, ASA)] ASA
   | Lambda [String] ASA
   | App ASA [ASA]
   | List [ASA]

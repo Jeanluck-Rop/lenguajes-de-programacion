@@ -77,7 +77,7 @@ ASA
   | '(' "second" ASA ')'                                { Snd $3 }
   
   | '(' "let" '(' ids ')' ASA ')'                       { Let (reverse $4) $6 }
-  | '(' "letrec" '(' var ASA ')' ASA ')'                { LetRec $4 $5 $7 }
+  | '(' "letrec" '(' ids ')' ASA ')'                    { LetRec (reverse $4) $6 }
   | '(' "let*" '(' ids ')' ASA ')'                      { LetStar (reverse $4) $6 }
   
   | '(' "if0" ASA ASA ASA ')'                           { If0 $3 $4 $5 }
@@ -86,7 +86,7 @@ ASA
   | '(' "lambda" vars ASA ')'                           { Lambda (reverse $3)  $4 }
   | '(' ASA appArgs ')'                                 { App $2 (reverse $3) }
   
-  | '(' '[' listArgs ']' ')'                            { List (reverse $3) }
+  | '[' listArgs ']'                                    { List (reverse $2) }
   | '(' "head" ASA ')'                                  { Head $3 }
   | '(' "tail" ASA ')'                                  { Tail $3 }
 
@@ -135,5 +135,5 @@ condy
 -- Error al 'Parsear'
 {
 parseError :: [Token] -> a
-parseError _ = error "Parser Error"
+parseError _ = error "Error al Parsear los Tokens"
 }
