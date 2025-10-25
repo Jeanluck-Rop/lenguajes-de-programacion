@@ -26,7 +26,7 @@ data ASA
   | If0 ASA ASA ASA
   | If ASA ASA ASA
   | Let [(String, ASA)] ASA
-  | LetRec [(String, ASA)] ASA
+  | LetRec String ASA ASA
   | LetStar [(String, ASA)] ASA
   | Lambda [String] ASA
   | App ASA [ASA]

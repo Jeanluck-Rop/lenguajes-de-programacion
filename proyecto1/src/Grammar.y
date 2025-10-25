@@ -54,7 +54,6 @@ ASA
   : var                                                 { Var $1 }
   | num                                                 { Num $1 }
   | boolean                                             { Boolean $1 }
-  
   | '(' '+' opArgs ')'                                  { Add (reverse $3) }
   | '(' '-' opArgs ')'                                  { Sub (reverse $3) }
   | '(' '*' opArgs ')'                                  { Mul (reverse $3) }
@@ -65,32 +64,25 @@ ASA
   | '(' "!=" opArgs ')'                                 { Diff (reverse $3) }
   | '(' "<=" opArgs ')'                                 { Leq (reverse $3) }
   | '(' ">=" opArgs ')'                                 { Geq (reverse $3) }
-
   | '(' "++" ASA ')'                                    { Add1 $3 }
   | '(' "--" ASA ')'                                    { Sub1 $3 }
   | '(' "sqrt" ASA ')'                                  { Sqrt $3 }
   | '(' "**" ASA ')'                                    { Expt $3 }
   | '(' "not" ASA ')'                                   { Not $3 }
-  
   | '(' ASA ',' ASA ')'                                 { Pair $2 $4 }
   | '(' "first" ASA ')'                                 { Fst $3 }
   | '(' "second" ASA ')'                                { Snd $3 }
-  
   | '(' "let" '(' ids ')' ASA ')'                       { Let (reverse $4) $6 }
-  | '(' "letrec" '(' ids ')' ASA ')'                    { LetRec (reverse $4) $6 }
+  | '(' "letrec" '(' var ASA ')' ASA ')'                { LetRec $4 $5 $7 }
   | '(' "let*" '(' ids ')' ASA ')'                      { LetStar (reverse $4) $6 }
-  
   | '(' "if0" ASA ASA ASA ')'                           { If0 $3 $4 $5 }
   | '(' "if" ASA ASA ASA ')'                            { If $3 $4 $5 }
-  
-  | '(' "lambda" vars ASA ')'                           { Lambda (reverse $3)  $4 }
+  | '(' "lambda" '(' vars ')' ASA ')'                   { Lambda (reverse $4) $6 }
   | '(' ASA appArgs ')'                                 { App $2 (reverse $3) }
-  
   | '[' listArgs ']'                                    { List (reverse $2) }
   | '(' "head" ASA ')'                                  { Head $3 }
   | '(' "tail" ASA ')'                                  { Tail $3 }
-
-  | '(' "cond" condis '[' "else" ASA ']' ')'      { Cond (reverse $3) $6 }
+  | '(' "cond" condis '[' "else" ASA ']' ')'            { Cond (reverse $3) $6 }
 
 
 

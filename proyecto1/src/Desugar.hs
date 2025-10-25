@@ -36,11 +36,15 @@ desugar (Snd p) = SndC (desugar p)
 desugar (If0 c t e) = IfC (EqualC (desugar c) (NumC 0)) (desugar t) (desugar e)
 desugar (If c t e) = IfC (desugar c) (desugar t) (desugar e)
 desugar (Cond cs e) = desugarCond cs e
+--Lets
 desugar (Let iv b) = desugarLet iv b
-desugar (LetRec iv b) = desugarLet iv b
-desugar (LetStar iv b) = desugarLet iv b
+desugar (LetStar [] body) = desugar body
+desugar (LetStar (iv:ivs) b) = desugar (Let [iv] (LetStar ivs b))
+desugar (LetRec i v b) = desugar (LetStar [(i, v)] b)
+--Expresiones lambda
 desugar (Lambda ps b) = desugarLmb ps b
 desugar (App f as) = desugarApp (desugar f) as
+--Listas
 desugar (List l) = desugarList l
 desugar (Head l) = FstC (desugar l)
 desugar (Tail l) = SndC (desugar l)
@@ -62,11 +66,11 @@ desugarCond [] e = desugar e
 desugarCond ((c, t):cs) e = IfC (desugar c) (desugar t) (desugarCond cs e)
 
 {--
-Funcion auxiliar para desazucarar los let
+Funciones auxiliares para desazucarar let
 --}
 desugarLet :: [(String, ASA)] -> ASA -> AST
 desugarLet [] b = desugar b
-desugarLet ((p, v):ps) b = AppC (FunC p (desugar v)) (desugarLet ps b)
+desugarLet ((p, v):ps) b = AppC (FunC p (desugarLet ps b)) (desugar v)
 
 {--
 Funcion auxiliar para desazucarar las funcioneslambda
@@ -86,7 +90,7 @@ desugarApp f (a:as) = desugarApp (AppC f (desugar a)) as
 Funcion auxiliar para construir listas como encadenamiento de pares
 --}
 desugarList :: [ASA] -> AST
-desugarList [] = error "[desugarList Error]: Lista vacía"
+desugarList [] = NiL --error "[desugarList Error]: Lista vacía"
 desugarList [x] = desugar x
 desugarList (x:xs) = PairC (desugar x) (desugarList xs)
 
@@ -115,3 +119,4 @@ desugalues (SndC p) = SndV (desugalues p)
 desugalues (IfC c t e) = IfV (desugalues c) (desugalues t) (desugalues e)
 desugalues (FunC p b) = FunV p (desugalues b)
 desugalues (AppC f a) = AppV (desugalues f) (desugalues a)
+desugalues NiL = NiV
