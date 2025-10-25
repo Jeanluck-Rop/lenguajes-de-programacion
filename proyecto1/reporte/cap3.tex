@@ -1150,7 +1150,7 @@ ASA
   | '(' "let*" '(' ids ')' ASA ')'            { LetStar (reverse $4) $6 }
   | '(' "if0" ASA ASA ASA ')'                 { If0 $3 $4 $5 }
   | '(' "if" ASA ASA ASA ')'                  { If $3 $4 $5 }
-  | '(' "lambda" vars ASA ')'                 { Lambda (reverse $3)  $4 }
+  | '(' "lambda" '(' vars ')' ASA ')'         { Lambda (reverse $4) $6 }
   | '(' ASA appArgs ')'                       { App $2 (reverse $3) }
   | '(' '[' listArgs ']' ')'                  { List (reverse $3) }
   | '(' "head" ASA ')'                        { Head $3 }
