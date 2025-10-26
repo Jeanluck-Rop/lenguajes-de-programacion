@@ -22,12 +22,12 @@ desugar (Expt n) = ExptC (desugar n)
 -- Not
 desugar (Not x) = NotC (desugar x)
 -- Comparaciones
-desugar (Equal xs) = desugarOps EqualC xs
-desugar (Less xs) = desugarOps LessC xs
-desugar (Greater xs) = desugarOps GreaterC xs
-desugar (Diff xs) = desugarOps DiffC xs
-desugar (Leq xs) = desugarOps LeqC xs
-desugar (Geq xs) = desugarOps GeqC xs
+desugar (Equal xs) = desugarComp EqualC xs
+desugar (Less xs) = desugarComp LessC xs
+desugar (Greater xs) = desugarComp GreaterC xs
+desugar (Diff xs) = desugarComp DiffC xs
+desugar (Leq xs) = desugarComp LeqC xs
+desugar (Geq xs) = desugarComp GeqC xs
 -- Pares
 desugar (Pair f s) = PairC (desugar f) (desugar s)
 desugar (Fst p) = FstC (desugar p)
@@ -49,57 +49,57 @@ desugar (List l) = desugarList l
 desugar (Head l) = FstC (desugar l)
 desugar (Tail l) = SndC (desugar l)
 
-{--
-Funcion auxiliar para desazucarar los operadores y comparaciones variadicas
---}
---(Ya no hay comprobacion de la lista vacia ni de un numero de argumentos invalido porque de eso se encarga desugar)
+--Funcion auxiliar para desazucarar los operadores
+--(Ya no hay comprobacion de la lista vacia ni de un numero de argumentos invalido porque de eso se encarga happy)
 desugarOps :: (AST -> AST -> AST) -> [ASA] -> AST
 desugarOps _ [] = error "[desugarOps Error]: Lista vacía (no debería suceder)"
 desugarOps _ [x] = desugar x
 desugarOps op (x:xs) = op (desugar x) (desugarOps op xs)
 
-{--
-Funcion auxiliar para desazucarar el operador cond
---}
+--Funcion auxiliar para desazucarar los comparadores
+desugarComp :: (AST -> AST -> AST) -> [ASA] -> AST
+desugarComp _ [] = BoolC True
+desugarComp _ [_] = BoolC True
+desugarComp op [i, d] = op (desugar i) (desugar d)
+desugarComp op (i:d:is) =
+  IfC (op (desugar i) (desugar d))
+  (desugarComp op (d:is))
+  (BoolC False)
+  
+--Funcion auxiliar para desazucarar el operador cond
 desugarCond :: [(ASA, ASA)] -> ASA -> AST
 desugarCond [] e = desugar e
 desugarCond ((c, t):cs) e = IfC (desugar c) (desugar t) (desugarCond cs e)
 
-{--
-Funciones auxiliares para desazucarar let
---}
+--Funciones auxiliares para desazucarar let
 desugarLet :: [(String, ASA)] -> ASA -> AST
 desugarLet [] b = desugar b
 desugarLet ((p, v):ps) b = AppC (FunC p (desugarLet ps b)) (desugar v)
 
-{--
-Funcion auxiliar para desazucarar las funcioneslambda
---}
+--Funcion auxiliar para desazucarar las funcioneslambda
 desugarLmb :: [String] -> ASA -> AST
 desugarLmb [] b = desugar b
 desugarLmb (p:ps) b = FunC p (desugarLmb ps b)
 
-{--
-Funcion auxiliar para desazucarar las aplicaciones de función
---}
+--Funcion auxiliar para desazucarar las aplicaciones de función
 desugarApp :: AST -> [ASA] -> AST
 desugarApp f [] = f
 desugarApp f (a:as) = desugarApp (AppC f (desugar a)) as
 
-{--
-Funcion auxiliar para construir listas como encadenamiento de pares
---}
+--Funcion auxiliar para construir listas como encadenamiento de pares
 desugarList :: [ASA] -> AST
 desugarList [] = NiL --error "[desugarList Error]: Lista vacía"
 desugarList [x] = desugar x
 desugarList (x:xs) = PairC (desugar x) (desugarList xs)
 
 
-{-- Convertimos los ASA sin azucar sintatica a estados finales --}
+{--
+Convertimos los ASA sin azucar sintatica a estados finales
+--}
 desugalues :: AST -> ASV
 desugalues (VarC x) = VarV x
-desugalues (NumC n) =  NumV n
-desugalues (BoolC b) =  BoolV b
+desugalues (NumC n) = NumV n
+desugalues (BoolC b) = BoolV b
 desugalues (AddC i d) = AddV (desugalues i) (desugalues d)
 desugalues (SubC i d) = SubV (desugalues i) (desugalues d)
 desugalues (MulC i d) = MulV (desugalues i) (desugalues d)
