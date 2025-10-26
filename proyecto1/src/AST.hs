@@ -24,5 +24,8 @@ data AST
   | IfC AST AST AST
   | FunC String AST
   | AppC AST AST
+  | ConS AST AST
+  | HeadC AST
+  | TailC AST
   | NiL
   deriving (Show, Eq)

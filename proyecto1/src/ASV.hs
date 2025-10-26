@@ -24,6 +24,9 @@ data ASV
   | IfV ASV ASV ASV
   | FunV String ASV
   | AppV ASV ASV
+  | ConV ASV ASV
+  | HeadV ASV
+  | TailV ASV
   | NiV
   | Closure String ASV [(String, ASV)]
   deriving (Show, Eq)

@@ -18,6 +18,8 @@ isValue :: ASV -> Bool
 isValue (NumV _) = True
 isValue (BoolV _) = True
 isValue (Closure _ _ _) = True
+isValue (PairV f s) = isValue f && isValue s
+isValue (ConV f s) = isValue f && isValue s
 isValue (NiV) = True
 isValue _ = False
 
@@ -52,7 +54,9 @@ pasito (DiV (NumV n) d) env = let (d', env') = pasito d env
                                in (DiV (NumV n) d', env')
 pasito (DiV i d) env        = let (i', env') = pasito i env
                                in (DiV i' d, env')
-pasito (SqrtV (NumV n)) env  = (NumV (integerSquareRoot n), env)
+pasito (SqrtV (NumV n)) env
+  | n < 0 = error ("No se puede obtener la raíz de un número negativo")
+  | otherwise = (NumV (integerSquareRoot n), env)
 pasito (SqrtV n) env         = let (n', env') = pasito n env
                                in (SqrtV n', env')
 pasito (ExptV (NumV n)) env  = (NumV (n * n), env)
@@ -93,16 +97,13 @@ pasito (GeqV (NumV n) d) env            = let (d', env') = pasito d env
                                           in (GeqV (NumV n) d', env')
 pasito (GeqV i d) env                   = let (i', env') = pasito i env
                                           in (GeqV i' d, env')
-
----
 --Pares
 pasito (PairV f s) env
-  | isValue f && isValue s = (PairV f s, env)
-pasito (PairV f s) env
+  | isValue (PairV f s) = (PairV f s, env)
   | isValue f = let (s', env') = pasito s env
                 in (PairV f s', env')
-pasito (PairV f s) env = let (f', env') = pasito f env
-                         in (PairV f' s, env')
+  | otherwise = let (f', env') = pasito f env
+                in (PairV f' s, env')
 pasito (FstV (PairV f s)) env
   | isValue f && isValue s = (f, env)
 pasito (FstV p) env = let (p', env') = pasito p env
@@ -111,8 +112,23 @@ pasito (SndV (PairV f s)) env
   | isValue f && isValue s = (s, env)
 pasito (SndV p) env = let (p', env') = pasito p env
                       in (SndV p', env')
----
-
+---Cons
+pasito (ConV f s) env
+  | isValue f && isValue s = (ConV f s, env)
+  | isValue f = let (s', env') = pasito s env
+                in (ConV f s', env')
+  | otherwise = let (f', env') = pasito f env
+                in (ConV f' s, env')
+pasito (HeadV (ConV f s)) env
+  | isValue f && isValue s = (f, env)
+pasito (HeadV p) env =
+  let (p', env') = pasito p env
+  in (HeadV p', env')
+pasito (TailV (ConV f s)) env
+  | isValue f && isValue s = (s, env)
+pasito (TailV p) env =
+  let (p', env') = pasito p env
+  in (TailV p', env')
 --If
 pasito (IfV (BoolV True) t e) env  = (t, env)
 pasito (IfV (BoolV False) t e) env = (e, env)
@@ -121,6 +137,7 @@ pasito (IfV c t e) env             = let (c', env') = pasito c env
 --Funciones
 pasito (FunV p c) env = (Closure p c env, env)
 --Aplicacion de funciones
+--pasito (AppV (FunV p c) a) env = pasito (AppV (Closure p c env) a) env
 pasito (AppV (Closure p c env') a) env
   | isValue a = (c, (p, a):env')
   | otherwise =
@@ -136,25 +153,6 @@ mirarriba i [] = error ("Var '" ++ i ++ "' no definida")
 mirarriba i ((j, v):e)
   | i == j = v
   | otherwise = mirarriba i e
-
-
-
-{-- --}
---numN :: ASV -> Int
---numN (NumV n) = n
-
---boolN :: ASV -> Bool
---boolN (BoolV b) = b
---boolN _ = False
-
---closureP :: ASV -> String
---closureP (Closure p _ _) = p
-
---closureC :: ASV -> ASV
---closureC (Closure _ c _) = c
-
---closureE :: ASV -> Env
---closureE (Closure _ _ e) = e
 
 
 {-- --}

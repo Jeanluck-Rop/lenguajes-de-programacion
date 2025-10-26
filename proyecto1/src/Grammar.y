@@ -37,8 +37,8 @@ import ASA
   "not"           { TokenNot }
   "if0"           { TokenIf0 }
   "if"            { TokenIf }
-  "first"         { TokenFst }
-  "second"        { TokenSnd }
+  "fst"         { TokenFst }
+  "snd"        { TokenSnd }
   "let"           { TokenLet }
   "letrec"        { TokenLetRec }
   "let*"          { TokenLetStar }
@@ -70,8 +70,8 @@ ASA
   | '(' "**" ASA ')'                                    { Expt $3 }
   | '(' "not" ASA ')'                                   { Not $3 }
   | '(' ASA ',' ASA ')'                                 { Pair $2 $4 }
-  | '(' "first" ASA ')'                                 { Fst $3 }
-  | '(' "second" ASA ')'                                { Snd $3 }
+  | '(' "fst" ASA ')'                                   { Fst $3 }
+  | '(' "snd" ASA ')'                                   { Snd $3 }
   | '(' "let" '(' ids ')' ASA ')'                       { Let (reverse $4) $6 }
   | '(' "letrec" '(' var ASA ')' ASA ')'                { LetRec $4 $5 $7 }
   | '(' "let*" '(' ids ')' ASA ')'                      { LetStar (reverse $4) $6 }

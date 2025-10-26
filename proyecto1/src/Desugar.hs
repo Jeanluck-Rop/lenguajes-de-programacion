@@ -40,16 +40,30 @@ desugar (Cond cs e) = desugarCond cs e
 desugar (Let iv b) = desugarLet iv b
 desugar (LetStar [] body) = desugar body
 desugar (LetStar (iv:ivs) b) = desugar (Let [iv] (LetStar ivs b))
+
 ---
-desugar (LetRec i v b) = desugar (LetStar [(i, v)] b) ---
+desugar (LetRec i v b) = desugar (LetStar [(i, App (Lambda [i] v) [Lambda [i] v])] b)
+  -- AppC (FunC i (desugar b)) (desugar (App (Lambda [i] v) [Lambda [i] v]))
+  -- desugar (LetStar [(i, v)] b) ---
 ---
+-- Caso recursión simple
+--desugar (LetRec [(f, Lambda ps body)] b) =
+--  desugar (Let [(f, App (Lambda [f] (Lambda ps body))
+--                        [Lambda [f] (Lambda ps body)])] b)
+-- Caso de múltiples funciones mutuamente recursivas
+--desugar (LetRec ((f, Lambda ps body):fs) b) =
+  --desugar (Let [(f, App (Lambda [f] (Lambda ps body))
+    --                    [Lambda [f] (Lambda ps body)])]
+      --          (LetRec fs b))
+--desugar (LetRec [] b) = desugar b
+
 --Expresiones lambda
 desugar (Lambda ps b) = desugarLmb ps b
 desugar (App f as) = desugarApp (desugar f) as
 --Listas
 desugar (List l) = desugarList l
-desugar (Head l) = FstC (desugar l)
-desugar (Tail l) = SndC (desugar l)
+desugar (Head l) = HeadC (desugar l)
+desugar (Tail l) = TailC (desugar l)
 
 --Funcion auxiliar para desazucarar los operadores
 --(Ya no hay comprobacion de la lista vacia ni de un numero de argumentos invalido porque de eso se encarga happy)
@@ -83,16 +97,16 @@ desugarLmb :: [String] -> ASA -> AST
 desugarLmb [] b = desugar b
 desugarLmb (p:ps) b = FunC p (desugarLmb ps b)
 
---Funcion auxiliar para desazucarar las aplicaciones de función
+--Funcion auxiliar para desazucarar las aplicaciones de funcion
 desugarApp :: AST -> [ASA] -> AST
 desugarApp f [] = f
 desugarApp f (a:as) = desugarApp (AppC f (desugar a)) as
 
---Funcion auxiliar para construir listas como encadenamiento de pares
+--Funcion auxiliar para construir listas como cons y nil
 desugarList :: [ASA] -> AST
-desugarList [] = NiL --error "[desugarList Error]: Lista vacía"
+desugarList [] = NiL
 desugarList [x] = desugar x
-desugarList (x:xs) = PairC (desugar x) (desugarList xs)
+desugarList (x:xs) = ConS (desugar x) (desugarList xs)
 
 
 {--
@@ -118,6 +132,9 @@ desugalues (GeqC i d) = GeqV (desugalues i) (desugalues d)
 desugalues (PairC f s) = PairV (desugalues f) (desugalues s)
 desugalues (FstC p) = FstV (desugalues p)
 desugalues (SndC p) = SndV (desugalues p)
+desugalues (ConS f s) = ConV (desugalues f) (desugalues s)
+desugalues (HeadC p) = HeadV (desugalues p)
+desugalues (TailC p) = TailV (desugalues p)
 desugalues (IfC c t e) = IfV (desugalues c) (desugalues t) (desugalues e)
 desugalues (FunC p b) = FunV p (desugalues b)
 desugalues (AppC f a) = AppV (desugalues f) (desugalues a)

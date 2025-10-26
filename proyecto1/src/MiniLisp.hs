@@ -8,18 +8,8 @@ import Lexer
 import Grammar
 import Desugar
 import Interprete
+import Saca
 import Control.Exception (catch, SomeException)
-
---
-saca :: ASV -> String
-saca (NiV) = "[]"
-saca (NumV n) = show n
-saca (BoolV b)
-  | b == True = "#t"
-  | otherwise = "#f"
-saca (Closure p c e) = "#<procedure>"
-saca _ = "#<unknown>"
-
 
 -- Punto de entrada principal
 main :: IO ()
@@ -30,7 +20,7 @@ main =
   minilisp
 
 
--- Bucle principal del intérprete
+-- Bucle principal del interprete
 minilisp =
   do
     putStr "[MiniLisp]> "
@@ -40,12 +30,12 @@ minilisp =
       else if str == ":q"
            then putStrLn "Bye :)"
       else do
-      ejecutar str
+      run str
       minilisp
 
--- Envuelve la evaluación con manejo de errores
-ejecutar :: String -> IO ()
-ejecutar input =
+-- Envuelve la evaluacion con manejo de errores
+run :: String -> IO ()
+run input =
   catch
     (do
       let tokens = lexer input
@@ -53,8 +43,8 @@ ejecutar input =
       let ast = desugar asa
       let asv = eval (desugalues ast) []
       putStrLn (saca asv))
-    handler
+    errors
 
 -- Manejador de errores
-handler :: SomeException -> IO ()
-handler e = putStrLn $ "[Error]: " ++ show e
+errors :: SomeException -> IO ()
+errors e = putStrLn $ "[Error]: " ++ show e
