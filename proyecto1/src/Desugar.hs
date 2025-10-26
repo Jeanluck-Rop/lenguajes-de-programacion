@@ -40,7 +40,9 @@ desugar (Cond cs e) = desugarCond cs e
 desugar (Let iv b) = desugarLet iv b
 desugar (LetStar [] body) = desugar body
 desugar (LetStar (iv:ivs) b) = desugar (Let [iv] (LetStar ivs b))
-desugar (LetRec i v b) = desugar (LetStar [(i, v)] b)
+---
+desugar (LetRec i v b) = desugar (LetStar [(i, v)] b) ---
+---
 --Expresiones lambda
 desugar (Lambda ps b) = desugarLmb ps b
 desugar (App f as) = desugarApp (desugar f) as

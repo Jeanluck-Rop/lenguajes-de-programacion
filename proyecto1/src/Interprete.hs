@@ -93,6 +93,8 @@ pasito (GeqV (NumV n) d) env            = let (d', env') = pasito d env
                                           in (GeqV (NumV n) d', env')
 pasito (GeqV i d) env                   = let (i', env') = pasito i env
                                           in (GeqV i' d, env')
+
+---
 --Pares
 pasito (PairV f s) env
   | isValue f && isValue s = (PairV f s, env)
@@ -109,6 +111,8 @@ pasito (SndV (PairV f s)) env
   | isValue f && isValue s = (s, env)
 pasito (SndV p) env = let (p', env') = pasito p env
                       in (SndV p', env')
+---
+
 --If
 pasito (IfV (BoolV True) t e) env  = (t, env)
 pasito (IfV (BoolV False) t e) env = (e, env)
