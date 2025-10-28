@@ -1,0 +1,276 @@
+\chapter{Azúcar Sintáctica}
+
+Una vez que hemos ``\textit{limpiado}'' la Sintaxis Concreta y Léxica nos queda la Sintaxis Abstracta y como vimos, con ella logramos capturar la estructura esencial del programa. Sin embargo, podemos reducir aún más estos \textbf{ASA} porque a pesar de ya haber elimida los elementos superficiales de la Sintaxis Concreta, hay expresiones redundantes o que pueden representarse como otras, lo que nos reduce en mayor medida las reglas debemos implementar al momento de la evaluación. Por ejemplo:
+\[
+\texttt{(if0 (+ 8 -8) 0 -1)} \Rightarrow \texttt{(if (= (+ 8 -8) 0) 0 -1)}
+\]
+\texttt{if0} es análogo a if con la comprobación de que el resultado sea igual a cero, pero con \texttt{if0} el usuario se ahorra hacer cada vez esa comprobación de igualdad, pero esto sigue siendo azúcar para nuestro intérprete.
+
+Estas expresiones \textbf{ASA} sin azúcar sintáctica pertenecen al conjunto que denominamos como \textit{núcleo}, o \textit{core}.
+
+\begin{quote}
+  \textit{Desarrollar más la introducción...}
+\end{quote}
+
+\section{Sintaxis Abstracta sin azúcar en\minilisp}
+
+Necesitamos definir una función que realice el prodecimientod e desazucarar los \textbf{ASA} en núcleos. Por lo que nombramos a esta función como \texttt{desugar} y queda definida como sigue:
+\[
+\texttt {desugar ::=} \Rightarrow \texttt{Sugared\_ASA} \rightarrow \texttt{Desugared\_ASA}
+\]
+  
+\begin{itemize}
+\item \textbf{Variables:}
+  Las variables no necesitan desazucarizarse pues ya son expresiones atómicas, ya pertenecen al núcleo, simplemente renombramos a ASA sin azúcar preservando el valor.
+  \begin{center}
+  \texttt{desugar}(\texttt{SugarVar i}) $\Rightarrow$ \texttt{Var i}\\
+  \texttt{desugar}(\texttt{SugarNum n}) $\Rightarrow$ \texttt{Num n}\\
+  \texttt{desugar}(\texttt{SugarBool b}) $\Rightarrow$ \texttt{Bool b}
+  \end{center}
+  
+\item \textbf{Operadores:}
+  Nuestros operadores en su gran mayoría son variádicos, preservan la lista de ASA (los operandos), esto es azúcar sintáctica para el intérprete ya que nuestros operadores \texttt{+}, \texttt{-}, \texttt{*} y \texttt{/} son binarios. Por lo que podemos representar a los operadores variádicos como un encademiento del mismo. Por ejemplo:
+  \begin{center}
+  \texttt{desugar}(\texttt{SugarAdd[} $n_1,\:n_2,\ldots,\:n_k$\texttt{]}) $\Rightarrow$ \texttt{Add} $n_1$ (\texttt{Add} $n_2 \ldots$ (\texttt{Add} $n_{k-1}\; n_k$))
+  \end{center}
+
+  Para el caso de los operadores unarios, estos ya de por sí son azúcar sintáctica- a excepción de Sqrt el cuál es un operador único por lo que ya es \textit{núcleo} -. En el caso de \texttt{Add1} $n$ y \texttt{Sub1} $n$ podemos reexpreasarlos como  $n + 1$ y $n - 1$ respectivamente,y de manera similar con \texttt{Expt}, dado que en nuestro lenguaje representa elevar al cuadrado el número $n$, entonces \texttt{Expt} es azúcar sitáctica y lo reexpresamos como una multiplicación se $n \times n$:
+  \begin{center}
+  \texttt{desugar}(\texttt{Add1 } $n$) $\Rightarrow$ \texttt{Add} $n$ $1$\\
+  \texttt{desugar}(\texttt{SugarSqrt } $n$) $\Rightarrow$ \texttt{Sqrt} $n$\\
+  \texttt{desugar}(\texttt{Expt} $n$) $\Rightarrow$ \texttt{Mul} $n$ $n$
+  \end{center}
+
+\item \textbf{Comparadores:}
+  En el caso de los comparadores, es muy similar su representación en \textbf{ASA} sin azúcar como lo fue para los operadores variádicos, ya que estos también lo son. El núcleo de cada comparadaor es el mismo pues forzosamente tenemos que definir uno  para cada uno de ellos, ya que necesitamos preservar el tipo de comparación. Sin embargo, a diferencia de los operadores, no es conveniente representarlos como un encademiento de comparadores, pues al evaluar la comparación entre dos números, el resultado es de tipo \texttt{Bool}Sino como un encademiento de condicionales if.
+  Donde la condición inicial es la comparación de los dos primeros argumentos y el consecuente son las comparaciones de la argumentos restantes, si alguna de las condiciones no se cumple entonces caemos en el else False y de otro modo las comparaciones son válidas y el resultado es \texttt{True}:
+
+  \begin{center}
+    \texttt{desugar}(\texttt{SugarEqual[} $n_1,\:n_2,\ldots,\:n_k$\texttt{]}) $\Rightarrow$ \texttt{If} (\texttt{Equal} $n_1$ $n_2$) (\texttt{Equal} $n_2$ $n_3$) $\ldots$ (\texttt{Equal} $n_{k-1}$ $n_k$) (\texttt{Bool False})
+  \end{center}
+
+\item \textbf{Not y Pares:}
+\texttt{Not} y las \textbf{ASA} sobre pares \texttt{Pair}, \texttt{Fst} y \texttt{Snd} ya son núcleos, no hace falta definir una desazucarización específica.
+
+\item \textbf{Condicionales:}
+  \texttt{If0} y \texttt{Cond} solo son azúcar sintáctica de \texttt{If}. \texttt{If0} como mencionamos es comprobar que el resultado al terminar de evaluarse sea igual a cero. Mientras que \texttt{Cond} es igualmente un encadenamiento de \texttt{If}. Por ello estas tres expresiones las representamos como un único núcleo If:
+
+  \begin{center}
+    \texttt{desugar}(\texttt{If0 c t e}) $\Rightarrow$ \texttt{If} (\texttt{Equal c 0}) t e\\
+    \texttt{desugar}(\texttt{Cond [$x_1$ $e_1$] [$x_2$ $e_2$] $\ldots$ [$x_n$ $e_n$] [else $e_k$]}) $\Rightarrow$ \texttt{If} ($x_1$) $e_1$ (If ($x_2$) $n_2$) $\ldots$ (If ($x_n$) $e_n$ ($e_k$))
+  \end{center}
+  
+\item \textbf{Lets:}
+
+  \begin{quote}
+    \textit{Falta la definición de Lets sin azúcar...}
+  \end{quote}
+
+\item \textbf{Expresiones lambda:}
+  Nuestras expresiones lambda son variádicas, por lo que para representarlas en núcleo necesitamos currificarlas., es decir, necesitamos convertiralas en funciones de un solo argumento:
+  
+  \begin{center}
+    \texttt{desugar}(\texttt{Lambda [$x_1$, $x_2$, $\ldots$ $x_n$]} $b$) $\Rightarrow$ (\texttt{Fun $x_1$ (Fun $x_2$ $\ldots$ (Fun $x_n$} $b$)))
+  \end{center}
+  
+  De igual forma para la Aplicación de funciones, ya que \texttt{App} en \textbf{ASA} maneja una lista de argumentos, necesitamos currificar estos argumentos ya que las funciones ya están en forma de un argumento a la vez:
+  
+  \begin{center}
+    \texttt{desugar}(\texttt{App $e$ [$x_1$, $x_2$, $\ldots$ $x_n$]}) $\Rightarrow$ (\texttt{App} (\texttt{App} (\texttt{App} $\ldots$ (\texttt{App} $e$ $x_1$) $x_2$) $\ldots$) $x_n$))
+  \end{center}
+  
+\item \textbf{Listas:}
+  Para las listas definimos su desazucaricación con el uso de \texttt{Nil} y \texttt{Cons}, el cuál funciona de manera similar al encadenamiento de pares:
+  
+  \begin{center}
+    \texttt{desugar}(\texttt{List [$x_1$, $x_2$, $\ldots$ $x_n$]}) $\Rightarrow$ (\texttt{Cons $x_1$ (Cons $x_2$ $\ldots$ (Con $x_{n-1}$ $x_n$}))
+  \end{center}
+  
+  \texttt{Head}, \texttt{Tail} ya no trabajan sobre listas \textbf{ASA} sino con \texttt{Nil} y \texttt{Cons}, por lo que estos seran nuestro núcleos para manejar las listas.
+\end{itemize}
+
+  \begin{quote}
+    \textit{Creo estaría bien mencionar que algunos ya no son árboles n-arios sino binarios...}
+  \end{quote}
+  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Desugar en Haskell}
+
+Para nuestro proyecto en \minilisp definimos el siguiente tipo de dato:
+
+\begin{lstlisting}[style=haskellstyle, caption={Tipo de dato ASA sin azúcar, AST}]
+module AST where
+  
+-- ASA sin azucar (AST)
+data AST
+  = VarC String
+  | NumC Int
+  | BoolC Bool
+  | AddC AST AST
+  | SubC AST AST
+  | MulC AST AST
+  | DivC AST AST
+  | SqrtC AST
+  | NotC AST
+  | EqualC AST AST
+  | LessC AST AST
+  | GreaterC AST AST
+  | DiffC AST AST
+  | LeqC AST AST
+  | GeqC AST AST
+  | PairC AST AST
+  | FstC AST
+  | SndC AST
+  | IfC AST AST AST
+  | FunC String AST
+  | AppC AST AST
+  | ConS AST AST
+  | HeadC AST
+  | TailC AST
+  | NiL
+  deriving (Show, Eq)
+
+\end{lstlisting}
+
+\textbf{AST} (\textit{Abstract Sintaxis Tree}) es nuestro tipo de dato \textbf{ASA} sin azúcar, no hay un razón especial por la que la hayamos nombrado \textbf{AST}, nos pareció práctico y nada más. En esta seccón nos referiremos como \textbf{AST} a nuestra sintaxis abstracta sin azúcar en\minilisp{-0.2cm}. Notemos que, los tipos de dato que trabajaban sobre listas\\
+
+Anteriormente hicimos una breve mención, casi de manera superficial, de cómo se re-expresan nuestro \textbf{ASA} a \textbf{AST} a través de un función especial conocida como \texttt{desugar}, de tal modo que nos quedamos con las estructuras núcleo y no ahorramos futuras reglas para el intérprete.\\
+
+En nuestro proyecto de\minilisp{-0.2cm}, definimos la función \texttt{desugar} en el arhcivo \texttt{Desugar.hs} como sigue:
+
+\begin{lstlisting}[style=haskellstyle, caption={Firma y casos base de la función desugar}]
+  module Desugar where
+  
+  import ASA
+  import AST
+  import ASV
+  
+  {-- Desazucaramos los ASA  --}
+  desugar :: ASA -> AST
+  -- Casos base
+  desugar (Var x) = VarC x
+  desugar (Num n) = NumC n
+  desugar (Boolean b) = BoolC b
+\end{lstlisting}
+
+La firma de la función refleja nuestro objetivo, dado una estructura \texttt{ASA}, \texttt{desugar} lo proecesa hasta obtener un \texttt{AST}. Nótese además que las expresiones atómicas no cambian su estructura, únicamente las renombramos de tipo \texttt{ASA} a \texttt{AST}.
+
+\begin{lstlisting}[style=haskellstyle, caption={Sección de la función \texttt{desugar} para operadores aritméticos}]
+  desugar :: ASA -> AST
+  -- Operaciones aritmeticas
+  desugar (Add xs) = desugarOps AddC xs
+  desugar (Sub xs) = desugarOps SubC xs
+  desugar (Mul xs) = desugarOps MulC xs
+  desugar (Div xs) = desugarOps DivC xs
+  desugar (Add1 n) = AddC (desugar n) (NumC 1)
+  desugar (Sub1 n) = SubC (desugar n) (NumC 1)
+  desugar (Expt n) = MulC (desugar n) (desugar n)
+  desugar (Sqrt n) = SqrtC (desugar n)
+\end{lstlisting}
+
+Previamente, al hacer mención de la función \texttt{desugar} omitimos explicar que los argumentos de las expresiones deben pasar también por el proceso de desazucarización, sin embargo es necesario definir la desazucarización recursivamente ya que como sabemos, un \textbf{AST} es \textbf{AST} si todos sus hijos lo son.
+
+\noindent
+Para ello definimos una función auxiliar \texttt{desugarOps} que generaliza el trabajo de desazucarar las operaciones aritméticas pues estas pasan por el mismo procedimiento solo que cambian la etiqueta de su estructura. Mientras que \texttt{Add1} y \texttt{Sub1} como mencionamos, son azúcar para $n$ \texttt{+} 1 / $n$ \texttt{-} 1 respectivamente, además de que \texttt{Expt} es azúcar de $n \times n$. Por otro lado, \texttt{Sqrt} solo pasa a ser \texttt{SqrtC} además que aplica \texttt{desugar} a su único hijo.
+
+\begin{lstlisting}[style=haskellstyle, caption={Función \texttt{desugarOps} como auxiliar para desazucarar operadores}]
+  desugar :: ASA -> AST
+  -- Operaciones aritmeticas
+  desugar (Add xs) = desugarOps AddC xs
+  desugar (Sub xs) = desugarOps SubC xs
+  desugar (Mul xs) = desugarOps MulC xs
+  desugar (Div xs) = desugarOps DivC xs
+
+  --Funcion auxiliar para desazucarar los operadores
+  desugarOps :: (AST -> AST -> AST) -> [ASA] -> AST
+  desugarOps _ [] = error "[desugarOps Error]: Lista vacia (no deberia suceder)"
+  desugarOps _ [x] = desugar x
+  desugarOps op (x:xs) = op (desugar x) (desugarOps op xs)
+\end{lstlisting}
+
+La función \texttt{desugarOps} recibe una tupla de \texttt{AST} (\texttt{AST -> AST -> AST}) y una lista de \texttt{ASA} y devuelve un \texttt{AST} donde en la tupla, el primero es la etiqueta asociada al operador que vamos a desazucarar y los otros dos son los hijos del operador, que recordemos, en \texttt{AST} ya son árboles binarios. Y la lista de \texttt{ASA} es la lista de los operandos que vamos a separar.
+
+\noindent
+De esta forma no perdemos la referencia de qué tipo de operador \texttt{AST} estamos desazucarando mientras mantemos una única función \texttt{desugarOps} y así no tenemos que definir una función para cada operador.
+
+\noindent
+Tenemos dos casos base para la función, donde \texttt{[ASA]} es vacía, cosa que no debería suceder pues en la gramática definida en Happy justo lo implementamos de modo que los operadores rechacen un número de argumentos inválidos; además de que tampoco se puede llegar a la lista vacía por el siguiente caso base donde si la lista tiene un elemento es donde termina la recursión y devolvemos ese elemento desazucarado con \texttt{desugar}. Por otro lado el paso recursivo es donde tomamos la cabeza de la lista el cual desazucaramos para ser el primer arguemento del operador, mientras que la cola recursivamente se aplica \texttt{desugarOps} y que será el segundo argumento.\\
+
+Continuando con los comparadores, intuitivamente pensamos en implementarlo de igual forma que con los operadores (un encadenamiento de comparadores). Sin embargo, al momento de pensar en su interpretación, nos topamos con el problema de que, al hacer la comparación entre un \texttt{Num n} y \texttt{Num m}, el resultado es de tipo \texttt{Bool}, y esto nos da una inconsistencia de tipos al momento de continuar con las evaluaciones posteriores ya que no es imposible comparar un \texttt{Num} con un \texttt{Bool}.
+
+\noindent
+Por ello cambiamos su implementación a encadenamiento de condicionales \texttt{If}, pues es la única forma en nuestro lenguaje de preservar las comparaciones correctas y detectar en donde no se cumple la comparación.
+
+\begin{lstlisting}[style=haskellstyle, caption={Función \texttt{desugarComp} como auxiliar para desazucarar comparadores}]
+  desugar :: ASA -> AST
+  -- Not
+  desugar (Not x) = NotC (desugar x)
+  -- Comparaciones
+  desugar (Equal xs) = desugarComp EqualC xs
+  desugar (Less xs) = desugarComp LessC xs
+  desugar (Greater xs) = desugarComp GreaterC xs
+  desugar (Diff xs) = desugarComp DiffC xs
+  desugar (Leq xs) = desugarComp LeqC xs
+  desugar (Geq xs) = desugarComp GeqC xs
+
+  --Funcion auxiliar para desazucarar los comparadores
+  desugarComp :: (AST -> AST -> AST) -> [ASA] -> AST
+  desugarComp _ [] = BoolC True
+  desugarComp _ [_] = BoolC True
+  desugarComp op [i, d] = op (desugar i) (desugar d)
+  desugarComp op (i:d:is) = IfC (op (desugar i) (desugar d))
+                            (desugarComp op (d:is))
+                            (BoolC False)
+\end{lstlisting}
+
+De manera similar como fue con los operadores, definimos una función \texttt{desugarComp} que recibe una tupla de \texttt{AST} para preservar la etiqueta a desazucarar y la lista de elementos a separar que se van a comparar. Los primeros dos casos, son los casos base, donde igualmente, no podemos tener una lista de uno o ningún elemento, pues. La siguiente instrucción sería nuestro caso base real, donde establece que al tener solo dos elementos en la lista, simplemente se devuela la comparación de ambos elementos, mientras que si todavía quedan elementos en la lista, iniciemos la cadena de \texttt{IfC}, donde los primeros dos elementos se comparan en la condición y en caso de cumplirse continuamos en el entonces con la llamada recursiva de \texttt{desugarComp} del segundo elemento con el resto de la lista, y en caso de no cumplirse, el else es \texttt{BoolC False}.
+
+\noindent
+Esta separación y comparación de elementos es válida para cualquier lista de $n$ elementos sin importar si $n$ es $2k$ o $2k$ \texttt{-} $1$, es decir, si la lista tiene un número impar o par de elementos; ya que siempre hacemos la comparación de elemento por elemento hasta llegar al caso donde quedan 2 elementos en la lista que es cuando simplemente se devuelve la comparación de ambos.\\
+
+Los pares como se mencionó no es necesario desazucararlos más que recursivamente desazucarar a sus hijos:
+
+\begin{lstlisting}[style=haskellstyle, caption={Desazucarización de los Pares}]
+  desugar :: ASA -> AST
+  -- Pares
+  desugar (Pair f s) = PairC (desugar f) (desugar s)
+  desugar (Fst p) = FstC (desugar p)
+  desugar (Snd p) = SndC (desugar p)
+\end{lstlisting}
+
+Como bien explicamos, las condicionales \texttt{If0} y \texttt{Cond} son azúcar sintáctica de \texttt{If}. \texttt{If0} pasa a \texttt{IfC} con la comprobación de que el valor en la condición sea igual a cero y nada más. 
+
+\begin{lstlisting}[style=haskellstyle, caption={Desazucarización de los condicionales}]
+  desugar :: ASA -> AST
+  --Condicionales
+  desugar (If0 c t e) = IfC (EqualC (desugar c) (NumC 0)) (desugar t) (desugar e)
+  desugar (If c t e) = IfC (desugar c) (desugar t) (desugar e)
+  desugar (Cond cs e) = desugarCond cs e
+\end{lstlisting}
+
+Por otro lado para \texttt{Cond}, tenemos que definir una función auxiliar que nos realice el paso a encadenamiento de condicionales \texttt{IfC}
+
+\begin{lstlisting}[style=haskellstyle, caption={Desazucarización de los Pares}]
+  desugar :: ASA -> AST
+  --Condicionales
+  desugar (Cond cs e) = desugarCond cs e
+
+  --Funcion auxiliar para desazucarar el operador cond
+  desugarCond :: [(ASA, ASA)] -> ASA -> AST
+  desugarCond [] e = desugar e
+  desugarCond ((c, t):cs) e = IfC (desugar c) (desugar t) (desugarCond cs e)
+\end{lstlisting}
+
+Como se puede ver, la función \texttt{desugarCond} recibe una lista de pares (\textit{condición, expresión}) junto con una expresión final (el caso \texttt{else} implícito). Si la lista de pares es vacía, basta con devolver la expresión por defecto desazucarada. En caso contrario, se construye una estructura \texttt{IfC} donde la primera condición se evalúa en el \textit{\textbf{if}}, la primera expresión en el \textit{\textbf{then}}, y el resto de los pares en el \textit{\textbf{else}}, aplicando recursivamente \texttt{desugarCond}.
+
+\noindent
+De esta manera, la estructura \texttt{Cond} se traduce en una sucesión de evaluaciones \texttt{IfC} anidadas, logrando así preservar el mismo comportamiento semántico que tendría en su forma azucarada. Y así garantizamos que sólo se ejecute el cuerpo correspondiente a la primera condición verdadera, respetando la naturaleza secuencial del condicional múltiple.
+
+\bigskip
+\begin{quote}
+  \textit{Aquí va lo que falta de explicar de la desazucarización de los Lets}
+\end{quote}
+\bigskip
+
+Lambda

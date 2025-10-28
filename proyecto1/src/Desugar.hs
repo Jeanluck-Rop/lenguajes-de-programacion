@@ -17,8 +17,8 @@ desugar (Mul xs) = desugarOps MulC xs
 desugar (Div xs) = desugarOps DivC xs
 desugar (Add1 n) = AddC (desugar n) (NumC 1)
 desugar (Sub1 n) = SubC (desugar n) (NumC 1)
+desugar (Expt n) = MulC (desugar n) (desugar n)
 desugar (Sqrt n) = SqrtC (desugar n)
-desugar (Expt n) = ExptC (desugar n)
 -- Not
 desugar (Not x) = NotC (desugar x)
 -- Comparaciones
@@ -40,23 +40,9 @@ desugar (Cond cs e) = desugarCond cs e
 desugar (Let iv b) = desugarLet iv b
 desugar (LetStar [] body) = desugar body
 desugar (LetStar (iv:ivs) b) = desugar (Let [iv] (LetStar ivs b))
-
 ---
 desugar (LetRec i v b) = desugar (LetStar [(i, App (Lambda [i] v) [Lambda [i] v])] b)
-  -- AppC (FunC i (desugar b)) (desugar (App (Lambda [i] v) [Lambda [i] v]))
-  -- desugar (LetStar [(i, v)] b) ---
 ---
--- Caso recursión simple
---desugar (LetRec [(f, Lambda ps body)] b) =
---  desugar (Let [(f, App (Lambda [f] (Lambda ps body))
---                        [Lambda [f] (Lambda ps body)])] b)
--- Caso de múltiples funciones mutuamente recursivas
---desugar (LetRec ((f, Lambda ps body):fs) b) =
-  --desugar (Let [(f, App (Lambda [f] (Lambda ps body))
-    --                    [Lambda [f] (Lambda ps body)])]
-      --          (LetRec fs b))
---desugar (LetRec [] b) = desugar b
-
 --Expresiones lambda
 desugar (Lambda ps b) = desugarLmb ps b
 desugar (App f as) = desugarApp (desugar f) as
@@ -65,8 +51,9 @@ desugar (List l) = desugarList l
 desugar (Head l) = HeadC (desugar l)
 desugar (Tail l) = TailC (desugar l)
 
+
+{-- Funciones auxiliares para desugar --}
 --Funcion auxiliar para desazucarar los operadores
---(Ya no hay comprobacion de la lista vacia ni de un numero de argumentos invalido porque de eso se encarga happy)
 desugarOps :: (AST -> AST -> AST) -> [ASA] -> AST
 desugarOps _ [] = error "[desugarOps Error]: Lista vacía (no debería suceder)"
 desugarOps _ [x] = desugar x
@@ -77,10 +64,9 @@ desugarComp :: (AST -> AST -> AST) -> [ASA] -> AST
 desugarComp _ [] = BoolC True
 desugarComp _ [_] = BoolC True
 desugarComp op [i, d] = op (desugar i) (desugar d)
-desugarComp op (i:d:is) =
-  IfC (op (desugar i) (desugar d))
-  (desugarComp op (d:is))
-  (BoolC False)
+desugarComp op (i:d:is) = IfC (op (desugar i) (desugar d))
+                          (desugarComp op (d:is))
+                          (BoolC False)
   
 --Funcion auxiliar para desazucarar el operador cond
 desugarCond :: [(ASA, ASA)] -> ASA -> AST
@@ -109,9 +95,7 @@ desugarList [x] = desugar x
 desugarList (x:xs) = ConS (desugar x) (desugarList xs)
 
 
-{--
-Convertimos los ASA sin azucar sintatica a estados finales
---}
+{-- Convertimos los AST a estados finales ASV --}
 desugalues :: AST -> ASV
 desugalues (VarC x) = VarV x
 desugalues (NumC n) = NumV n
@@ -121,7 +105,6 @@ desugalues (SubC i d) = SubV (desugalues i) (desugalues d)
 desugalues (MulC i d) = MulV (desugalues i) (desugalues d)
 desugalues (DivC i d) = DiV (desugalues i) (desugalues d)
 desugalues (SqrtC n) = SqrtV (desugalues n)
-desugalues (ExptC n) = ExptV (desugalues n)
 desugalues (NotC x) = NotV (desugalues x)
 desugalues (EqualC i d) = EqualV (desugalues i) (desugalues d)
 desugalues (LessC i d) = LessV (desugalues i) (desugalues d)

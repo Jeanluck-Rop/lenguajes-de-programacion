@@ -59,9 +59,6 @@ pasito (SqrtV (NumV n)) env
   | otherwise = (NumV (integerSquareRoot n), env)
 pasito (SqrtV n) env         = let (n', env') = pasito n env
                                in (SqrtV n', env')
-pasito (ExptV (NumV n)) env  = (NumV (n * n), env)
-pasito (ExptV n) env         = let (n', env') = pasito n env
-                               in (ExptV n', env')
 --Not
 pasito (NotV (BoolV b)) env = (BoolV (not b), env)
 pasito (NotV e) env         = let (e', env') = pasito e env
@@ -125,7 +122,9 @@ pasito (HeadV p) env =
   let (p', env') = pasito p env
   in (HeadV p', env')
 pasito (TailV (ConV f s)) env
-  | isValue f && isValue s = (s, env)
+  | isValue f && isValue s && isTail s = (s, env)
+  | otherwise = let (s', env') = pasito s env
+                in (TailV s', env')
 pasito (TailV p) env =
   let (p', env') = pasito p env
   in (TailV p', env')
@@ -158,3 +157,11 @@ mirarriba i ((j, v):e)
 {-- --}
 integerSquareRoot :: Int -> Int
 integerSquareRoot n = floor (sqrt (fromIntegral n :: Double))
+
+{-- --}
+isTail :: ASV -> Bool
+isTail (NumV _) = True
+isTail (BoolV _) = True
+isTail (Closure _ _ _) = True
+isTail NiV = True
+isTail _ = False

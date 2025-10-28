@@ -10,7 +10,6 @@ data AST
   | MulC AST AST
   | DivC AST AST
   | SqrtC AST
-  | ExptC AST
   | NotC AST
   | EqualC AST AST
   | LessC AST AST

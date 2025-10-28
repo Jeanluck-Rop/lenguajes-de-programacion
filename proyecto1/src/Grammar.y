@@ -37,8 +37,8 @@ import ASA
   "not"           { TokenNot }
   "if0"           { TokenIf0 }
   "if"            { TokenIf }
-  "fst"         { TokenFst }
-  "snd"        { TokenSnd }
+  "fst"           { TokenFst }
+  "snd"           { TokenSnd }
   "let"           { TokenLet }
   "letrec"        { TokenLetRec }
   "let*"          { TokenLetStar }

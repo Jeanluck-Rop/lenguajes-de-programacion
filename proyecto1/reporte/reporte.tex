@@ -133,115 +133,44 @@
 \tableofcontents
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% ----- Introducción -----
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \include{cap1}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% ----- Sintaxis Concreta -----
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \include{cap2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+% ----- Sintaxis Abstracta -----
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\include{cap3}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\cap4
+%\include{cap3}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-\chapter{Azúcar sintáctica}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Sintaxis Abstracta sin azúcar}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Desugar}
-
-
+% ----- Azúcar Sintáctica -----
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\cap5
+\include{cap4}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-\chapter{Semántica operacional}
-\section{Paso pequeño}
-\subsection{Evaluación perezosa}
-\subsection{Evaluación ansiosa}
-
-
+% ----- Intérprete -----
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\cap6
+\include{cap5}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ----- Resultados -----
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\include{cap6}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ----- Conclusiones -----
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\include{cap7}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\chapter{Intérprete}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Paso pequeño para\minilisp}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Ambientes}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Evaluación en Haskell}
-
-
+% ----- Bibliografía -----
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\cap7
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\chapter{Resultados}
-Bien, una vez hemos visto toda la teoría de nuestro\minilisp y además de que hemos mostrado el código que lo implementa en Haskell, veamos como funciona:
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Menú interactivo}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Funciones de prueba}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\subsection{Suma primeros $n$ números naturales}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\subsection{Factorial}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\subsection{Fibonacci}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\subsection{Función \texttt{map} para listas}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\subsection{Función \texttt{filter} para listas}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\cap8
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\chapter{Conclusiones}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\biblio
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \addcontentsline{toc}{chapter}{Bibliografía}
 \begin{thebibliography}{99}
 \bibitem{ref1} \textcolor{links}{\uline{\url{https://weblibrary.mila.edu.my/upload/ebook/engineering/2017_Book_FoundationsOfProgrammingLangua.pdf}}}
@@ -251,7 +180,7 @@ Bien, una vez hemos visto toda la teoría de nuestro\minilisp y además de que h
 \bibitem{ref5} Marlow, S., Gill, A. (2009). Happy. Disponible en: \textcolor{links}{\uline{\url{https://www.haskell.org/happy/}}}
 \bibitem{ref6} Autor. "Artículo". Revista, Año.
 \end{thebibliography}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \end{document}
 %-------------------------------

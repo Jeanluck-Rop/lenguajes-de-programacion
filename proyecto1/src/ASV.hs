@@ -10,7 +10,6 @@ data ASV
   | MulV ASV ASV
   | DiV ASV ASV
   | SqrtV ASV
-  | ExptV ASV
   | NotV ASV
   | EqualV ASV ASV
   | LessV ASV ASV
