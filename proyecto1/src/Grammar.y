@@ -30,10 +30,10 @@ import ASA
   "!="            { TokenNeq }
   "<="            { TokenLeq }
   ">="            { TokenGeq }
-  "++"            { TokenAdd1 }
-  "--"            { TokenSub1 }
+  "add1"          { TokenAdd1 }
+  "sub1"          { TokenSub1 }
   "sqrt"          { TokenSqrt }
-  "**"            { TokenExpt }
+  "expt"          { TokenExpt }
   "not"           { TokenNot }
   "if0"           { TokenIf0 }
   "if"            { TokenIf }
@@ -64,10 +64,10 @@ ASA
   | '(' "!=" opArgs ')'                                 { Diff (reverse $3) }
   | '(' "<=" opArgs ')'                                 { Leq (reverse $3) }
   | '(' ">=" opArgs ')'                                 { Geq (reverse $3) }
-  | '(' "++" ASA ')'                                    { Add1 $3 }
-  | '(' "--" ASA ')'                                    { Sub1 $3 }
+  | '(' "add1" ASA ')'                                  { Add1 $3 }
+  | '(' "sub1" ASA ')'                                  { Sub1 $3 }
   | '(' "sqrt" ASA ')'                                  { Sqrt $3 }
-  | '(' "**" ASA ')'                                    { Expt $3 }
+  | '(' "expt" ASA ')'                                  { Expt $3 }
   | '(' "not" ASA ')'                                   { Not $3 }
   | '(' ASA ',' ASA ')'                                 { Pair $2 $4 }
   | '(' "fst" ASA ')'                                   { Fst $3 }
