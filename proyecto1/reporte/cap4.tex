@@ -61,9 +61,18 @@ Necesitamos definir una función que realice el prodecimientod e desazucarar los
   \end{center}
   
 \item \textbf{Lets:}
+  Los \texttt{Let} son solo la azúcar de la aplicación de funciones donde la sustitucion del valor con el identificador, el par (\textit{id, value}) es el argumento, y el cuerpo del \texttt{let} es la función que se va a aplicar. Por otro lado, \texttt{LetStar} es azúcar sintácica de \texttt{Let}, de modo que \texttt{LetStar} se reexpresa como \texttt{lets} anidados.
+  
+  Por lo que el proceso de desazucarización sería similar a:
 
+  \begin{center}
+    \texttt{desugar}(\texttt{Let}($id$, $value$) $body$)  $\Rightarrow$ \texttt{App} ($body$) ($id$, $value$)\\
+    \texttt{desugar}(\texttt{LetStar}($id_1$, $value_1$) ($id_2$, $value_2$) $\ldots$ ($id_n$, $value_n$) $body$) $\Rightarrow$ \texttt{Let} (($id_1$, $value_1$) (\texttt{Let} ($id_2$, $value_2$) $\ldots$ (\texttt{Let}($id_n$, $value_n$) $body$)))
+  \end{center}
+  
+  
   \begin{quote}
-    \textit{Falta la definición de Lets sin azúcar...}
+    \textit{Falta la definición de LetRec como azúcar...}
   \end{quote}
 
 \item \textbf{Expresiones lambda:}
@@ -251,7 +260,7 @@ Como bien explicamos, las condicionales \texttt{If0} y \texttt{Cond} son azúcar
 
 Por otro lado para \texttt{Cond}, tenemos que definir una función auxiliar que nos realice el paso a encadenamiento de condicionales \texttt{IfC}
 
-\begin{lstlisting}[style=haskellstyle, caption={Desazucarización de los Pares}]
+\begin{lstlisting}[style=haskellstyle, caption={Desazucarización de Cond}]
   desugar :: ASA -> AST
   --Condicionales
   desugar (Cond cs e) = desugarCond cs e
@@ -265,12 +274,191 @@ Por otro lado para \texttt{Cond}, tenemos que definir una función auxiliar que 
 Como se puede ver, la función \texttt{desugarCond} recibe una lista de pares (\textit{condición, expresión}) junto con una expresión final (el caso \texttt{else} implícito). Si la lista de pares es vacía, basta con devolver la expresión por defecto desazucarada. En caso contrario, se construye una estructura \texttt{IfC} donde la primera condición se evalúa en el \textit{\textbf{if}}, la primera expresión en el \textit{\textbf{then}}, y el resto de los pares en el \textit{\textbf{else}}, aplicando recursivamente \texttt{desugarCond}.
 
 \noindent
-De esta manera, la estructura \texttt{Cond} se traduce en una sucesión de evaluaciones \texttt{IfC} anidadas, logrando así preservar el mismo comportamiento semántico que tendría en su forma azucarada. Y así garantizamos que sólo se ejecute el cuerpo correspondiente a la primera condición verdadera, respetando la naturaleza secuencial del condicional múltiple.
+De esta manera, la estructura \texttt{Cond} se traduce en una sucesión de evaluaciones \texttt{IfC} anidadas, logrando así preservar el mismo comportamiento semántico que tendría en su forma azucarada. Y así garantizamos que sólo se ejecute el cuerpo correspondiente a la primera condición verdadera, respetando la naturaleza secuencial del condicional múltiple.\\
+
+Como se mencionó, los \texttt{Let} en nuestro lenguaje no son construcciones primitivas, sino azúcar sintáctica que se puede expresar completamente a partir de funciones y aplicaciones. Intuitivamente, un \texttt{Let} introduce una variable local asociada a un valor dentro de un cuerpo de expresión. Sin embargo, esta noción de “sustitución” puede modelarse directamente mediante la aplicación de una función anónima a un argumento.
+
+\noindent
+Esta equivalencia se refleja directamente en nuestra función auxiliar \texttt{desugarLet}, encargada de traducir cualquier \texttt{Let} del \textbf{ASA} a su correspondiente expresión \textbf{AST} basada en aplicaciones de funciones:
+
+\begin{lstlisting}[style=haskellstyle, caption={Desazucarización de Let y LetStar}]
+  desugar :: ASA -> AST
+  --Lets
+  desugar (Let iv b) = desugarLet iv b
+  desugar (LetStar [] body) = desugar body
+  desugar (LetStar (iv:ivs) b) = desugar (Let [iv] (LetStar ivs b))
+
+  --Funciones auxiliares para desazucarar let
+  desugarLet :: [(String, ASA)] -> ASA -> AST
+  desugarLet [] b = desugar b
+  desugarLet ((p, v):ps) b = AppC (FunC p (desugarLet ps b)) (desugar v)
+\end{lstlisting}
+
+La función \texttt{desugarLet} recibe una lista de pares \texttt{(id, valor)} y el cuerpo del \texttt{Let}. En el caso base, cuando no hay más pares, simplemente se desazucara el cuerpo, ya que no hay variables locales restantes por introducir. En el caso general, se construye una función anónima con el primer identificador \texttt{p} y cuerpo el resultado de seguir desazucarando los pares restantes junto con el cuerpo \texttt{b}.
+A continuación, esta función se aplica (\texttt{AppC}) al valor \texttt{v} correspondiente, el cual también se desazucara antes de la aplicación.\\
+
+Además, \texttt{LetStar} -como también se  mencionó en la sección anterior- es simplemente azúcar sintáctica de \texttt{Let}. El \texttt{LetStar} permite escribir múltiples asignaciones secuenciales en un mismo bloque, pero semánticamente equivale a una serie de \texttt{Let} anidados. Su desazucarización se implementa recursivamente, construyendo un \texttt{Let} por cada par \texttt{(id, valor)} y utilizando como cuerpo el siguiente \texttt{LetStar}, hasta llegar al cuerpo final.\\
+
+Por otro lado:
+\begin{quote}
+  \textit{Falta completar lo de LetRec}
+\end{quote}
+  
+\begin{lstlisting}[style=haskellstyle, caption={Desazucarización de LetRec}]
+  desugar :: ASA -> AST
+  ---LetRec
+  desugar (LetRec i v b) = desugar (LetStar [(i, App (Lambda [i] v) [Lambda [i] v])] b)
+  ---
+\end{lstlisting}
 
 \bigskip
+
+Una vez establecido lo anterior, continuamos con el caso de los \textbf{ASA} \texttt{Lambda} en nuestro lenguaje, operan con una lista de parámetros siendo esto azúcar sintáctica, por lo que definimos la función auxiliar \texttt{desugarLmb} done ''\textit{currificamos}`` la función en \texttt{FunC} que trabaja sobre un parámetro:
+
+\begin{lstlisting}[style=haskellstyle, caption={Desazucarización de las funciones lambda}]
+  desugar :: ASA -> AST
+  --Expresiones lambda
+  desugar (Lambda ps b) = desugarLmb ps b
+
+  --Funcion auxiliar para desazucarar las funcioneslambda
+  desugarLmb :: [String] -> ASA -> AST
+  desugarLmb [] b = desugar b
+  desugarLmb (p:ps) b = FunC p (desugarLmb ps b)
+\end{lstlisting}
+
+Si la lista de parámetros está vacía, simplemente se devuelve el cuerpo desazucarado; en caso contrario, se crea un \texttt{FunC} con el primer parámetro y como cuerpo el resultado de desazucarar los parámetros restantes junto con el cuerpo.
+
+De igual manera, las aplicaciones de función en \texttt{ASA} trabajan con una lista de argumentos, por lo que debemos desazucarlo en aplicaciones sucesivas de \texttt{AppC}.
+
+\begin{lstlisting}[style=haskellstyle, caption={Desazucarización de la aplicación de función}]
+  desugar :: ASA -> AST
+  --Expresiones lambda
+  desugar (App f as) = desugarApp (desugar f) as
+
+  --Funcion auxiliar para desazucarar las aplicaciones de funcion
+  desugarApp :: AST -> [ASA] -> AST
+  desugarApp f [] = f
+  desugarApp f (a:as) = desugarApp (AppC f (desugar a)) as
+\end{lstlisting}
+
+Donde el caso base es que al quedarnos sin argumentos que desazcuarar, devolvemos la función a aplicar, ya que esta fue desazucarada en \texttt{AST} desde la primer llamada a \texttt{desugarApp}. Por otra parte, si quedan argumentos en la lista continuamos con la llamda recursiva para que formen las aplicaciones sucesivas de \texttt{AppC}.\\
+
+Finalmente tenemos \texttt{desugar} para listas. En un principio, la idea fue implementar las listas como encademaiento de pares, no obstante, esto nos trajo problemas al momento de implementar la función que devuelve el resultado al usuario\footnote{Abordaremos más sobre esta situación en próximos capítulos pero en términos simples usar \texttt{ConS} y \texttt{NiL} mejoró la parte de diferenciar totalementre entre una lista con pares a un par con listas, entre otras combinaciones para poder reflejar correctamente la entrada del usuario sin modificaciones inesperadas.}, pero aunque realizar esta desazucarización requiere de definir cuatro \texttt{AST}, nos facilita el trabajo al momento de evaluar acertadamente lo que el usuario da como programa.
+
+\begin{lstlisting}[style=haskellstyle, caption={Desazucarización de Listas}]
+  desugar :: ASA -> AST
+  --Listas
+  desugar (List l) = desugarList l
+  desugar (Head l) = HeadC (desugar l)
+  desugar (Tail l) = TailC (desugar l)
+
+  --Funcion auxiliar para construir listas como cons y nil
+  desugarList :: [ASA] -> AST
+  desugarList [] = NiL
+  desugarList [x] = desugar x
+  desugarList (x:xs) = ConS (desugar x) (desugarList xs)
+\end{lstlisting}
+
+De manera muy similar a como fuimos creando el encadenamiento de operadores o de condicionales \texttt{IfC} para los comparadores, en este caso, vamos elemento por elemento de la lista creando un encadenamiento de únicamente \texttt{ConS}, mas no utilizamos \texttt{NiL}. Este \texttt{AST} lo utilizamos de manera reservada para representar las listas vacías, mientras que \texttt{HeadC} y \texttt{TailC} son similares a \texttt{FstC} y \texttt{SndC} pero sobre listas.\\
+
+De este modo terminamos con el algoritmo de la función \texttt{desugar} para desazucarar nuestros \textbf{ASA} y convertilos a \texttt{AST}:
+
+\begin{lstlisting}[style=haskellstyle, caption={Algoritmo para función \texttt{desugar} en Haskell completo}]
+  {-- Desazucaramos los ASA  --}
+  desugar :: ASA -> AST
+  -- Casos base
+  desugar (Var x) = VarC x
+  desugar (Num n) = NumC n
+  desugar (Boolean b) = BoolC b
+  -- Operaciones aritmeticas
+  desugar (Add xs) = desugarOps AddC xs
+  desugar (Sub xs) = desugarOps SubC xs
+  desugar (Mul xs) = desugarOps MulC xs
+  desugar (Div xs) = desugarOps DivC xs
+  desugar (Add1 n) = AddC (desugar n) (NumC 1)
+  desugar (Sub1 n) = SubC (desugar n) (NumC 1)
+  desugar (Expt n) = MulC (desugar n) (desugar n)
+  desugar (Sqrt n) = SqrtC (desugar n)
+  -- Not
+  desugar (Not x) = NotC (desugar x)
+  -- Comparaciones
+  desugar (Equal xs) = desugarComp EqualC xs
+  desugar (Less xs) = desugarComp LessC xs
+  desugar (Greater xs) = desugarComp GreaterC xs
+  desugar (Diff xs) = desugarComp DiffC xs
+  desugar (Leq xs) = desugarComp LeqC xs
+  desugar (Geq xs) = desugarComp GeqC xs
+  -- Pares
+  desugar (Pair f s) = PairC (desugar f) (desugar s)
+  desugar (Fst p) = FstC (desugar p)
+  desugar (Snd p) = SndC (desugar p)
+  --Condicionales
+  desugar (If0 c t e) = IfC (EqualC (desugar c) (NumC 0)) (desugar t) (desugar e)
+  desugar (If c t e) = IfC (desugar c) (desugar t) (desugar e)
+  desugar (Cond cs e) = desugarCond cs e
+  --Lets
+  desugar (Let iv b) = desugarLet iv b
+  desugar (LetStar [] body) = desugar body
+  desugar (LetStar (iv:ivs) b) = desugar (Let [iv] (LetStar ivs b))
+  ---
+  ---desugar (LetRec i v b) = desugar (LetStar [(i, App (Lambda [i] v) [Lambda [i] v])] b)
+  ---
+  --Expresiones lambda
+  desugar (Lambda ps b) = desugarLmb ps b
+  desugar (App f as) = desugarApp (desugar f) as
+  --Listas
+  desugar (List l) = desugarList l
+  desugar (Head l) = HeadC (desugar l)
+  desugar (Tail l) = TailC (desugar l)
+
+  {-- Funciones auxiliares para desugar --}
+  --Funcion auxiliar para desazucarar los operadores
+  desugarOps :: (AST -> AST -> AST) -> [ASA] -> AST
+  desugarOps _ [] = error "[desugarOps Error]: Lista vacia (no deberia suceder)"
+  desugarOps _ [x] = desugar x
+  desugarOps op (x:xs) = op (desugar x) (desugarOps op xs)
+
+  --Funcion auxiliar para desazucarar los comparadores
+  desugarComp :: (AST -> AST -> AST) -> [ASA] -> AST
+  desugarComp _ [] = BoolC True
+  desugarComp _ [_] = BoolC True
+  desugarComp op [i, d] = op (desugar i) (desugar d)
+  desugarComp op (i:d:is) = IfC (op (desugar i) (desugar d))
+  (desugarComp op (d:is))
+  (BoolC False)
+  
+  --Funcion auxiliar para desazucarar el operador cond
+  desugarCond :: [(ASA, ASA)] -> ASA -> AST
+  desugarCond [] e = desugar e
+  desugarCond ((c, t):cs) e = IfC (desugar c) (desugar t) (desugarCond cs e)
+
+  --Funciones auxiliares para desazucarar let
+  desugarLet :: [(String, ASA)] -> ASA -> AST
+  desugarLet [] b = desugar b
+  desugarLet ((p, v):ps) b = AppC (FunC p (desugarLet ps b)) (desugar v)
+
+  --Funcion auxiliar para desazucarar las funcioneslambda
+  desugarLmb :: [String] -> ASA -> AST
+  desugarLmb [] b = desugar b
+  desugarLmb (p:ps) b = FunC p (desugarLmb ps b)
+
+  --Funcion auxiliar para desazucarar las aplicaciones de funcion
+  desugarApp :: AST -> [ASA] -> AST
+  desugarApp f [] = f
+  desugarApp f (a:as) = desugarApp (AppC f (desugar a)) as
+
+  --Funcion auxiliar para construir listas como cons y nil
+  desugarList :: [ASA] -> AST
+  desugarList [] = NiL
+  desugarList [x] = desugar x
+  desugarList (x:xs) = ConS (desugar x) (desugarList xs)
+\end{lstlisting}
+
+\bigskip
+
+Así concluímos con la implementación de desazucarar nuestros Árboles de Sintaxis Abstracta , quedando como resultado los núcleos de nuestro lenguaje\minilisp{-0.2cm}. Como vimos, este proceso nos ayuda enormemente a reducir las futuras reglas del interprete, disminuyendo la carga de trabajo y evitando operaciones redundantes y hasta cierto punto innecesarias, quedándonos con lo escencial para facilitar la evaluación y además prevalece nuestro mayorobjetivo que es no alterar ni arriesgar la entrada original del usuario.
+
 \begin{quote}
-  \textit{Aquí va lo que falta de explicar de la desazucarización de los Lets}
+  \textit{Aquí podríamos extender más el cierre del tema de azúcar sintáctica}
 \end{quote}
 \bigskip
-
-Lambda

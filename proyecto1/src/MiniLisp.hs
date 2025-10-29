@@ -41,7 +41,7 @@ run input =
       let tokens = lexer input
       let asa = parse tokens
       let ast = desugar asa
-      let asv = eval (desugalues ast) []
+      let asv = eval (toFinalState ast) []
       putStrLn (saca asv))
     errors
 

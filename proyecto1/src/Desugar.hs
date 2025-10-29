@@ -96,29 +96,29 @@ desugarList (x:xs) = ConS (desugar x) (desugarList xs)
 
 
 {-- Convertimos los AST a estados finales ASV --}
-desugalues :: AST -> ASV
-desugalues (VarC x) = VarV x
-desugalues (NumC n) = NumV n
-desugalues (BoolC b) = BoolV b
-desugalues (AddC i d) = AddV (desugalues i) (desugalues d)
-desugalues (SubC i d) = SubV (desugalues i) (desugalues d)
-desugalues (MulC i d) = MulV (desugalues i) (desugalues d)
-desugalues (DivC i d) = DiV (desugalues i) (desugalues d)
-desugalues (SqrtC n) = SqrtV (desugalues n)
-desugalues (NotC x) = NotV (desugalues x)
-desugalues (EqualC i d) = EqualV (desugalues i) (desugalues d)
-desugalues (LessC i d) = LessV (desugalues i) (desugalues d)
-desugalues (GreaterC i d) = GreaterV (desugalues i) (desugalues d)
-desugalues (DiffC i d) = DiffV (desugalues i) (desugalues d)
-desugalues (LeqC i d) = LeqV (desugalues i) (desugalues d)
-desugalues (GeqC i d) = GeqV (desugalues i) (desugalues d)
-desugalues (PairC f s) = PairV (desugalues f) (desugalues s)
-desugalues (FstC p) = FstV (desugalues p)
-desugalues (SndC p) = SndV (desugalues p)
-desugalues (ConS f s) = ConV (desugalues f) (desugalues s)
-desugalues (HeadC p) = HeadV (desugalues p)
-desugalues (TailC p) = TailV (desugalues p)
-desugalues (IfC c t e) = IfV (desugalues c) (desugalues t) (desugalues e)
-desugalues (FunC p b) = FunV p (desugalues b)
-desugalues (AppC f a) = AppV (desugalues f) (desugalues a)
-desugalues NiL = NiV
+toFinalState :: AST -> ASV
+toFinalState (VarC x) = VarV x
+toFinalState (NumC n) = NumV n
+toFinalState (BoolC b) = BoolV b
+toFinalState (AddC i d) = AddV (toFinalState i) (toFinalState d)
+toFinalState (SubC i d) = SubV (toFinalState i) (toFinalState d)
+toFinalState (MulC i d) = MulV (toFinalState i) (toFinalState d)
+toFinalState (DivC i d) = DiV (toFinalState i) (toFinalState d)
+toFinalState (SqrtC n) = SqrtV (toFinalState n)
+toFinalState (NotC x) = NotV (toFinalState x)
+toFinalState (EqualC i d) = EqualV (toFinalState i) (toFinalState d)
+toFinalState (LessC i d) = LessV (toFinalState i) (toFinalState d)
+toFinalState (GreaterC i d) = GreaterV (toFinalState i) (toFinalState d)
+toFinalState (DiffC i d) = DiffV (toFinalState i) (toFinalState d)
+toFinalState (LeqC i d) = LeqV (toFinalState i) (toFinalState d)
+toFinalState (GeqC i d) = GeqV (toFinalState i) (toFinalState d)
+toFinalState (PairC f s) = PairV (toFinalState f) (toFinalState s)
+toFinalState (FstC p) = FstV (toFinalState p)
+toFinalState (SndC p) = SndV (toFinalState p)
+toFinalState (ConS f s) = ConV (toFinalState f) (toFinalState s)
+toFinalState (HeadC p) = HeadV (toFinalState p)
+toFinalState (TailC p) = TailV (toFinalState p)
+toFinalState (IfC c t e) = IfV (toFinalState c) (toFinalState t) (toFinalState e)
+toFinalState (FunC p b) = FunV p (toFinalState b)
+toFinalState (AppC f a) = AppV (toFinalState f) (toFinalState a)
+toFinalState NiL = NiV
