@@ -1,1 +1,21 @@
+# Archivos básicos de LaTeX
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+
+# Archivos de sincronización
+*.synctex.gz
+
+# Archivos temporales
 *~
+*.backup
+*.bak
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db*~
