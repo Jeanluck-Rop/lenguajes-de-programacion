@@ -5,6 +5,7 @@ data ASV
   = VarV String
   | NumV Int
   | BoolV Bool
+  | NiV
   | AddV ASV ASV
   | SubV ASV ASV
   | MulV ASV ASV
@@ -26,6 +27,5 @@ data ASV
   | ConV ASV ASV
   | HeadV ASV
   | TailV ASV
-  | NiV
   | Closure String ASV [(String, ASV)]
   deriving (Show, Eq)

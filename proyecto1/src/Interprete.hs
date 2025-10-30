@@ -2,9 +2,16 @@ module Interprete where
 
 import ASV
 
+{--
+Definimos la representacion del ambiente de ejecucion.
+Un ambiente es una lista de pares (id, valor).
+--}
 type Env = [(String, ASV)]
 
-{-- --}
+{-- Funcion principal del interprete --}
+{--
+Evaluamos una expresion paso a paso utilizando la funcion 'pasito' hasta llegar a algun valor canonico.
+--}
 eval :: ASV -> Env -> ASV
 eval asv env
   | isValue asv = asv
@@ -13,7 +20,7 @@ eval asv env
      in eval asv' env'
 
         
-{-- --}
+{-- Funcion que determina si una expresion es valor canonico --}
 isValue :: ASV -> Bool
 isValue (NumV _) = True
 isValue (BoolV _) = True
@@ -24,7 +31,10 @@ isValue (NiV) = True
 isValue _ = False
 
 
-{-- --}
+{--  Funcion pasito que implementa la semantica operacional estructural del lenguaje --}
+{--
+'Avanza' un solo paso en la evaluacion de una expresión, devolviendo el resultado y el ambiente actualizado.
+--}
 pasito :: ASV -> Env -> (ASV, Env)
 --Valores
 pasito (VarV i) env  = (mirarriba i env, env)
@@ -122,7 +132,7 @@ pasito (HeadV p) env =
   let (p', env') = pasito p env
   in (HeadV p', env')
 pasito (TailV (ConV f s)) env
-  | isValue f && isValue s && isTail s = (s, env)
+  | isValue f && isValue s && not (isConV s) = (s, env)
   | otherwise = let (s', env') = pasito s env
                 in (TailV s', env')
 pasito (TailV p) env =
@@ -136,7 +146,6 @@ pasito (IfV c t e) env             = let (c', env') = pasito c env
 --Funciones
 pasito (FunV p c) env = (Closure p c env, env)
 --Aplicacion de funciones
---pasito (AppV (FunV p c) a) env = pasito (AppV (Closure p c env) a) env
 pasito (AppV (Closure p c env') a) env
   | isValue a = (c, (p, a):env')
   | otherwise =
@@ -146,7 +155,7 @@ pasito (AppV f a) env = let (f', env') = pasito f env
                         in (AppV f' a, env')
 
 
-{-- --}
+{-- Funcion mirarriba (lookup) para la busqueda de variables en el ambiente --}
 mirarriba :: String -> Env -> ASV
 mirarriba i [] = error ("Var '" ++ i ++ "' no definida")
 mirarriba i ((j, v):e)
@@ -154,14 +163,12 @@ mirarriba i ((j, v):e)
   | otherwise = mirarriba i e
 
 
-{-- --}
+{-- Funcion auxiliar para SqrtV para calcular la raiz cuadrada de un numero entero --}
 integerSquareRoot :: Int -> Int
 integerSquareRoot n = floor (sqrt (fromIntegral n :: Double))
 
-{-- --}
-isTail :: ASV -> Bool
-isTail (NumV _) = True
-isTail (BoolV _) = True
-isTail (Closure _ _ _) = True
-isTail NiV = True
-isTail _ = False
+
+{-- Funcion que nos dice si la estructura sigue siendo un ecadenamiento de ConV--}
+isConV :: ASV -> Bool
+isConV (ConV _ _) = True
+isConV _ = False
