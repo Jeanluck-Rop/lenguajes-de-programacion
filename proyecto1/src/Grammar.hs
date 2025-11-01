@@ -31,7 +31,7 @@ happyExpList = Happy_Data_Array.listArray (0,264) ([61440,2,0,4096,0,0,0,0,0,0,0
 {-# NOINLINE happyExpListPerState #-}
 happyExpListPerState st =
     token_strs_expected
-  where token_strs = ["error","%dummy","%start_parse","ASA","opArgs","ids","id","vars","appArgs","listArgs","condis","condy","var","num","boolean","'('","')'","'['","']'","','","'+'","'-'","'*'","'/'","'='","'<'","'>'","\"!=\"","\"<=\"","\">=\"","\"++\"","\"--\"","\"sqrt\"","\"**\"","\"not\"","\"if0\"","\"if\"","\"fst\"","\"snd\"","\"let\"","\"letrec\"","\"let*\"","\"head\"","\"tail\"","\"lambda\"","\"cond\"","\"else\"","%eof"]
+  where token_strs = ["error","%dummy","%start_parse","ASA","opArgs","ids","id","vars","appArgs","listArgs","condis","condy","var","num","boolean","'('","')'","'['","']'","','","'+'","'-'","'*'","'/'","'='","'<'","'>'","\"!=\"","\"<=\"","\">=\"","\"add1\"","\"sub1\"","\"sqrt\"","\"expt\"","\"not\"","\"if0\"","\"if\"","\"fst\"","\"snd\"","\"let\"","\"letrec\"","\"let*\"","\"head\"","\"tail\"","\"lambda\"","\"cond\"","\"else\"","%eof"]
         bit_start = st Prelude.* 48
         bit_end = (st Prelude.+ 1) Prelude.* 48
         read_bit = readArrayBit happyExpList

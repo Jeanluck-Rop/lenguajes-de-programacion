@@ -1,6 +1,14 @@
 module ASV where
 
--- ASA Values
+import AST
+
+{--
+Definimos la representacion del ambiente de ejecucion.
+Un ambiente es una lista de pares (id, valor).
+--}
+type Env = [(String, ASV)]
+
+{-- ASA Values --}
 data ASV
   = VarV String
   | NumV Int
@@ -27,5 +35,7 @@ data ASV
   | ConV ASV ASV
   | HeadV ASV
   | TailV ASV
-  | Closure String ASV [(String, ASV)]
+  | Closure String ASV Env
+  | ClosureF String AST Env
+  | ExprV AST Env
   deriving (Show, Eq)

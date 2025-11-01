@@ -2,12 +2,6 @@ module Interprete where
 
 import ASV
 
-{--
-Definimos la representacion del ambiente de ejecucion.
-Un ambiente es una lista de pares (id, valor).
---}
-type Env = [(String, ASV)]
-
 {-- Funcion principal del interprete --}
 {--
 Evaluamos una expresion paso a paso utilizando la funcion 'pasito' hasta llegar a algun valor canonico.
