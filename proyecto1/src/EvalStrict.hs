@@ -11,7 +11,7 @@ evalS (VarC i) env = lookupS i env
 evalS (NumC n) _   = (NumV n)
 evalS (BoolC b) _  = (BoolV b)
 evalS NiL _        = NiV
---Operadores aritméticos
+--Operadores aritmeticos
 evalS (AddC i d) env =
   let i' = strict (evalS i env)
       d' = strict (evalS d env)
