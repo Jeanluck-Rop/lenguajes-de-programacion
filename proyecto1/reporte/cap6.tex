@@ -1,30 +1,279 @@
-\chapter{Resultados}
-Bien, una vez hemos visto toda la teoría de nuestro\minilisp y además de que hemos mostrado el código que lo implementa en Haskell, veamos como funciona:
+\chapter{Puntos Estrictos}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Este es un capítulo corto pero escencial y crucial para la implementación de nuestro intéprete del lenguaje, ya que al meter recursión de la forma tradicional, la manera en la que hemos planteado la evaluación hasta ahora necesita ser remodela.\\
 
-\section{Menú interactivo}
+Para evitar los de variables no definidas al utilizar recursion y combinadores, debemos volver a\minilisp perezo, es decir, debemos reeplantear la estrategia de evaluacion de\minilisp de glotón a perezoso.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Al usar evaluación perezosa, existen ciertos puntos dentro de la implementación en los que no puede
+postergarse la evaluación.
 
-\section{Funciones de prueba}
+\begin{quote}
+  \textit{Explicar que es el alcance perezoso y lo que son puntos estrictos.}
+\end{quote}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Para ello tenemos que definir un forma que nos permitia aplicar los \textit{puntos estrictos} de nuestro lenguaje. Este forma la modelaremos mediante una función \textbf{strict}, que reduce la expresión hasta llegar a un \textbf{valor canónico} del lenguaje.
 
-\subsection{Suma primeros $n$ números naturales}
+\[
+\textbf{strict}(\langle e, \varepsilon \rangle) =
+\begin{cases}
+e, & \text{si } e \text{ es valor},\\[4pt]
+\langle e', \varepsilon \rangle, & \text{si } \langle e, \varepsilon \rangle \to \langle e', \varepsilon' \rangle.
+\end{cases}
+\]
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Para aplicar este mecanismo, sí o sí necesitamos nuestras reglas semánticas de modo que apliquen los \textit{puntos estrictos} correspondientes usando \textbf{strict}. El resto de reglas se mantienen sin cambios, pero el cambio radica en que: aquellas expresiones donde detectamos la presencia de \textit{puntos estrictos} y recibian cerraduras de expresión ⟨e, $\varepsilon$⟩, es donde llamamos \textbf{strict}.
 
-\subsection{Factorial}
+\section{Reglas semánticas perezosas con strict}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+\item AddV(i,d):
+\item SubV(i,d):
+\item MulV(i,d):
+\item DiV(i,d):
+\item SqrtV(n):
+\item NotV(b):
+\item EqualV(i,d):
+\item LessV(i,d):
+\item GreaterV(i,d):
+\item DiffV(i,d):
+\item LeqV(i,d):
+\item GeqV(i,d):
+\item PairV(f,s):  
+\item FstV(p):
+\item SndV(p):
+\item IfV(c,t,e):
+\item ConV(i,d):
+\item HeadV(l):
+\item TailV(l);
+\item FunV(p,c):
+\item AppV(f,a):
+\end{itemize}
 
-\subsection{Fibonacci}
+\begin{quote}
+  \textit{Consultar la pagina 13-14 del ultimo pdf del profesor para ver contexto}
+\end{quote}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Una vez definido todo lo anterior, veamos su implementación en Haskell y cómo se modifica el interprete de\minilisp{-0.2cm}.
 
-\subsection{Función \texttt{map} para listas}
+\section{Evaluación perezosa para \minilisp}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Como se mostró, al cambiar la estrategia de evaluación de nuestro intérprete, debemos hacer muchos cambios en su implementación en Haskell.
 
-\subsection{Función \texttt{filter} para listas}
+Con este nuevo enfoque, nuestro tipo de dato \texttt{ASV} ya es más reducido donde solo están los valores canónicos:
+
+\begin{lstlisting}[style=haskellstyle, caption={Tipo de dato \texttt{ASV} con valores canónicos}]
+module ASV where
+
+import AST
+
+{--
+Definimos la representacion del ambiente de ejecucion.
+Un ambiente es una lista de pares (id, valor).
+--}
+type Env = [(String, ASV)]
+
+{-- ASA Values --}
+data ASV
+  = NumV Int
+  | BoolV Bool
+  | NiV
+  | PairV ASV ASV
+  | ConV ASV ASV
+  | ClosureF String AST Env
+  | ExprV AST Env
+  deriving (Show, Eq)
+\end{lstlisting}
+
+%https://lambdasspace.github.io/LDP/notas/ldp_n06.pdf
+%https://lambdasspace.github.io/LDP/notas/ldp_n07.pdf
+%https://lambdasspace.github.io/LDP/notas/ldp_n12.pdf
+%https://lambdasspace.github.io/LDP/notas/ldp_n13.pdf
+%https://lambdasspace.github.io/LDP/notas/ldp_n14.pdf
+
+A diferencia de la implementación anterior, en este nuevo interprete ya no tenemos que usar la función \texttt{toFinalState} para convertir los \textbf{ASA} en estados finales, ya que los únicos estados finales son los valores canónicos ({Ambas definiciones significan lo mismo pero recordemos que en la primer implementación hicimos el abuso de notación para marcar la diferencia entre ambos}, de eso se ecargará el nuevo intérprete, de convertir las expresion \texttt{AST} a estados finales (valores canónicos).\\
+
+Definimos la función de evaluación perezosa con puntos estrictos como sigue:
+
+\begin{lstlisting}[style=haskellstyle, caption={Evaluación perezosa con \textbf{strict} para\minilisp{-0.2cm}}]
+module EvalStrict where
+
+import AST
+import ASV
+import Interprete
+
+{-- Funcion de evaluacion perezosa --}
+evalS :: AST -> Env -> ASV
+--Valores
+evalS (VarC i) env = lookupS i env
+evalS (NumC n) _   = (NumV n)
+evalS (BoolC b) _  = (BoolV b)
+evalS NiL _        = NiV
+--Operadores aritmeticos
+evalS (AddC i d) env =
+  let i' = strict (evalS i env)
+      d' = strict (evalS d env)
+   in NumV (numN i' + numN d')
+evalS (SubC i d) env =
+  let i' = strict (evalS i env)
+      d' = strict (evalS d env)
+   in NumV (numN i' - numN d')
+evalS (MulC i d) env =
+  let i' = strict (evalS i env)
+      d' = strict (evalS d env)
+   in NumV (numN i' * numN d')
+evalS (DivC i d) env =
+  let n = numN (strict (evalS i env))
+      m = numN (strict (evalS d env))
+   in if m == 0
+        then error "No se puede dividir entre 0"
+        else NumV (div n m)
+evalS (SqrtC n) env =
+  let n' = numN (strict (evalS n env))
+   in if n' < 0
+        then error "No se puede obtener la raiz de un numero negativo"
+        else NumV (integerSquareRoot n')
+--Not
+evalS (NotC e) env =
+  let e' = strict (evalS e env)
+   in BoolV (not (boolN e'))
+--Comparadores
+evalS (EqualC i d) env =
+  let i' = strict (evalS i env)
+      d' = strict (evalS d env)
+   in BoolV (numN i' == numN d')
+evalS (LessC i d) env =
+  let i' = strict (evalS i env)
+      d' = strict (evalS d env)
+   in BoolV (numN i' < numN d')
+evalS (GreaterC i d) env =
+  let i' = strict (evalS i env)
+      d' = strict (evalS d env)
+   in BoolV (numN i' > numN d')
+evalS (DiffC i d) env =
+  let i' = strict (evalS i env)
+      d' = strict (evalS d env)
+   in BoolV (numN i' /= numN d')
+evalS (LeqC i d) env =
+  let i' = strict (evalS i env)
+      d' = strict (evalS d env)
+   in BoolV (numN i' <= numN d')
+evalS (GeqC i d) env =
+  let i' = strict (evalS i env)
+      d' = strict (evalS d env)
+   in BoolV (numN i' >= numN d')
+--Pares
+evalS (PairC i d) env =
+  let i' = strict (evalS i env)
+      d' = strict (evalS d env)
+   in PairV i' d'
+evalS (FstC p) env =
+  case strict (evalS p env) of
+    PairV f _ -> f
+    _         -> error "Fst espera un par"
+evalS (SndC p) env =
+  case strict (evalS p env) of
+    PairV _ s -> s
+    _         -> error "Snd espera un par"
+--Cons
+evalS (ConS i d) env =
+  let i' = strict (evalS i env)
+      d' = strict (evalS d env)
+   in ConV i' d'
+evalS (HeadC p) env =
+  case strict (evalS p env) of
+    ConV h _ -> h
+    _        -> error "Head espera una lista"
+evalS (TailC p) env =
+  case strict (evalS p env) of
+    ConV _ t ->
+      let t' = strict t
+       in if not (isConV t')
+          then t'
+          else tailDeep t'
+    _        -> error "Tail espera una lista"
+--If
+evalS (IfC c t e) env =
+  let cond = boolN (strict (evalS c env))
+   in if cond then evalS t env else evalS e env
+--Funciones
+evalS (FunC p c) env = ClosureF p c env
+--Aplicacion de funciones
+evalS (AppC f a) env =
+  let f' = evalS f env
+      funV = strict f'
+   in evalS (closureC funV) (((closureP funV), ExprV a env) : (closureE funV))
+
+{-- Funcion strict para forzar la evaluacion de los puntos estrictos --}
+strict :: ASV -> ASV
+strict (NumV n) = NumV n
+strict (BoolV b) = BoolV b
+strict (PairV f s) = PairV (strict f) (strict s)
+strict (ConV i d) = ConV (strict i) (strict d)
+strict (ExprV a e) = strict (evalS a e)
+strict (NiV) = NiV
+strict (ClosureF p c e) = ClosureF p c e
+
+{-- Funcion auxiliar para devolver el numero de NumV--}
+numN :: ASV -> Int
+numN (NumV n) = n
+
+{-- Funcion auxiliar para devolver el booleano de BoolV --}
+boolN :: ASV -> Bool
+boolN (BoolV b) = b
+boolN _ = False
+
+{-- Funcion auxiliar para devoler el parametro de la cerradura --}
+closureP :: ASV -> String
+closureP (ClosureF p _ _) = p
+
+{-- Funcion auxiliar para devoler el cuerpo de la cerradura --}
+closureC :: ASV -> AST
+closureC (ClosureF _ c _) = c
+
+{-- Funcion auxiliar para devoler el ambiente de la cerradura --}
+closureE :: ASV -> Env
+closureE (ClosureF _ _ e) = e
+
+{-- Funcion auxiliar para encontrar el ultimo elemento canonico de los ConV anidados--}
+tailDeep :: ASV -> ASV
+tailDeep (ConV _ rest) =
+  let rest' = strict rest
+  in if not (isConV rest')
+     then rest'
+     else tailDeep rest'
+tailDeep v = v
+
+\end{lstlisting}
+
+La mayor diferencia a \texttt{eval} es que la función \texttt{evalS} ya no utiliza la evaluación de paso pequeño, sino que implementa una evaluación directa (\textit{\textbf{big-step}}). Ahora utilizamos funciones auxiliares (\texttt{strict}, \texttt{numN}, \texttt{boolN}, etc.) para obtener valores “$forzados$”.
+
+\noindent
+Además de este cambio, lo más notorio es \texttt{TailC} y la aplicación de funciones. La primer expresión ahora utiliza una función auxiliar \texttt{tailDeep} para seguir buscando el último elemento en la anidación de \texttt{ConS}, ya que usar \texttt{evalS} nos da una inconsistencia de tipos, pues al evaluar por primera vez el par, este se transforma en un \texttt{ASV} siendo que \texttt{evalS} recibe \texttt{AST}.
+
+\noindent
+Para el caso de \texttt{AppC}:
+
+\begin{enumerate}
+\item Evalúa $f$ en el ambiente actual, esto debería devolver una cerradura.
+\item Fuerza \textit{f'} con \texttt{strict}, asegurándose de que sea una cerradura concreta.
+\item Extrae información de la cerradura:
+  \begin{itemize}
+  \item \texttt{closureC funV}: el cuerpo de la función.
+  \item \texttt{closureP funV}: el nombre del parámetro formal.
+  \item \texttt{closureE funV}: el ambiente donde la función fue creada.
+\end{itemize}
+
+\item Crea un nuevo ambiente donde:
+  \begin{itemize}
+  \item El parámetro formal (\texttt{closureP funV}) se asocia a la expresión real (\texttt{ExprV a env});
+  \item Se añade al ambiente original de la cerradura (\texttt{closureE funV}).
+  \end{itemize}
+  
+\item Evalúa el cuerpo de la función (\texttt{closureC funV}) en ese nuevo ambiente extendido.
+\end{enumerate}
+
+De este modo tenemos una evaluación adecuada para introducir recursión con \texttt{LetRec} en nuestro lenguaje\minilisp{-0.2cm}, pues como mencionamos, necesitamos meter al ambiente inicial la evaluación de nuestro combinador \textbf{Z}, el cuál se mostró que presentaba errores con la evaluación glotona.
+
+\begin{quote}
+  \textit{Aqui podemos poner un cierre del interprete, recursion y evaluacion glotona}
+\end{quote}
