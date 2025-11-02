@@ -1,6 +1,16 @@
 \chapter{Azúcar Sintáctica}
+El término \textit{azúcar sintáctica} \textit{(syntactic sugar)} fue introducido por Peter J.Landin en 1964. La azúcar sintáctica consiste en construcciones del lenguaje que pueden ser sistemáticamente traducidas a formas más básicas sin alterar la semántica del programa. Es decir, no añaden nuevas capacidades expresivas, sino que facilitan la escritura o lectura del código.
 
-Una vez que hemos ``\textit{limpiado}'' la Sintaxis Concreta y Léxica nos queda la Sintaxis Abstracta y como vimos, con ella logramos capturar la estructura esencial del programa. Sin embargo, podemos reducir aún más estos \textbf{ASA} porque a pesar de ya haber elimida los elementos superficiales de la Sintaxis Concreta, hay expresiones redundantes o que pueden representarse como otras, lo que nos reduce en mayor medida las reglas debemos implementar al momento de la evaluación. Por ejemplo:
+Landin fue un pionero de la teoría de lenguajes de programación, utilizó el término para describir aquellas construcciones que, aunque convenientes para el programador, pueden eliminarse mediante una transformación mecánica sin modificar el significado del programa.
+
+\begin{quote}
+  Landin uso este termino por primera vez en su trabajo sobre la correspondencia entre programación y cálculo lambda, específicamente en el artículo \textit{"The Next 700 Programming Languages"}~\cite{landin}, aunque la idea aparece en escritos de 1964.
+\end{quote}
+
+Continunado con nuestro proyecto. Una vez que hemos elimindo todos los elementos superficilaes y auxiliares de la sintaxis concreta y léxica para quedarnos únicamente con la represntación mínima y estructural del programa, es decir, el \textbf{Arbol de Sintaxis Abstracta} (ASA) logramos capturar la estructura esencial del programa. 
+Pasamos a la siguiente fase,reducir aún más estos \textbf{ASA} porque a pesar de ya haber eliminado los elementos superficiales de la Sintaxis Concreta, hay expresiones redundantes o que pueden representarse como otras,hacer esto nos reduce en mayor medida las reglas que debemos implementar al momento de la evaluación, en nuestra implementación pasamos de ASA (con azúcar sintáctica) a AST (sin azúcar sintáctica).
+
+Para explicar lo anterior con mas detalle tomaremos un ejemplo:
 \[
 \texttt{(if0 (+ 8 -8) 0 -1)} \Rightarrow \texttt{(if (= (+ 8 -8) 0) 0 -1)}
 \]
