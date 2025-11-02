@@ -429,6 +429,387 @@ Una vez definimos formalmente lo que será la \textbf{\textit{Semántica Operaci
 
 \subsection{Función paso pequeño en\minilisp}
 
-\begin{lstlisting}[style=haskellstyle, caption={}]
+Para nuestro lenguaje definimos la función de evaluación como sigue:
 
+\begin{lstlisting}[style=haskellstyle, caption={Tipo de dato \texttt{ASV} (Estados Finales) y \texttt{ENV} (ambiente de evaluación)}]
+module ASV where
+
+import AST
+
+{--
+Definimos la representacion del ambiente de ejecucion.
+Un ambiente es una lista de pares (id, valor).
+--}
+type Env = [(String, ASV)]
+
+{-- ASA Values --}
+data ASV
+  = VarV String
+  | NumV Int
+  | BoolV Bool
+  | NiV
+  | AddV ASV ASV
+  | SubV ASV ASV
+  | MulV ASV ASV
+  | DiV ASV ASV
+  | SqrtV ASV
+  | NotV ASV
+  | EqualV ASV ASV
+  | LessV ASV ASV
+  | GreaterV ASV ASV
+  | DiffV ASV ASV
+  | LeqV ASV ASV
+  | GeqV ASV ASV
+  | PairV ASV ASV
+  | FstV ASV
+  | SndV ASV
+  | IfV ASV ASV ASV
+  | FunV String ASV
+  | AppV ASV ASV
+  | ConV ASV ASV
+  | HeadV ASV
+  | TailV ASV
+  | Closure String ASV Env
+  deriving (Show, Eq)
 \end{lstlisting}
+
+Definimos tanto los estados finales como un nuevo tipo llamado Env, que representa el ambiente de evaluación.
+Este ambiente no es más que una emulación de la pila donde guardamos los ambientes como pares ((id, valor) como
+si de \texttt{[}"\texttt{id}" $\to$ \textit{value}\texttt{]}), donde cada identificador está asociado con el
+valor que tiene en ese momento de la ejecución.\\
+
+
+Ahora definimos la función principal \texttt{eval}, para el intérprete del lenguaje:
+  
+\begin{lstlisting}[style=haskellstyle, caption={Estados Finales}]
+module Interprete where
+
+import ASV
+
+{-- Funcion principal del interprete --}
+{--
+Evaluamos una expresion paso a paso utilizando la funcion 'pasito' hasta llegar a algun valor canonico.
+--}
+eval :: ASV -> Env -> ASV
+eval asv env
+  | isValue asv = asv
+  | otherwise =
+    let (asv', env') = pasito asv env
+     in eval asv' env'
+
+{-- Funcion que determina si una expresion es valor canonico --}
+isValue :: ASV -> Bool
+isValue (NumV _) = True
+isValue (BoolV _) = True
+isValue (Closure _ _ _) = True
+isValue (PairV f s) = isValue f && isValue s
+isValue (ConV f s) = isValue f && isValue s
+isValue (NiV) = True
+isValue _ = False
+\end{lstlisting}
+
+La función \texttt{eval} recibe un estado final con el ambiente de inicio el cuál es vacío al comienzo de la evaluación y devuelve un \texttt{ASV} que se al terminar será un valor canónico.
+
+\noindent
+Utilizamos guardas con los que describimos que hacer. Si la expresión ya es un valor canónico (según \texttt{isValue}), no hay nada que evaluar y devolvemos el valor tal cual. En otro caso procedemos a evaluar la expresión paso a paso.
+
+\noindent
+Con la función auxiliar \texttt{isValue} utilizando la casa de patrones definimos cuales estados son valores canónicos que ya establecimos y, en caso de serlo, devolvemos \texttt{True}, en otro caso no es canónico y devolvemos \texttt{False}.\\
+
+Modelamos las reglas de evaluación con paso pequeño de\minilisp{-0.2cm} con la función \texttt{pasito}. Esta función \texttt{pasito} recibe el estado final con su ambiente a evaluar y regresa la configuración resultante:
+
+\begin{lstlisting}[style=haskellstyle, caption={Función \texttt{pasito} para valores, casos base}]
+{--  Funcion pasito que implementa la semantica operacional estructural del lenguaje --}
+{--
+'Avanza' un solo paso en la evaluacion de una expresión, devolviendo el resultado y el ambiente actualizado.
+--}
+pasito :: ASV -> Env -> (ASV, Env)
+--Valores
+pasito (VarV i) env  = (mirarriba i env, env)
+pasito (NumV n) env  = (NumV n, env)
+pasito (BoolV b) env = (BoolV b, env)
+pasito (NiV) env     = (NiV, env)
+
+
+{-- Funcion mirarriba (lookup) para la busqueda de variables en el ambiente --}
+mirarriba :: String -> Env -> ASV
+mirarriba i [] = error ("Var '" ++ i ++ "' no definida")
+mirarriba i ((j, v):e)
+  | i == j = v
+  | otherwise = mirarriba i e
+\end{lstlisting}
+
+Como se puede ver, \texttt{pasito} utiliza la casa de patrones de acuerdo con las reglas que establecimos previamente. \texttt{NumV n}, \texttt{BoolV b} y \texttt{NiV} solo devuelven la misma expresión con el mismo ambiente recibido.\\
+
+Tenemos la mención especial de que para las variables \texttt{VarV} utilizamos \texttt{lookup}, que en nuestra implementación, con un arrebato increíble de originalidad lo nombramos como \texttt{mirarriba}; para buscar las varibales en el ambiente dado. La función implementa la búsqueda de una variable en el ambiente, toma el nombre de una variable y un ambiente \texttt{Env} y devuelve el \texttt{ASV} asociado.
+
+\noindent
+Si el ambiente es vacío o llegamos al final de este y no encontramos la variable, lanzamos un error con un mensaje indicando que la variable no está definida, deteniedno la ejecución de todo el intérprete. En el caso recursivo, comprobamos que el identificador en el ambiente sea el mismo que el ambiente que se está buscando, en caso de que coincidan devolvemos el valor v asociado ya que hemos encontrado la variable. En otro caso, si no coinciden, continuamos la búsqueda recursivamente en la cola. Recorremos el ambiente hasta encontrar la variable o agotar la "$pila$".
+
+\begin{lstlisting}[style=haskellstyle, caption={Función \texttt{pasito} para operadores}]
+pasito :: ASV -> Env -> (ASV, Env)
+-- Operadores
+pasito (AddV (NumV n) (NumV m)) env = (NumV (n + m), env)
+pasito (AddV (NumV n) d) env        = let (d', env') = pasito d env
+                                      in (AddV (NumV n) d', env')
+pasito (AddV i d) env               = let (i', env') = pasito i env
+                                      in (AddV i' d, env')
+pasito (SubV (NumV n) (NumV m)) env = (NumV (n - m), env)
+pasito (SubV (NumV n) d) env        = let (d', env') = pasito d env
+                                      in (SubV (NumV n) d', env')
+pasito (SubV i d) env               = let (i', env') = pasito i env
+                                      in (SubV i' d, env')
+pasito (MulV (NumV n) (NumV m)) env = (NumV (n * m), env)
+pasito (MulV (NumV n) d) env        = let (d', env') = pasito d env
+                                      in (MulV (NumV n) d', env')
+pasito (MulV i d) env               = let (i', env') = pasito i env
+                                      in (MulV i' d, env')
+pasito (DiV (NumV n) (NumV m)) env
+  | m == 0 = error ("No se puede dividir entre 0")
+  | otherwise = (NumV (div n m), env)
+pasito (DiV (NumV n) d) env = let (d', env') = pasito d env
+                               in (DiV (NumV n) d', env')
+pasito (DiV i d) env        = let (i', env') = pasito i env
+                               in (DiV i' d, env')
+pasito (SqrtV (NumV n)) env
+  | n < 0 = error ("No se puede obtener la raíz de un número negativo")
+  | otherwise = (NumV (integerSquareRoot n), env)
+pasito (SqrtV n) env         = let (n', env') = pasito n env
+                               in (SqrtV n', env')
+
+{-- Funcion auxiliar para SqrtV para calcular la raiz cuadrada de un numero entero --}
+integerSquareRoot :: Int -> Int
+integerSquareRoot n = floor (sqrt (fromIntegral n :: Double))
+\end{lstlisting}
+
+Para las siguientes reglas de evaluación definiremos primero la tercer regla de cada expresión donde los arguementos de estas ya son valores, ya que al usar \textit{pattern matching} debemos implementarlo de este modo pues de otra forma caeríamos siempre en la primer regla donde solo evaluamos un argumento, lo que derivaría en un bucle infinito. Así, la regla para los operadores utiliza las reglas donde ambos argumentos son ya números para terminar la evaluación, donde usamos los operadores del lenguaje anfitrión respectivos a la expresión.
+
+\noindent
+Los casos especiales son para la división y la raíz cuadrada, donde, una vez llegamos a un \texttt{NumV}, comprobamos que no sea cero, para la división, o que no sea negativo, para la raíz. En el caso de \texttt{SqrtV}, una vez comprobamos que el número es válido, nos apoyamos de la función auxiliar \texttt{integerSquareRoot} que convierte el entero a \texttt{Double}, calcula la raíz cuadrada y la trunca hacia abajo, devolviendo un \texttt{Int}.\\
+
+De manera similar implementamos las reglas para los comparadores:
+
+\begin{lstlisting}[style=haskellstyle, caption={Función \texttt{pasito} para comparadores}]
+pasito :: ASV -> Env -> (ASV, Env)
+--Not
+pasito (NotV (BoolV b)) env = (BoolV (not b), env)
+pasito (NotV e) env         = let (e', env') = pasito e env
+                              in (NotV e', env')
+--Comparadores
+pasito (EqualV (NumV n) (NumV m)) env   = (BoolV (n == m), env)
+pasito (EqualV (NumV n) d) env          = let (d', env') = pasito d env
+                                          in (EqualV (NumV n) d', env')
+pasito (EqualV i d) env                 = let (i', env') = pasito i env
+                                          in (EqualV i' d, env')
+pasito (LessV (NumV n) (NumV m)) env    = (BoolV (n < m), env)
+pasito (LessV (NumV n) d) env           = let (d', env') = pasito d env
+                                          in (LessV (NumV n) d', env')
+pasito (LessV i d) env                  = let (i', env') = pasito i env
+                                          in (LessV i' d, env')
+pasito (GreaterV (NumV n) (NumV m)) env = (BoolV (n > m), env)
+pasito (GreaterV (NumV n) d) env        = let (d', env') = pasito d env
+                                          in (GreaterV (NumV n) d', env')
+pasito (GreaterV i d) env               = let (i', env') = pasito i env
+                                          in (GreaterV i' d, env')
+pasito (DiffV (NumV n) (NumV m)) env    = (BoolV (n /= m), env)
+pasito (DiffV (NumV n) d) env           = let (d', env') = pasito d env
+                                          in (DiffV (NumV n) d', env')
+pasito (DiffV i d) env                  = let (i', env') = pasito i env
+                                          in (DiffV i' d, env')
+pasito (LeqV (NumV n) (NumV m)) env     = (BoolV (n <= m), env)
+pasito (LeqV (NumV n) d) env            = let (d', env') = pasito d env
+                                          in (LeqV (NumV n) d', env')
+pasito (LeqV i d) env                   = let (i', env') = pasito i env
+                                          in (LeqV i' d, env')
+pasito (GeqV (NumV n) (NumV m)) env     = (BoolV (n <= m), env)
+pasito (GeqV (NumV n) d) env            = let (d', env') = pasito d env
+                                          in (GeqV (NumV n) d', env')
+pasito (GeqV i d) env                   = let (i', env') = pasito i env
+                                          in (GeqV i' d, env')
+\end{lstlisting}
+
+En el caso de \texttt{Not}, una vez que el argumento es \texttt{BoolV} retornamos la negación en Haskell de este \texttt{BoolV} como un nuevo \texttt{BoolV}. De la misma manera como fue con los operadores aritméticos, cuando ambos argumentos ya son números con los cuales comparar, regresamos la comparación como valor booleano\texttt{BoolV} con el resultado evaluado con los operadores de comparación en Haskell.
+
+\begin{lstlisting}[style=haskellstyle, caption={Función \texttt{pasito} para comparadores}]
+pasito :: ASV -> Env -> (ASV, Env)
+--Pares
+pasito (PairV f s) env
+  | isValue (PairV f s) = (PairV f s, env)
+  | isValue f = let (s', env') = pasito s env
+                in (PairV f s', env')
+  | otherwise = let (f', env') = pasito f env
+                in (PairV f' s, env')
+pasito (FstV (PairV f s)) env
+  | isValue f && isValue s = (f, env)
+pasito (FstV p) env = let (p', env') = pasito p env
+                      in (FstV p', env')
+pasito (SndV (PairV f s)) env
+  | isValue f && isValue s = (s, env)
+pasito (SndV p) env = let (p', env') = pasito p env
+                      in (SndV p', env')
+---Cons
+pasito (ConV f s) env
+  | isValue (ConV f s) = (ConV f s, env)
+  | isValue f = let (s', env') = pasito s env
+                in (ConV f s', env')
+  | otherwise = let (f', env') = pasito f env
+                in (ConV f' s, env')
+pasito (HeadV (ConV f s)) env
+  | isValue f && isValue s = (f, env)
+pasito (HeadV p) env =
+  let (p', env') = pasito p env
+  in (HeadV p', env')
+pasito (TailV (ConV f s)) env
+  | isValue f && isValue s && not (isConV s) = (s, env)
+  | otherwise = let (s', env') = pasito s env
+                in (TailV s', env')
+pasito (TailV p) env =
+  let (p', env') = pasito p env
+  in (TailV p', env')
+
+  
+{-- Funcion que nos dice si la estructura sigue siendo un ecadenamiento de ConV--}
+isConV :: ASV -> Bool
+isConV (ConV _ _) = True
+isConV _ = False
+\end{lstlisting}
+
+Para el caso de \texttt{PairV} y \texttt{ConV}, en ambos, comprobamos que sean valores canónicos y aunque suene redundante, con la función \texttt{isValue}, ambos son valores si y sólo si sus dos argumentos también son valores. En otro caso continuamos evaluando ambas expresiones, primero con el primer argumento hasta llegar a un valor para poder seguir con la evalución del segundo.
+
+\noindent
+Para la evaluación de los operadores sobre pares, con \texttt{FstV}, como utilizamos evaluación glotona, debemos llegar a que el par recibido tenga ambas expresiones como valor, para así devolver el primer argumento del par. Lo mismo con \texttt{SndV} que, hasta tener los argumentso $f$ y $s$ como valores, devolvemos $s$, el segundo.\\
+
+Para el caso de 
+
+
+\bigskip
+
+Sin embargo, esta implementación no nos sirve para la aplicación de funciones derivada de \texttt{LetRec}, pues veamos el resultado de evaluar \texttt{LetRec}:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+[MiniLisp]> (letrec (sum (lambda (n) (if0 n 0 (+ n (sum (- n 1)))))) (sum 3))
+[Error]: Var 'Z' no definida
+CallStack (from HasCallStack):
+  error, called at ./Interprete.hs:154:18 in main:Interprete
+\end{minted}
+
+Y es debido a que, como se menciono en en el capítulo de \textbf{Azúcar Sintáctica}, necesitamos definir un \textit{Combinador} para darle recursión. Más concretamente, usamos el combinador \textbf{Z}:
+
+\[
+(\lambda f.((\lambda x.(f (\lambda v.((x x) v)))) (\lambda x.(f (\lambda v.((x x) v))))))
+\]
+
+\begin{quote}
+  \textit{creo se puede mejorar la explicacion anterior}
+\end{quote}
+
+Y este combinador debemos agregarlo al ambiente de evaluación para que en el interpretre lo utilice, y asu vez, el ambiente debe estar evaluado:
+
+\[
+\texttt{[Z} \to (\lambda f.((\lambda x.(f (\lambda v.((x x) v)))) (\lambda x.(f (\lambda v.((x x) v)))))) \texttt{]}
+\]
+
+No obstante, esto también presenta un error a la hora de ser evaluado:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+[MiniLisp]> (letrec (sum (lambda (n) (if0 n 0 (+ n (sum (- n 1)))))) (sum 3))
+[Error]: Var 'v' no definida
+CallStack (from HasCallStack):
+  error, called at ./Interprete.hs:154:18 in main:Interprete
+\end{minted}
+
+Debido a que hasta el momento estamos utilizamos evaluación glotona con alcance estático, debemos de implementar una manera de que no suceda esto. Y es con...
+
+\begin{quote}
+  \textit{Extender aqui la explicacion de por que falla al evaluar el combinador como el uso de evaluacion glotona}
+\end{quote}
+
+\section{Puntos Estrictos}
+
+Para evitar los de variables no definidas al utilizar recursion y combinadores, debemos volver a\minilisp perezo, es decir, debemos reeplantear la estrategia de evaluacion de\minilisp de glotón a perezoso.
+
+Al usar evaluación perezosa, existen ciertos puntos dentro de la implementación en los que no puede
+postergarse la evaluación.
+
+\begin{quote}
+  \textit{Explicar que es el alcance perezoso y lo que son puntos estrictos.}
+\end{quote}
+
+Para ello tenemos que definir un forma que nos permitia aplicar los \textit{puntos estrictos} de nuestro lenguaje. Este forma la modelaremos mediante una función \textbf{strict}, que reduce la expresión hasta llegar a un \textbf{valor canónico} del lenguaje.
+
+\[
+\textbf{strict}(\langle e, \varepsilon \rangle) =
+\begin{cases}
+e, & \text{si } e \text{ es valor},\\[4pt]
+\langle e', \varepsilon \rangle, & \text{si } \langle e, \varepsilon \rangle \to \langle e', \varepsilon' \rangle.
+\end{cases}
+\]
+
+Para aplicar este mecanismo, sí o sí necesitamos nuestras reglas semánticas de modo que apliquen los \textit{puntos estrictos} correspondientes usando \textbf{strict}. El resto de reglas se mantienen sin cambios, pero el cambio radica en que: aquellas expresiones donde detectamos la presencia de \textit{puntos estrictos} y recibian cerraduras de expresión ⟨e, ε⟩, es donde llamamos \textbf{strict}.
+
+\subsection{Reglas semánticas perezosas con strict}
+\begin{itemize}
+\item AddV(i,d):
+\item SubV(i,d):
+\item MulV(i,d):
+\item DiV(i,d):
+\item SqrtV(n):
+\item NotV(b):
+\item EqualV(i,d):
+\item LessV(i,d):
+\item GreaterV(i,d):
+\item DiffV(i,d):
+\item LeqV(i,d):
+\item GeqV(i,d):
+\item PairV(f,s):  
+\item FstV(p):
+\item SndV(p):
+\item IfV(c,t,e):
+\item ConV(i,d):
+\item HeadV(l):
+\item TailV(l);
+\item FunV(p,c):
+\item AppV(f,a):
+\end{itemize}
+
+\begin{quote}
+  \textit{Consultar la pagina 13-14 del ultimo pdf del profesor para ver contexto}
+\end{quote}
+
+Una vez definido todo lo anterior, veamos su implementación en Haskell y cómo se modifica el interprete de\minilisp{-0.2cm}.
+
+\subsection{Evaluación perezosa para \minilisp}
+
+Como se mostró, al cambiar la estrategia de evaluación de nuestro intérprete, debemos hacer muchos cambios en su implementación en Haskell.
+
+Con este nuevo enfoque, nuestro tipo de dato \texttt{ASV} ya es más reducido donde solo están los valores canónicos:
+
+\begin{lstlisting}[style=haskellstyle, caption={Tipo de dato \texttt{ASV} con valores canónicos]
+module ASV where
+
+import AST
+
+{--
+Definimos la representacion del ambiente de ejecucion.
+Un ambiente es una lista de pares (id, valor).
+--}
+type Env = [(String, ASV)]
+
+{-- ASA Values --}
+data ASV
+  = NumV Int
+  | BoolV Bool
+  | NiV
+  | PairV ASV ASV
+  | ConV ASV ASV
+  | ClosureF String AST Env
+  | ExprV AST Env
+  deriving (Show, Eq)
+\end{lstlisting}
+
+%https://lambdasspace.github.io/LDP/notas/ldp_n06.pdf
+%https://lambdasspace.github.io/LDP/notas/ldp_n07.pdf
+%https://lambdasspace.github.io/LDP/notas/ldp_n12.pdf
+%https://lambdasspace.github.io/LDP/notas/ldp_n13.pdf
+%https://lambdasspace.github.io/LDP/notas/ldp_n14.pdf
+

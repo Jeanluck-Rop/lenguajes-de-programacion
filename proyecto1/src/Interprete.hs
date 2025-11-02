@@ -115,7 +115,7 @@ pasito (SndV p) env = let (p', env') = pasito p env
                       in (SndV p', env')
 ---Cons
 pasito (ConV f s) env
-  | isValue f && isValue s = (ConV f s, env)
+  | isValue (ConV f s) = (ConV f s, env)
   | isValue f = let (s', env') = pasito s env
                 in (ConV f s', env')
   | otherwise = let (f', env') = pasito f env

@@ -177,7 +177,6 @@ ghci>
 CallStack (from HasCallStack):
   error, called at ./Interprete.hs:154:18 in main:Interprete
 [MiniLisp]> 
-
 ```
 
 ```

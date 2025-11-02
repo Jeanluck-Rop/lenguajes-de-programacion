@@ -122,6 +122,7 @@ strict (BoolV b) = BoolV b
 strict (PairV f s) = PairV (strict f) (strict s)
 strict (ConV i d) = ConV (strict i) (strict d)
 strict (ExprV a e) = strict (evalS a e)
+strict (NiV) = NiV
 strict (ClosureF p c e) = ClosureF p c e
 
 
