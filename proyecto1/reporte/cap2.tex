@@ -2,7 +2,7 @@
 
 Antes de entrar de fondo en programar nuestro\minilisp en Haskell, es necesario definir la \textbf{\textit{sintaxis concreta}} que utilizaremos para el lenguaje.
 
-Citando al profesor, en su archivo \texttt{PDF} compartido \textbf{\textit{Especificación Formal de los Lenguajes de Programación. Sintaxis Concreta}}.
+Citando al profesor, en su archivo compartido \textbf{\textit{Especificación Formal de los Lenguajes de Programación. Sintaxis Concreta}}~\cite{ref13}.
 
 \begin{quote}
   \textit{En el contexto de la teoría de lenguajes de programación y lenguajes formales, la
@@ -105,7 +105,7 @@ nuestro lenguaje\minilisp\hspace{-0.2cm}:
   \item \textbf{Variables:} cualquier secuencia de caracteres de la forma $[a-z + A-Z][a-zA-Z0-9]^*$.
   \item \textbf{Números enteros:} $x \in \Z$.
   \item \textbf{Booleanos:} \texttt{\#t} (verdadero) y \texttt{\#f} (falso), junto con la negación \texttt{(not)}.
-  \item \textbf{Operadores aritméticos:} \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{{+}{+}}, \texttt{{-}{-}}, raíz cuadrada (\texttt{sqrt}) y potencia (\texttt{**}).
+  \item \textbf{Operadores aritméticos:} \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{Add1}(incremento), \texttt{Sub1}(decremento), raíz cuadrada (\texttt{sqrt}) y potencia (\texttt{**}).
   \item \textbf{Predicados y comparaciones:} igualdad y desigualdad (\texttt{=}, \texttt{!=}), así como comparaciones numéricas (\texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=}).
   \item \textbf{Asignaciones y funciones:} construcciones \texttt{let}, \texttt{let*}, \texttt{letrec}, funciones anónimas con \texttt{lambda}, y aplicación de funciones.
   \item \textbf{Pares ordenados y proyecciones:} \texttt{(}$e1$\texttt{,} $e2${)}, \texttt{first} y \texttt{second}.
@@ -178,12 +178,12 @@ lenguaje anfitrión (\texttt{String}, \texttt{Int} y \texttt{Bool}).
 
 \subsection{Alex}
 Cada vez que el analizador léxico identifica un patrón en la entrada, genera el token correspondiente y al final,
-esta función \texttt{lexer}, construirá una lista de $Tokens$ la cual recibirá wl analizador sintáctico.
+esta función \texttt{lexer}, construirá una lista de $Tokens$ la cual recibirá el analizador sintáctico.
 Utilizamos la herramienta \texttt{Alex} que nos ayudará con la implementación de este \texttt{lexer} en Haskell.\\
     
 Alex es el generador de analizadores léxicos estándar para Haskell, toma una descripción de tokens basada en
 expresiones regulares y genera un Haskell \texttt{module} que contiene código para escanear texto de manera
-eficiente. Esta elección se fundamenta en varias ventajas significativas:
+eficiente\cite{ref6}. Esta elección se fundamenta en varias ventajas significativas:
 
 \begin{itemize}
 \item \textbf{Reducción de errores:} Alex automatiza la generación de código robusto, minimizando errores comunes en implementaciones manuales.
@@ -261,7 +261,7 @@ Cada una de estas reglas dentro del analizador léxico de Alex consta de dos com
 \end{itemize}
 
 Es importante resaltar el caso de las \textbf{palabras reservadas}, como \texttt{let*}, \texttt{letrec},
-\texttt{!=}, \texttt{++}, entre otros. En el diseño del lexer, estas reglas deben escribirse \textit{antes} que
+\texttt{!=}, \texttt{add1}, entre otros. En el diseño del lexer, estas reglas deben escribirse \textit{antes} que
 las reglas más generales o más cortas (por ejemplo, \texttt{let}, \texttt{<}, \texttt{!}, \texttt{+}).\\
 
 Esto se debe a que el generador de analizadores léxicos Alex aplica la estrategia conocida como \textit{longest
@@ -287,8 +287,8 @@ reglas garantiza un análisis léxico preciso y evita ambigüedades en el recono
   \=                            { \_ -> TokenEq }
   \<                            { \_ -> TokenLt }
   \>                            { \_ -> TokenGt }
-  "++"                          { \_ -> TokenAdd1 }
-  "--"                          { \_ -> TokenSub1 }
+  "add1"                          { \_ -> TokenAdd1 }
+  "sub1"                          { \_ -> TokenSub1 }
   "sqrt"                        { \_ -> TokenSqrt }
   "**"                          { \_ -> TokenExpt }
   "!="                          { \_ -> TokenNeq }
@@ -370,19 +370,17 @@ sentencias válidas para el lenguaje. Sin la gramática no podemos darle la estr
 En otras palabras, la \textit{\textbf{sintaxis libre de contexto}} constituye el \textit{esqueleto sintáctico} del lenguaje. Si el \textbf{análisis léxico} segmenta la entrada en \textit{Tokens}, el \textbf{análisis sintáctico} (guiado por una \textit{gramática libre de contexto}) se encarga de verificar que dichos $Tokens$ se ensamblen de manera coherente conforme a las reglas del lenguaje. Sin una gramática bien definida, no sería posible darle forma ni estructura a los programas escritos en\minilisp\hspace{-0.2cm}, ni mucho menos permitir que el intérprete los procese correctamente. Necesitamos de la gramática para dar orden, decidir qué aceptamos y cómo lo aceptamos, de este modo damos más formalidad y menos ambigüedad al lenguaje.
 
 \subsection{La gramática de\minilisp}
-Formalmente, una \textit{\textbf{gramática libre de contexto}} es una tupla:
+Según Hopcroft y Ullman es su libro \textit{\textbf{Introduction to Automata Theory, Languages, and Computation}}~\cite{ref14}, una \textit{\textbf{gramática libre de contexto}} se define formalmente como una tupla:
 \[
-G = (V, \Sigma, P, S)
+G = (V, T, P, S)
 \]
 donde:
 \begin{itemize}
 \item $V$ es un conjunto finito de símbolos \textbf{no terminales} o variables las cuales representan conjuntos
   de cadenas que están siendo definidos recursivamente, es decir, cada variable genera un lenguaje.
-\item $\Sigma$ es un conjunto finito de símbolos \textbf{terminales}. Son los símbolos básicos del lenguaje.
-\item $P$ es el conjunto finito de \textbf{reglas de producción}, o reglas gramaticales, que contiene a las
-definiciones recursivas.
-\item $S$ es el símbolo inicial, $S \in V$. Es una variable especial que genera a derivación de las cadenas
-del lenguaje deseado.
+\item $T$ es un conjunto finito, disjunto de $V$ \textbf{de simbolos terminales}.
+\item $P$ es el conjunto finito de \textbf{reglas de producción}; cada producción es de la forma $A \to \alpha$, donde $A$ es una variable [en $V$] y $\alpha$ es una cadena de símbolos en $(V \cup T)^*$
+\item $S$ es una variable en $V$ llamada el símbolo inicial.
 \end{itemize}
 
 \bigskip
@@ -436,8 +434,8 @@ Con esto explicado, definimos la Gramática para\minilisp\hspace{-0.2cm} en nota
           &\mid& \texttt{(- \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
           &\mid& \texttt{(* \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
           &\mid& \texttt{(/ \nt{Expr} \nt{Expr} \{\nt{Expr}\})} \\
-          &\mid& \texttt{({+}{+} \nt{Expr})} \\
-          &\mid& \texttt{({-}{-} \nt{Expr})} \\
+          &\mid& \texttt{(add1 \nt{Expr})} \\
+          &\mid& \texttt{(sub1 \nt{Expr})} \\
           &\mid& \texttt{(sqrt \nt{Expr})} \\
           &\mid& \texttt{({*}{*} \nt{Expr})} \\
           &\mid& \texttt{(not \nt{Expr})} \\
