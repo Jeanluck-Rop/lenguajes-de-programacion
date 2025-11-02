@@ -4,7 +4,10 @@ import AST
 import ASV
 import Interprete
 
-{-- --}
+{-- Funcion de evaluación perezosa --}
+{--
+Evaluamos una expresion usando strict para evaluar los puntos estrictos forzosamente.
+--}
 evalS :: AST -> Env -> ASV
 --Valores
 evalS (VarC i) env = lookupS i env
@@ -107,15 +110,7 @@ evalS (AppC f a) env =
    in evalS (closureC funV) (((closureP funV), ExprV a env) : (closureE funV))
 
 
-{-- --}
-lookupS :: String -> Env -> ASV
-lookupS i [] = error ("Var '" ++ i ++ "' no definida")
-lookupS i ((j, v):e)
-  | i == j = v
-  | otherwise = lookupS i e
-
-
-{-- --}
+{-- Funcion strict para forzar la evaluacion de los puntos estrictos --}
 strict :: ASV -> ASV
 strict (NumV n) = NumV n
 strict (BoolV b) = BoolV b
@@ -126,33 +121,33 @@ strict (NiV) = NiV
 strict (ClosureF p c e) = ClosureF p c e
 
 
-{-- --}
+{-- Funcion auxiliar para devolver el numero de NumV--}
 numN :: ASV -> Int
 numN (NumV n) = n
 
 
-{-- --}
+{-- Funcion auxiliar para devolver el booleano de BoolV --}
 boolN :: ASV -> Bool
 boolN (BoolV b) = b
 boolN _ = False
 
 
-{-- --}
+{-- Funcion auxiliar para devoler el parametro de la cerradura --}
 closureP :: ASV -> String
 closureP (ClosureF p _ _) = p
 
 
-{-- --}
+{-- Funcion auxiliar para devoler el cuerpo de la cerradura --}
 closureC :: ASV -> AST
 closureC (ClosureF _ c _) = c
 
 
-{-- --}
+{-- Funcion auxiliar para devoler el ambiente de la cerradura --}
 closureE :: ASV -> Env
 closureE (ClosureF _ _ e) = e
 
 
-{-- --}
+{-- Funcion auxiliar para encontrar el ultimo elemento canonico de los ConV anidados--}
 tailDeep :: ASV -> ASV
 tailDeep (ConV _ rest) =
   let rest' = strict rest
