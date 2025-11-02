@@ -679,8 +679,41 @@ Para el caso de \texttt{PairV} y \texttt{ConV}, en ambos, comprobamos que sean v
 \noindent
 Para la evaluación de los operadores sobre pares, con \texttt{FstV}, como utilizamos evaluación glotona, debemos llegar a que el par recibido tenga ambas expresiones como valor, para así devolver el primer argumento del par. Lo mismo con \texttt{SndV} que, hasta tener los argumentso $f$ y $s$ como valores, devolvemos $s$, el segundo.\\
 
-Para el caso de 
+Para el caso de \texttt{HeadV} con \texttt{ConV} es análogo a \texttt{FstV} con los pares. Sin embargo, \texttt{TailV} no solo necesita que ambos argumentos ya seal valores, sino que el segundo valor no sea de tipo \texttt{ConV}, pues esto significa que hay más expresiones en el encadenamiento de \texttt{ConV}, por lo que necesitamos seguir con este segundo argumento hasta llegar a un valor canónico dinstinto de \texttt{ConV} -justo como en las reglas de evaluación para esta expresión-.
 
+\noindet
+Para lograr esto, no apoyamos en la función \texttt{isConV}, que nos ayuda a determinar que la expresión dada sea otro \texttt{ConV} o si es otro valor canónico.\\
+
+Para las reglas de la condicional \texttt{IfV} su implementación es más sencilla pues basta que, al llegar a un valor \texttt{BoolV} de la condición devolvemos la configuración respectiva: \texttt{(t, env)} en el caso de que la condición es verdad, y \texttt{(e, env)} en otro caso. De otro modo, continuamos evaluando la condición.
+
+\begin{lstlisting}[style=haskellstyle, caption={Función \texttt{pasito} para comparadores}]
+pasito :: ASV -> Env -> (ASV, Env)
+--If
+pasito (IfV (BoolV True) t e) env  = (t, env)
+pasito (IfV (BoolV False) t e) env = (e, env)
+pasito (IfV c t e) env             = let (c', env') = pasito c env
+                                     in (IfV c' t e, env')
+\end{lstlisting}
+
+Por último tenemos las funciones y \texttt{FunV} las aplicaciones de funciones \texttt{AppV}, que quedan como sigue:
+
+\begin{lstlisting}[style=haskellstyle, caption={Función \texttt{pasito} para comparadores}]
+pasito :: ASV -> Env -> (ASV, Env)
+--Funciones
+pasito (FunV p c) env = (Closure p c env, env)
+--Aplicacion de funciones
+pasito (AppV (Closure p c env') a) env
+  | isValue a = (c, (p, a):env')
+  | otherwise =
+    let (a', env'') = pasito a env
+    in (AppV (Closure p c env') a', env'')  
+pasito (AppV f a) env = let (f', env') = pasito f env
+                        in (AppV f' a, env')
+\end{lstlisting}
+
+La evaluación de las funciones es simple, la función \texttt{FunV} se convierte en una cerradura con el mismo ambiente de la configuración. Para \texttt{AppV}, siguiendo las reglas de evaluación para esta expresión: si se tiene una cerradura con un argumento a aplicar, comprobamos que este argumento sea ya un valor canónico, de ser así, retornamos la configuración con la aplicación extendiendo el ambiente. En otro caso continuamos evaluacndo el argumento. De no ser una cerradura, entonces evaluamos esta función.\\
+
+Así, terminamos la evaluación glotona con alcance estático usando paso pequeño con la función \texttt{pasito} en nuestro intérprete.
 
 \bigskip
 
