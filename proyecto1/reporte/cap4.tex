@@ -337,17 +337,28 @@ A continuación, esta función se aplica (\texttt{AppC}) al valor \texttt{v} cor
 
 Además, \texttt{LetStar} -como también se  mencionó en la sección anterior- es simplemente azúcar sintáctica de \texttt{Let}. El \texttt{LetStar} permite escribir múltiples asignaciones secuenciales en un mismo bloque, pero semánticamente equivale a una serie de \texttt{Let} anidados. Su desazucarización se implementa recursivamente, construyendo un \texttt{Let} por cada par \texttt{(id, valor)} y utilizando como cuerpo el siguiente \texttt{LetStar}, hasta llegar al cuerpo final.\\
 
+<<<<<<< HEAD
 
 
 Por otro lado tenemos el caso del \texttt{LetRec} :
 
+=======
+Por otro lado, \texttt{LetRec} como su nombre indica, necesita implementar recursión. 
+
+\begin{quote}
+  \textit{Aqui nos extendemos con la explicacion de los combinadores y sobre todo el combinar Z}
+\end{quote}
+
+Queda desacuzarado como sigue:
+  
+>>>>>>> cap5
 \begin{lstlisting}[style=haskellstyle, caption={Desazucarización de LetRec}]
   desugar :: ASA -> AST
   ---LetRec
-  desugar (LetRec i v b) = desugar (LetStar [(i, App (Lambda [i] v) [Lambda [i] v])] b)
-  ---
+  desugar (LetRec i v b) = desugar (Let [(i, App (Var "Z") [Lambda [i] v])] b)
 \end{lstlisting}
 
+<<<<<<< HEAD
 La construcción \texttt{letrec} permite la definición de funciones recursivas locales.
 Dado que el núcleo del lenguaje no incluye recursión como mecanismo primitivo, esta
 debe expresarse mediante azúcar sintáctica utilizando construcciones ya presentes,
@@ -379,6 +390,14 @@ obtener una expresión completamente desazucarizada en el árbol AST.
 
 
 \bigskip
+=======
+Donde la variable \texttt{Var "Z"} queda definida con el combinador \texttt{Z}:
+\[
+\texttt{(lambda (f) ((lambda (x) (f (lambda (v) ((x x) v)))) (lambda (x) (f (lambda (v) ((x x) v)))))) metida en el ambiente}
+\]
+
+Profundizaremos en esto más adelante.\\
+>>>>>>> cap5
 
 Una vez establecido lo anterior, continuamos con el caso de los \textbf{ASA} \texttt{Lambda} en nuestro lenguaje, operan con una lista de parámetros siendo esto azúcar sintáctica, por lo que definimos la función auxiliar \texttt{desugarLmb} done ''\textit{currificamos}`` la función en \texttt{FunC} que trabaja sobre un parámetro:
 

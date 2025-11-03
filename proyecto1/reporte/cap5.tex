@@ -1,30 +1,758 @@
+\chapter{Semántica Operacional}
 
-\chapter{Semántica operacional}
-\section{Paso pequeño}
-\subsection{Evaluación perezosa}
-\subsection{Evaluación ansiosa}
+Una vez hemos establecido nuestro sintaxis del lenguaje en núcleos, lo siguiente a realizar darle el significado a estos programas. Para ello recurrimos a la semántica operacional, un enfoque que describe la dinámica de ejecución de los programas mediante un conjunto de reglas de inferencia.
 
+\begin{quote}
+  \textit{Desarrollar la introducción y explicación de la formalización de la semántica y semántica operacional.}
+\end{quote}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\cap6
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+La semántica operacional...
+\begin{quote}
+  \textit{Continuar con la definicion de semantica operacional .}
+\end{quote}
 
+%se formula como un sistema de transición, donde el comportamiento de un programa se entiende como una sucesión de pasos que transforman configuraciones intermedias hasta llegar a un resultado final. Este enfoque no solo captura el proceso de evaluación de manera formal y precisa, sino que además mantiene una correspondencia directa entre la estructura sintáctica del lenguaje y su dinámica de ejecución. Facilita la implementación de intérpretes, ya que las reglas pueden traducirse de manera casi inmediata en algoritmos. Proporciona un marco para el razonamiento formal sobre las propiedades del lenguaje (corrección, terminación, equivalencias, etc.).
 
-\chapter{Intérprete}
+Existen dos estilos principales:
+
+Semantica Natural conocido como paso grande (Big-step)
+\begin{quote}
+  \textit{Definir brevemente lo que es paso pequeño y quien lo definio.}
+\end{quote}
+
+Semantica Estructural conocida como paso pequeño (Small-step)
+\begin{quote}
+  \textit{Definir brevemente lo que es paso grande y quien lo definio.}
+\end{quote}
+
+Para nuestro lenguaje nos enfocaremos en este último.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Paso pequeño para\minilisp}
+\section{Semántica Estructural (Paso pequeño)}
+Se le conoce también como semántica de paso pequeño o de transición describe paso a paso la ejecución mostrando los cómputos que genera en cada paso individualmente.
+
+\begin{quote}
+  \textit{Aqui ya describimos toda la historia de paso pequeño, qué significa paso pequeño y por que debemos impleemntarlo}
+\end{quote}
+
+%Para modelar esta noción, definimos la siguiente relación:
+%\begin{center}$e_1 \rightarrow e_2$}end{center}
+%que a diferencia de la semántica natural, no relaciona necesariamente expresiones con su valor final, si no que relaciona expresiones con expresiones (pudiendo ser estados finales). Se lee como en un paso e1 se reduce a e2. La definición de reglas en este tipo de semántica, es más complicada pues se tienen que considerar pasos intermedios que en ocasiones pasan desapercibidos al ejecutar o analizar un programa. antes de definir las reglas debemos definir lo que es un sistema de transicion.
+
+\subsection{Sistema de transición}
+\begin{quote}
+  \textit{Dar la definicion y explicacion de un sistema de transision y como la aplicaremos a nustro proyecto. Tambien mencionamos y describimos los estados finales pero solo eso, no los definimos para el lenguaje}
+\end{quote}
+
+%Para modelar formalmente la ejecución, definimos un **sistema de transición**, el cual especifica cómo se produce la evolución de los estados durante la evaluación. **Definición (Sistema de transición):** Un sistema de transición es una tupla (E,$\delta$,I,F) donde: $E$: conjunto (posiblemente infinito) de estados. $\delta \subseteq E \times E$: relación de transición, que indica cómo un estado puede evolucionar a otro. $I\subseteq E$: conjunto de estados iniciales, desde los cuales comienza la ejecución. $F \subseteq E$: conjunto de estados finales, que representan los puntos de término de la ejecución.
+%En este marco, el comportamiento de un programa se formaliza como una secuencia de transiciones: $e_0 \;\to\; e_1 \;\to\; e_2 \;\to\; \dots \;\to\; e_f$ Donde $e_0 \in I$, $e_f \in F$ y cada paso $(e_i, e_{i+1}) \in \delta$ está justificado por una regla de inferencia. $\#\#$ Sistema de transición  *small-step* para Iris El sistema de transición de paso pequeño para el lenguaje se define como la tupla $(E, \to, I, F)$, donde: $E = \{\, e \mid e \in ASA \,\}$ es el conjunto de expresiones bien formadas en sintaxis abstracta. $\to \;\subseteq\; E \times E$ es la relación de reducción (small-step) que relaciona una expresión con otra expresión (intermedia o final). Usaremos la notación $e \to e'$ para indicar una reducción de un paso de $e$ a $e'$. $I = E$, es decir, cualquier expresión bien formada puede considerarse un estado inicial. $F$ es el conjunto de estados finales (valores canónicos) dado por: $F \;=\; \{\, Num(n) \mid n \in \mathbb{Z} \,\} \;\cup\; \{\, Boolean(b) \mid b \in \{True,False\} \,\} \;\cup\; \{\, Pair(f,s) \mid f,s \in F \,\} \;\cup\; \{\, Closure(l,\varepsilon) \mid l \text{ es una función y } \varepsilon \text{ es un ambiente léxico} \,\} \;\cup\; \{\, Error \mid \text{la ejecución es interrumpida} \,\}.$ En este sistema, la evaluación se modela como una secuencia finita o infinita de reducciones de un solo paso: $e_0 \;\to\; e_1 \;\to\; e_2 \;\to\; \cdots$ donde $ e_0 \in I$. Una ejecución ha terminado normalmente cuando se alcanza $e_k \in F$. Si en algún paso se llega a la expresión especial $Error$, la ejecución queda interrumpida y se considera una terminación anómala.
+
+\begin{quote}
+  \textit{Explicar lo que es la cerradura }
+\end{quote}
+
+\subsection{Estados Finales en\minilisp}
+
+Definimos los estados finales para el lenguaje\minilisp{-0.2cm}:
+
+\begin{align*}
+  F = &\{\, Num_{V}(n) \mid n \in \Z\,\}\: \cup \:\{\, Boolean_{V}(b) \mid b \in \{True,False\}\,\}\: \cup \:\{\, Pair_{V}(f,s) \mid f,s\in F\,\}\: \cup \\
+  &\{\, Cons_{V}(h,t) \mid h,t\in C\,\}\: \cup \:\{\, Nil_{V} \mid \text{ es la lista vacía}\}\: \cup \\
+  &\{\, Closure (f,\varepsilon) \mid f \text{ es una función y } \varepsilon\text{ es un ambiente léxico}\}
+\end{align*}
+
+Intuitivamente implementamos los estados finales en nuestro lenguaje como un tipo de dato en Haskell:
+
+\begin{lstlisting}[style=haskellstyle, caption={Tipo de dato ASV, representan los estados finales}]
+module ASV where
+
+-- ASA Values
+data ASV
+  = VarV String
+  | NumV Int
+  | BoolV Bool
+  | NiV
+  | PairV ASV ASV
+  | ConV ASV ASV
+  | Closure String ASV [(String, ASV)]
+  deriving (Show, Eq)
+\end{lstlisting}
+
+El tipo de dato \texttt{ASV} serán con el que modelaremos los estados finales del lenguaje. Sin embargo, en nuestra implementación, es necesario agregar las demás estructuras que trabajan con estos estados finales -como lo son los operadores aritméticos o las operaciones sobre pares o listas- ya que \texttt{ASV} sigue modelando una estructura de tipo árbol la cual sigue el mismo principio que las estructuras \texttt{ASA}:
+
+\begin{center}
+  \textit{Una expresión es \texttt{ASV} si y solo si sus hijos también son \texttt{ASV}.}
+\end{center}
+
+Por lo que debemos hacer que nuestros Para diferenciar entre los verdaderos estados finales y las demás estructuras de tipo \texttt{ASV} será que nos referimos a los finales como \textit{\textbf{valores canónicos}}.\footnote{Más adelante enfatizaremos en como los diferenciamos entre Valores \texttt{ASV} y expresiones \texttt{ASV} en Haskell.}
+Lo que nos queda en la nueva definición del tipo de dato \texttt{ASV}:
+
+\begin{lstlisting}[style=haskellstyle, caption={Tipo de dato ASV completo}]
+-- ASA Values
+data ASV
+  = VarV String
+  | NumV Int
+  | BoolV Bool
+  | NiV
+  | AddV ASV ASV
+  | SubV ASV ASV
+  | MulV ASV ASV
+  | DiV ASV ASV
+  | SqrtV ASV
+  | NotV ASV
+  | EqualV ASV ASV
+  | LessV ASV ASV
+  | GreaterV ASV ASV
+  | DiffV ASV ASV
+  | LeqV ASV ASV
+  | GeqV ASV ASV
+  | PairV ASV ASV
+  | FstV ASV
+  | SndV ASV
+  | IfV ASV ASV ASV
+  | FunV String ASV
+  | AppV ASV ASV
+  | ConV ASV ASV
+  | HeadV ASV
+  | TailV ASV
+  | Closure String ASV [(String, ASV)]
+  deriving (Show, Eq)
+\end{lstlisting}
+
+Ya que hemos definido el tipo de dato \texttt{ASV} veamos como convertimos nuestras estructuras \texttt{AST} a estados finales \texttt{ASV}:
+
+\begin{lstlisting}[style=haskellstyle, caption={Función \texttt{toFinalState} que transforma los núcleos \texttt{AST} a estados finales \texttt{ASV}}]
+  {-- Convertimos los AST a estados finales ASV --}
+  toFinalState :: AST -> ASV
+  toFinalState (VarC x) = VarV x
+  toFinalState (NumC n) = NumV n
+  toFinalState (BoolC b) = BoolV b
+  toFinalState (AddC i d) = AddV (toFinalState i) (toFinalState d)
+  toFinalState (SubC i d) = SubV (toFinalState i) (toFinalState d)
+  toFinalState (MulC i d) = MulV (toFinalState i) (toFinalState d)
+  toFinalState (DivC i d) = DiV (toFinalState i) (toFinalState d)
+  toFinalState (SqrtC n) = SqrtV (toFinalState n)
+  toFinalState (NotC x) = NotV (toFinalState x)
+  toFinalState (EqualC i d) = EqualV (toFinalState i) (toFinalState d)
+  toFinalState (LessC i d) = LessV (toFinalState i) (toFinalState d)
+  toFinalState (GreaterC i d) = GreaterV (toFinalState i) (toFinalState d)
+  toFinalState (DiffC i d) = DiffV (toFinalState i) (toFinalState d)
+  toFinalState (LeqC i d) = LeqV (toFinalState i) (toFinalState d)
+  toFinalState (GeqC i d) = GeqV (toFinalState i) (toFinalState d)
+  toFinalState (PairC f s) = PairV (toFinalState f) (toFinalState s)
+  toFinalState (FstC p) = FstV (toFinalState p)
+  toFinalState (SndC p) = SndV (toFinalState p)
+  toFinalState (ConS f s) = ConV (toFinalState f) (toFinalState s)
+  toFinalState (HeadC p) = HeadV (toFinalState p)
+  toFinalState (TailC p) = TailV (toFinalState p)
+  toFinalState (IfC c t e) = IfV (toFinalState c) (toFinalState t) (toFinalState e)
+  toFinalState (FunC p b) = FunV p (toFinalState b)
+  toFinalState (AppC f a) = AppV (toFinalState f) (toFinalState a)
+  toFinalState NiL = NiV
+\end{lstlisting}
+
+La función \texttt{toFinalState} transforma cada estructura del núcleo AST en su equivalente ASV. Aunque a primera vista parezca una simple correspondencia entre constructores, su propósito es fundamental: garantizar que todas las expresiones que se evalúan dentro del intérprete sean expresadas en términos de ASV, permitiendo así que la semántica del lenguaje opere únicamente sobre estructuras homogéneas y compatibles con los valores finales del lenguaje.
+
+\subsection{Reglas de evaluación}
+
+\begin{quote}
+  \textit{Dar una introduccion de que son las reglas de evaluacion y por que son necesarias, ademas completar con la explicacion de las reglas de evaluacion. Hablar de los ambientes}
+\end{quote}
+
+\begin{itemize}
+\item Expresiones atómicas:
+  \begin{itemize}
+  \item VarV(i):
+    \[
+    \frac{lookup\ i\ \varepsilon = v}{\langle VarV(i), \varepsilon \rangle \to \langle v, \varepsilon \rangle}
+    \]
+    \[
+    \frac{lookup\ i\ \varepsilon \ \text{no está definido}}{\langle Varv(i), \varepsilon \rangle \to \text{Error en la ejecución de la evaluación}}
+    \]
+
+    \begin{quote}
+      \textit{Aqui se puede poner la explicacion breve de lo que hace lookup}
+    \end{quote}
+    
+  \item NumV(n):
+    \[
+    \frac{}{\langle NumV(n), \varepsilon \rangle \to \langle NumV(n), \varepsilon \rangle}
+    \]
+    
+  \item BoolV(b):
+    \[
+    \frac{}{\langle BoolV(b), \varepsilon \rangle \to \langle BoolV(b), \varepsilon \rangle}
+    \]
+  \item NiV:
+    \[
+    \frac{}{\langle NivV, \varepsilon \rangle \to \langle NiV, \varepsilon \rangle}
+    \]
+  \end{itemize}
+  
+\item AddV(i,d):
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle AddV(i,d), \varepsilon \rangle \to \langle AddV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle AddV(NumV(n),d), \varepsilon \rangle \to \langle Add(NumV(n),d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle AddV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n +_{\Z} m), \varepsilon \rangle}
+  \]
+  
+\item SubV(i,d):
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle SubV(i,d), \varepsilon \rangle \to \langle SubV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle SubV(NumV(n),d), \varepsilon \rangle \to \langle SubV(NumV(n),d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle SubV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n -_{\Z} m), \varepsilon \rangle}
+  \]
+ 
+\item MulV(i,d):
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle MulV(i,d), \varepsilon \rangle \to \langle MulV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle MulV(NumV(n),d), \varepsilon \rangle \to \langle MulV(NumV(n),d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle MulV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n *_{\Z} m), \varepsilon \rangle}
+  \]
+  
+\item DiV(i,d):
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle DiV(i,d), \varepsilon \rangle \to \langle DiV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle DiV(NumV(n),d), \varepsilon \rangle \to \langle DiV(NumV(n),d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle DiV(NumV(n),NumV(0)), \varepsilon \to \text{Error en la ejecución de la evaluación}}
+  \]
+  \[
+  \frac{}{ \langle DiV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n\ /_{\Z}\ m), \varepsilon \rangle} \quad (m \neq 0)
+  \]
+  
+\item SqrtV(n):
+  \[
+  \frac{\langle n, \varepsilon \rangle \to \langle n', \varepsilon \rangle}{\langle SqrtV(n), \varepsilon \rangle \to \langle SqrtV(n'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{n < 0}{\langle SqrtV(NumV(n)), \varepsilon \to \text{Error en la ejecución de la evaluación}}
+  \]
+  \[
+  \frac{}{\langle SqrtV(NumV(n)), \varepsilon \rangle \to \langle NumV(\sqrt{n}_{\N}), \varepsilon \rangle}  \quad (n \geq 0)
+  \]
+  
+\item NotV(b):
+  \[
+  \frac{\langle b, \varepsilon \rangle \to \langle n', \varepsilon \rangle}{\langle NotV(b), \varepsilon \rangle \to \langle NotV(b'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle NotV(BoolV(b)), \varepsilon \rangle \to \langle BoolV(\neg_{\P}b) \varepsilon \rangle}
+  \]
+  
+\item EqualV(i,d):
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle EqualV(i,d), \varepsilon \rangle \to \langle EqualV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle EqualV(NumV(n),d), \varepsilon \rangle \to \langle EqualV(NumV(n),d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle EqualV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n =_{\Z} m), \varepsilon \rangle}
+  \]
+
+\item LessV(i,d)
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle LessV(i,d), \varepsilon \rangle \to \langle LessV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle LessV(NumV(n),d), \varepsilon \rangle \to \langle LessV(NumV(n),d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle LessV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n <_{\Z} m), \varepsilon \rangle}
+  \]
+  
+\item GreaterV(i,d)
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle GreaterV(i,d), \varepsilon \rangle \to \langle GreaterV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle GreaterV(NumV(n),d), \varepsilon \rangle \to \langle GreaterV(NumV(n),d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle GreaterV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n >_{\Z} m), \varepsilon \rangle}
+  \]
+  
+\item DiffV(i,d)
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle DiffV(i,d), \varepsilon \rangle \to \langle DiffV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle DiffV(NumV(n),d), \varepsilon \rangle \to \langle DiffV(NumV(n),d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle DiffV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n \neq_{\Z} m), \varepsilon \rangle}
+  \]
+  
+\item LeqV(i,d)
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle LeqV(i,d), \varepsilon \rangle \to \langle LeqV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle LeqV(NumV(n),d), \varepsilon \rangle \to \langle LeqV(NumV(n),d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle LeqV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n \leq_{\Z} m), \varepsilon \rangle}
+  \]
+  
+\item GeqV(i,d)
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle GeqV(i,d), \varepsilon \rangle \to \langle GeqV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle GeqV(NumV(n),d), \varepsilon \rangle \to \langle GeqV(NumV(n),d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle GeqV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n \geq_{\Z} m), \varepsilon \rangle}
+  \]
+\end{itemize}
+
+Como se puede ver en las reglas para los comparadores, la regla final cuando ambas expresiones del comparador son el resultado deriva en
+
+\begin{itemize}  
+\item PairV(f,s):
+  \[
+  \frac{\langle f, \varepsilon \rangle \to \langle f', \varepsilon \rangle}{\langle PairV(f,s), \varepsilon \rangle \to \langle PairV(f',s), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle s, \varepsilon \rangle \to \langle s', \varepsilon \rangle}{\langle PairV(v_f,s), \varepsilon \rangle \to \langle PairV(v_f,s'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{v_f, v_s \text{ son valores canónicos}}{\langle PairV(v_f,v_s), \varepsilon \rangle \to \langle PairV(v_f,v_s), \varepsilon \rangle}
+  \]
+  
+\item FstV(p):
+  \[
+  \frac{\langle p, \varepsilon \rangle \to \langle p', \varepsilon \rangle}{\langle FstV(p), \varepsilon \rangle \to \langle FstV(p'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{v_1, v_2 \text{ son valores canónicos}}{\langle FstV(PairV(v_1,v_2)), \varepsilon \rangle \to \langle v_1, \varepsilon \rangle}
+  \]
+  
+\item SndV(p):
+  \[
+  \frac{\langle p, \varepsilon \rangle \to \langle p', \varepsilon \rangle}{\langle SndV(p), \varepsilon \rangle \to \langle SndV(p'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{v_1, v_2 \text{ son valores canónicos}}{\langle SndV(PairV(v_1,v_2)), \varepsilon \rangle \to \langle v_2, \varepsilon \rangle}
+  \]
+  
+\item IfV(c,t,e), IfV solo evalúa la condicional hasta llegar a un \texttt{BoolV} mas no evalúa el \textbf{then} o \textbf{else} dependiendo del resultado de la condición, solo se encarga de retornar alguno de los dos dependiendo del caso:
+  \[
+  \frac{\langle c, \varepsilon \rangle \to \langle c', \varepsilon \rangle}{\langle IfV(c,t,e), \varepsilon \rangle \to \langle IfV(c',t,e), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle IfV(BoolV(\#t),t,e), \varepsilon \rangle \to \langle t, \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle IfV(BoolV(\#f),t,e), \varepsilon \rangle \to \langle e, \varepsilon \rangle}
+  \]
+  
+\item ConV(i,d):
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle ConV(i,d), \varepsilon \rangle \to \langle ConV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{v_i \text{ es valor canónico} \; \langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle ConV(v_i,d), \varepsilon \rangle \to \langle ConV(v_i,d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{v_i, v_d \text{ son valores canónicos}}{\langle ConV(v_i,v_d), \varepsilon \rangle \to \langle ConV(v_i,v_d), \varepsilon \rangle}
+  \]
+  
+\item HeadV(l):
+  \[
+  \frac{\langle p, \varepsilon \rangle \to \langle p', \varepsilon \rangle}{\langle HeadV(l), \varepsilon \rangle \to \langle HeadV(l'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle HeadV(ConV(v_i,v_d)), \varepsilon \rangle \to \langle v_i, \varepsilon \rangle}
+  \]
+  
+\item TailV(l);
+  \[
+  \frac{\langle l, \varepsilon \rangle \to \langle l', \varepsilon \rangle}{\langle TailV(l), \varepsilon \rangle \to \langle TailV(l'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{v_d \text{ es valor pero } v_d = ConV(i,d) \;\; v_d \to v_d'}{\langle TailV(ConV(v_i,v_d)), \varepsilon \rangle \to \langle TailV(v_i,v_d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{v_d \text{ es valor pero} v_d \neq ConV(i,d)}{\langle TailV(ConV(v_i,v_d)), \varepsilon \rangle \to \langle v_d, \varepsilon \rangle}
+  \]
+  
+\item FunV(p,c):
+  \[
+  \frac{}{\langle FunV(p,c), \varepsilon \rangle \to \langle Closure(FunV(p,c), \varepsilon), \varepsilon \rangle}
+  \]
+  
+\item AppV(f,a):
+  \[
+  \frac{\langle f, \varepsilon \rangle \to \langle f', \varepsilon \rangle}{\langle AppV(f,a), \varepsilon \rangle \to \langle AppV(f',a), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle a, \varepsilon \rangle \to \langle a', \varepsilon \rangle}{\langle AppV(Closure(FunV(p,c), \varepsilon'),a), \varepsilon \rangle \to \langle AppV(Closure(FunV(p,c), \varepsilon'),a'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\^{a} \text{ es un valor canónico}}{\langle AppV(Closure(FunV(p,c), \varepsilon'), \^{a}), \varepsilon \rangle \to \langle c, \varepsilon'[p \leftarrow \^{a}] \rangle}
+  \]
+\end{itemize}
+
+\begin{quote}
+  \textit{Puede que sea buena idea dar un cierre a esto antes de entrar en Haskell}
+\end{quote}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Ambientes}
+\section{Intérprete para\minilisp}
+
+Una vez definimos formalmente lo que será la \textbf{\textit{Semántica Operacional Estrcutural}} para nuestro lenguaje podemos programar el interprete del mismo que será el encargado de aplica la evaluación al programa del usuario, más precisamente a las expreciones \texttt{ASV} que ya han depurado el programa original.
+
+\begin{quote}
+  \textit{creo podemos extendernos mas aqui}
+\end{quote}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Evaluación en Haskell}
+\subsection{Función paso pequeño en\minilisp}
+
+Para nuestro lenguaje definimos la función de evaluación como sigue:
+
+\begin{lstlisting}[style=haskellstyle, caption={Tipo de dato \texttt{ASV} (Estados Finales) y \texttt{ENV} (ambiente de evaluación)}]
+module ASV where
+
+import AST
+
+{--
+Definimos la representacion del ambiente de ejecucion.
+Un ambiente es una lista de pares (id, valor).
+--}
+type Env = [(String, ASV)]
+
+{-- ASA Values --}
+data ASV
+  = VarV String
+  | NumV Int
+  | BoolV Bool
+  | NiV
+  | AddV ASV ASV
+  | SubV ASV ASV
+  | MulV ASV ASV
+  | DiV ASV ASV
+  | SqrtV ASV
+  | NotV ASV
+  | EqualV ASV ASV
+  | LessV ASV ASV
+  | GreaterV ASV ASV
+  | DiffV ASV ASV
+  | LeqV ASV ASV
+  | GeqV ASV ASV
+  | PairV ASV ASV
+  | FstV ASV
+  | SndV ASV
+  | IfV ASV ASV ASV
+  | FunV String ASV
+  | AppV ASV ASV
+  | ConV ASV ASV
+  | HeadV ASV
+  | TailV ASV
+  | Closure String ASV Env
+  deriving (Show, Eq)
+\end{lstlisting}
+
+Definimos tanto los estados finales como un nuevo tipo llamado Env, que representa el ambiente de evaluación.
+Este ambiente no es más que una emulación de la pila donde guardamos los ambientes como pares ((id, valor) como
+si de \texttt{[}"\texttt{id}" $\to$ \textit{value}\texttt{]}), donde cada identificador está asociado con el
+valor que tiene en ese momento de la ejecución.\\
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\cap7
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Ahora definimos la función principal \texttt{eval}, para el intérprete del lenguaje:
+  
+\begin{lstlisting}[style=haskellstyle, caption={Estados Finales}]
+module Interprete where
+
+import ASV
+
+{-- Funcion principal del interprete --}
+{--
+Evaluamos una expresion paso a paso utilizando la funcion 'pasito' hasta llegar a algun valor canonico.
+--}
+eval :: ASV -> Env -> ASV
+eval asv env
+  | isValue asv = asv
+  | otherwise =
+    let (asv', env') = pasito asv env
+     in eval asv' env'
+
+{-- Funcion que determina si una expresion es valor canonico --}
+isValue :: ASV -> Bool
+isValue (NumV _) = True
+isValue (BoolV _) = True
+isValue (Closure _ _ _) = True
+isValue (PairV f s) = isValue f && isValue s
+isValue (ConV f s) = isValue f && isValue s
+isValue (NiV) = True
+isValue _ = False
+\end{lstlisting}
+
+La función \texttt{eval} recibe un estado final con el ambiente de inicio el cuál es vacío al comienzo de la evaluación y devuelve un \texttt{ASV} que se al terminar será un valor canónico.
+
+\noindent
+Utilizamos guardas con los que describimos que hacer. Si la expresión ya es un valor canónico (según \texttt{isValue}), no hay nada que evaluar y devolvemos el valor tal cual. En otro caso procedemos a evaluar la expresión paso a paso.
+
+\noindent
+Con la función auxiliar \texttt{isValue} utilizando la casa de patrones definimos cuales estados son valores canónicos que ya establecimos y, en caso de serlo, devolvemos \texttt{True}, en otro caso no es canónico y devolvemos \texttt{False}.\\
+
+Modelamos las reglas de evaluación con paso pequeño de\minilisp{-0.2cm} con la función \texttt{pasito}. Esta función \texttt{pasito} recibe el estado final con su ambiente a evaluar y regresa la configuración resultante:
+
+\begin{lstlisting}[style=haskellstyle, caption={Función \texttt{pasito} para valores, casos base}]
+{--  Funcion pasito que implementa la semantica operacional estructural del lenguaje --}
+{--
+'Avanza' un solo paso en la evaluacion de una expresion, devolviendo el resultado y el ambiente actualizado.
+--}
+pasito :: ASV -> Env -> (ASV, Env)
+--Valores
+pasito (VarV i) env  = (mirarriba i env, env)
+pasito (NumV n) env  = (NumV n, env)
+pasito (BoolV b) env = (BoolV b, env)
+pasito (NiV) env     = (NiV, env)
+
+
+{-- Funcion mirarriba (lookup) para la busqueda de variables en el ambiente --}
+mirarriba :: String -> Env -> ASV
+mirarriba i [] = error ("Var '" ++ i ++ "' no definida")
+mirarriba i ((j, v):e)
+  | i == j = v
+  | otherwise = mirarriba i e
+\end{lstlisting}
+
+Como se puede ver, \texttt{pasito} utiliza la casa de patrones de acuerdo con las reglas que establecimos previamente. \texttt{NumV n}, \texttt{BoolV b} y \texttt{NiV} solo devuelven la misma expresión con el mismo ambiente recibido.\\
+
+Tenemos la mención especial de que para las variables \texttt{VarV} utilizamos \texttt{lookup}, que en nuestra implementación, con un arrebato increíble de originalidad lo nombramos como \texttt{mirarriba}; para buscar las varibales en el ambiente dado. La función implementa la búsqueda de una variable en el ambiente, toma el nombre de una variable y un ambiente \texttt{Env} y devuelve el \texttt{ASV} asociado.
+
+\noindent
+Si el ambiente es vacío o llegamos al final de este y no encontramos la variable, lanzamos un error con un mensaje indicando que la variable no está definida, deteniedno la ejecución de todo el intérprete. En el caso recursivo, comprobamos que el identificador en el ambiente sea el mismo que el ambiente que se está buscando, en caso de que coincidan devolvemos el valor v asociado ya que hemos encontrado la variable. En otro caso, si no coinciden, continuamos la búsqueda recursivamente en la cola. Recorremos el ambiente hasta encontrar la variable o agotar la "$pila$".
+
+\begin{lstlisting}[style=haskellstyle, caption={Función \texttt{pasito} para operadores}]
+pasito :: ASV -> Env -> (ASV, Env)
+-- Operadores
+pasito (AddV (NumV n) (NumV m)) env = (NumV (n + m), env)
+pasito (AddV (NumV n) d) env        = let (d', env') = pasito d env
+                                      in (AddV (NumV n) d', env')
+pasito (AddV i d) env               = let (i', env') = pasito i env
+                                      in (AddV i' d, env')
+pasito (SubV (NumV n) (NumV m)) env = (NumV (n - m), env)
+pasito (SubV (NumV n) d) env        = let (d', env') = pasito d env
+                                      in (SubV (NumV n) d', env')
+pasito (SubV i d) env               = let (i', env') = pasito i env
+                                      in (SubV i' d, env')
+pasito (MulV (NumV n) (NumV m)) env = (NumV (n * m), env)
+pasito (MulV (NumV n) d) env        = let (d', env') = pasito d env
+                                      in (MulV (NumV n) d', env')
+pasito (MulV i d) env               = let (i', env') = pasito i env
+                                      in (MulV i' d, env')
+pasito (DiV (NumV n) (NumV m)) env
+  | m == 0 = error ("No se puede dividir entre 0")
+  | otherwise = (NumV (div n m), env)
+pasito (DiV (NumV n) d) env = let (d', env') = pasito d env
+                               in (DiV (NumV n) d', env')
+pasito (DiV i d) env        = let (i', env') = pasito i env
+                               in (DiV i' d, env')
+pasito (SqrtV (NumV n)) env
+  | n < 0 = error ("No se puede obtener la raiz de un numero negativo")
+  | otherwise = (NumV (integerSquareRoot n), env)
+pasito (SqrtV n) env         = let (n', env') = pasito n env
+                               in (SqrtV n', env')
+
+{-- Funcion auxiliar para SqrtV para calcular la raiz cuadrada de un numero entero --}
+integerSquareRoot :: Int -> Int
+integerSquareRoot n = floor (sqrt (fromIntegral n :: Double))
+\end{lstlisting}
+
+Para las siguientes reglas de evaluación definiremos primero la tercer regla de cada expresión donde los arguementos de estas ya son valores, ya que al usar \textit{pattern matching} debemos implementarlo de este modo pues de otra forma caeríamos siempre en la primer regla donde solo evaluamos un argumento, lo que derivaría en un bucle infinito. Así, la regla para los operadores utiliza las reglas donde ambos argumentos son ya números para terminar la evaluación, donde usamos los operadores del lenguaje anfitrión respectivos a la expresión.
+
+\noindent
+Los casos especiales son para la división y la raíz cuadrada, donde, una vez llegamos a un \texttt{NumV}, comprobamos que no sea cero, para la división, o que no sea negativo, para la raíz. En el caso de \texttt{SqrtV}, una vez comprobamos que el número es válido, nos apoyamos de la función auxiliar \texttt{integerSquareRoot} que convierte el entero a \texttt{Double}, calcula la raíz cuadrada y la trunca hacia abajo, devolviendo un \texttt{Int}.\\
+
+De manera similar implementamos las reglas para los comparadores:
+
+\begin{lstlisting}[style=haskellstyle, caption={Función \texttt{pasito} para comparadores}]
+pasito :: ASV -> Env -> (ASV, Env)
+--Not
+pasito (NotV (BoolV b)) env = (BoolV (not b), env)
+pasito (NotV e) env         = let (e', env') = pasito e env
+                              in (NotV e', env')
+--Comparadores
+pasito (EqualV (NumV n) (NumV m)) env   = (BoolV (n == m), env)
+pasito (EqualV (NumV n) d) env          = let (d', env') = pasito d env
+                                          in (EqualV (NumV n) d', env')
+pasito (EqualV i d) env                 = let (i', env') = pasito i env
+                                          in (EqualV i' d, env')
+pasito (LessV (NumV n) (NumV m)) env    = (BoolV (n < m), env)
+pasito (LessV (NumV n) d) env           = let (d', env') = pasito d env
+                                          in (LessV (NumV n) d', env')
+pasito (LessV i d) env                  = let (i', env') = pasito i env
+                                          in (LessV i' d, env')
+pasito (GreaterV (NumV n) (NumV m)) env = (BoolV (n > m), env)
+pasito (GreaterV (NumV n) d) env        = let (d', env') = pasito d env
+                                          in (GreaterV (NumV n) d', env')
+pasito (GreaterV i d) env               = let (i', env') = pasito i env
+                                          in (GreaterV i' d, env')
+pasito (DiffV (NumV n) (NumV m)) env    = (BoolV (n /= m), env)
+pasito (DiffV (NumV n) d) env           = let (d', env') = pasito d env
+                                          in (DiffV (NumV n) d', env')
+pasito (DiffV i d) env                  = let (i', env') = pasito i env
+                                          in (DiffV i' d, env')
+pasito (LeqV (NumV n) (NumV m)) env     = (BoolV (n <= m), env)
+pasito (LeqV (NumV n) d) env            = let (d', env') = pasito d env
+                                          in (LeqV (NumV n) d', env')
+pasito (LeqV i d) env                   = let (i', env') = pasito i env
+                                          in (LeqV i' d, env')
+pasito (GeqV (NumV n) (NumV m)) env     = (BoolV (n <= m), env)
+pasito (GeqV (NumV n) d) env            = let (d', env') = pasito d env
+                                          in (GeqV (NumV n) d', env')
+pasito (GeqV i d) env                   = let (i', env') = pasito i env
+                                          in (GeqV i' d, env')
+\end{lstlisting}
+
+En el caso de \texttt{Not}, una vez que el argumento es \texttt{BoolV} retornamos la negación en Haskell de este \texttt{BoolV} como un nuevo \texttt{BoolV}. De la misma manera como fue con los operadores aritméticos, cuando ambos argumentos ya son números con los cuales comparar, regresamos la comparación como valor booleano\texttt{BoolV} con el resultado evaluado con los operadores de comparación en Haskell.
+
+\begin{lstlisting}[style=haskellstyle, caption={Función \texttt{pasito} para comparadores}]
+pasito :: ASV -> Env -> (ASV, Env)
+--Pares
+pasito (PairV f s) env
+  | isValue (PairV f s) = (PairV f s, env)
+  | isValue f = let (s', env') = pasito s env
+                in (PairV f s', env')
+  | otherwise = let (f', env') = pasito f env
+                in (PairV f' s, env')
+pasito (FstV (PairV f s)) env
+  | isValue f && isValue s = (f, env)
+pasito (FstV p) env = let (p', env') = pasito p env
+                      in (FstV p', env')
+pasito (SndV (PairV f s)) env
+  | isValue f && isValue s = (s, env)
+pasito (SndV p) env = let (p', env') = pasito p env
+                      in (SndV p', env')
+---Cons
+pasito (ConV f s) env
+  | isValue (ConV f s) = (ConV f s, env)
+  | isValue f = let (s', env') = pasito s env
+                in (ConV f s', env')
+  | otherwise = let (f', env') = pasito f env
+                in (ConV f' s, env')
+pasito (HeadV (ConV f s)) env
+  | isValue f && isValue s = (f, env)
+pasito (HeadV p) env =
+  let (p', env') = pasito p env
+  in (HeadV p', env')
+pasito (TailV (ConV f s)) env
+  | isValue f && isValue s && not (isConV s) = (s, env)
+  | otherwise = let (s', env') = pasito s env
+                in (TailV s', env')
+pasito (TailV p) env =
+  let (p', env') = pasito p env
+  in (TailV p', env')
+
+  
+{-- Funcion que nos dice si la estructura sigue siendo un ecadenamiento de ConV--}
+isConV :: ASV -> Bool
+isConV (ConV _ _) = True
+isConV _ = False
+\end{lstlisting}
+
+Para el caso de \texttt{PairV} y \texttt{ConV}, en ambos, comprobamos que sean valores canónicos y aunque suene redundante, con la función \texttt{isValue}, ambos son valores si y sólo si sus dos argumentos también son valores. En otro caso continuamos evaluando ambas expresiones, primero con el primer argumento hasta llegar a un valor para poder seguir con la evalución del segundo.
+
+\noindent
+Para la evaluación de los operadores sobre pares, con \texttt{FstV}, como utilizamos evaluación glotona, debemos llegar a que el par recibido tenga ambas expresiones como valor, para así devolver el primer argumento del par. Lo mismo con \texttt{SndV} que, hasta tener los argumentso $f$ y $s$ como valores, devolvemos $s$, el segundo.\\
+
+Para el caso de \texttt{HeadV} con \texttt{ConV} es análogo a \texttt{FstV} con los pares. Sin embargo, \texttt{TailV} no solo necesita que ambos argumentos ya seal valores, sino que el segundo valor no sea de tipo \texttt{ConV}, pues esto significa que hay más expresiones en el encadenamiento de \texttt{ConV}, por lo que necesitamos seguir con este segundo argumento hasta llegar a un valor canónico dinstinto de \texttt{ConV} -justo como en las reglas de evaluación para esta expresión-.
+
+\noindent
+Para lograr esto, no apoyamos en la función \texttt{isConV}, que nos ayuda a determinar que la expresión dada sea otro \texttt{ConV} o si es otro valor canónico.\\
+
+Para las reglas de la condicional \texttt{IfV} su implementación es más sencilla pues basta que, al llegar a un valor \texttt{BoolV} de la condición devolvemos la configuración respectiva: \texttt{(t, env)} en el caso de que la condición es verdad, y \texttt{(e, env)} en otro caso. De otro modo, continuamos evaluando la condición.
+
+\begin{lstlisting}[style=haskellstyle, caption={Función \texttt{pasito} para comparadores}]
+pasito :: ASV -> Env -> (ASV, Env)
+--If
+pasito (IfV (BoolV True) t e) env  = (t, env)
+pasito (IfV (BoolV False) t e) env = (e, env)
+pasito (IfV c t e) env             = let (c', env') = pasito c env
+                                     in (IfV c' t e, env')
+\end{lstlisting}
+
+Por último tenemos las funciones y \texttt{FunV} las aplicaciones de funciones \texttt{AppV}, que quedan como sigue:
+
+\begin{lstlisting}[style=haskellstyle, caption={Función \texttt{pasito} para comparadores}]
+pasito :: ASV -> Env -> (ASV, Env)
+--Funciones
+pasito (FunV p c) env = (Closure p c env, env)
+--Aplicacion de funciones
+pasito (AppV (Closure p c env') a) env
+  | isValue a = (c, (p, a):env')
+  | otherwise =
+    let (a', env'') = pasito a env
+    in (AppV (Closure p c env') a', env'')  
+pasito (AppV f a) env = let (f', env') = pasito f env
+                        in (AppV f' a, env')
+\end{lstlisting}
+
+La evaluación de las funciones es simple, la función \texttt{FunV} se convierte en una cerradura con el mismo ambiente de la configuración. Para \texttt{AppV}, siguiendo las reglas de evaluación para esta expresión: si se tiene una cerradura con un argumento a aplicar, comprobamos que este argumento sea ya un valor canónico, de ser así, retornamos la configuración con la aplicación extendiendo el ambiente. En otro caso continuamos evaluacndo el argumento. De no ser una cerradura, entonces evaluamos esta función.\\
+
+Así, terminamos la evaluación glotona con alcance estático usando paso pequeño con la función \texttt{pasito} en nuestro intérprete.
+
+\bigskip
+
+Sin embargo, esta implementación no nos sirve para la aplicación de funciones derivada de \texttt{LetRec}, pues veamos el resultado de evaluar \texttt{LetRec}:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+[MiniLisp]> (letrec (sum (lambda (n) (if0 n 0 (+ n (sum (- n 1)))))) (sum 3))
+[Error]: Var 'Z' no definida
+CallStack (from HasCallStack):
+  error, called at ./Interprete.hs:154:18 in main:Interprete
+\end{minted}
+
+Y es debido a que, como se menciono en en el capítulo de \textbf{Azúcar Sintáctica}, necesitamos definir un \textit{Combinador} para darle recursión. Más concretamente, usamos el combinador \textbf{Z}:
+
+\[
+(\lambda f.((\lambda x.(f (\lambda v.((x x) v)))) (\lambda x.(f (\lambda v.((x x) v))))))
+\]
+
+\begin{quote}
+  \textit{creo se puede mejorar la explicacion anterior}
+\end{quote}
+
+Y este combinador debemos agregarlo al ambiente de evaluación para que en el interpretre lo utilice, y asu vez, el ambiente debe estar evaluado:
+
+\[
+\texttt{[Z} \to (\lambda f.((\lambda x.(f (\lambda v.((x x) v)))) (\lambda x.(f (\lambda v.((x x) v)))))) \texttt{]}
+\]
+
+No obstante, esto también presenta un error a la hora de ser evaluado:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+[MiniLisp]> (letrec (sum (lambda (n) (if0 n 0 (+ n (sum (- n 1)))))) (sum 3))
+[Error]: Var 'v' no definida
+CallStack (from HasCallStack):
+  error, called at ./Interprete.hs:154:18 in main:Interprete
+\end{minted}
+
+Debido a que hasta el momento estamos utilizamos evaluación glotona con alcance estático, debemos de implementar una manera de que no suceda esto. Y es con...
+
+\begin{quote}
+  \textit{Extender aqui la explicacion de por que falla al evaluar el combinador como el uso de evaluacion glotona}
+\end{quote}

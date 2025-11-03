@@ -8,8 +8,16 @@ import Lexer
 import Grammar
 import Desugar
 import Interprete
+import EvalStrict
 import Saca
 import Control.Exception (catch, SomeException)
+
+combZ :: String
+combZ = "(lambda (f) ((lambda (x) (f (lambda (v) ((x x) v)))) (lambda (x) (f (lambda (v) ((x x) v))))))"
+
+z :: ASV
+--z = eval (toFinalState $ desugar $ parse $ lexer combZ) []
+z = evalS (desugar $ parse $ lexer combZ) []
 
 -- Punto de entrada principal
 main :: IO ()
@@ -41,7 +49,9 @@ run input =
       let tokens = lexer input
       let asa = parse tokens
       let ast = desugar asa
-      let asv = eval (toFinalState ast) []
+      --let asv = eval (toFinalState ast) []
+      --let asv = eval (toFinalState ast) [("Z", z)]
+      let asv = evalS (ast) [("Z", z)]
       putStrLn (saca asv))
     errors
 

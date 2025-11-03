@@ -69,17 +69,17 @@ ghci>
 (+ 3 7)
 (* (- 8 3) (/ 12 3))
 
-(++ 9)
-(-- (sqrt 16))
-(** 7)
+(add1 9)
+(sub1 (sqrt 16))
+(expt 7)
 
 (= 4 4)
 (< (* 3 2) (+ 5 5))
 (not (> 9 2))
 
-~~~(pair 4 5)~~~
-~~~(fst (pair (+ 3 7) (* 2 5)))~~~
-~~~(snd (pair 1 (add1 8)))~~~
+(4,5)
+(fst ((+ 3 7), (* 2 5)))
+(snd (1, (add1 8)))
 
 (if (= (+ 2 3) 5) #t #f)
 (cond [(< 4 3) 8] [(= 5 5) 9] [else 0])
@@ -167,4 +167,22 @@ Escriba (exit) para salir.
 [MiniLisp]> :q
 Bye :)
 ghci> 
+```
+
+
+## LetRec:
+```
+[MiniLisp]> (letrec (sum (lambda (n) (if0 n 0 (+ n (sum (- n 1)))))) (sum 3))
+[Error]: Var 'Z' no definida
+CallStack (from HasCallStack):
+  error, called at ./Interprete.hs:154:18 in main:Interprete
+[MiniLisp]> 
+```
+
+```
+[MiniLisp]> (letrec (sum (lambda (n) (if0 n 0 (+ n (sum (- n 1)))))) (sum 3))
+[Error]: Var 'v' no definida
+CallStack (from HasCallStack):
+  error, called at ./Interprete.hs:154:18 in main:Interprete
+[MiniLisp]> 
 ```
