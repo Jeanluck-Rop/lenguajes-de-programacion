@@ -2,7 +2,7 @@
 
 Antes de entrar de fondo en programar nuestro\minilisp en Haskell, es necesario definir la \textbf{\textit{sintaxis concreta}} que utilizaremos para el lenguaje.
 
-Citando al profesor, en su archivo compartido \textbf{\textit{Especificación Formal de los Lenguajes de Programación. Sintaxis Concreta}}~\cite{ref13}.
+Citando al profesor, en su archivo compartido \textbf{\textit{Especificación Formal de los Lenguajes de Programación. Sintaxis Concreta}}~\cite{EFLP-SC}.
 
 \begin{quote}
   \textit{En el contexto de la teoría de lenguajes de programación y lenguajes formales, la
@@ -105,7 +105,7 @@ nuestro lenguaje\minilisp\hspace{-0.2cm}:
   \item \textbf{Variables:} cualquier secuencia de caracteres de la forma $[a-z + A-Z][a-zA-Z0-9]^*$.
   \item \textbf{Números enteros:} $x \in \Z$.
   \item \textbf{Booleanos:} \texttt{\#t} (verdadero) y \texttt{\#f} (falso), junto con la negación \texttt{(not)}.
-  \item \textbf{Operadores aritméticos:} \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{Add1}(incremento), \texttt{Sub1}(decremento), raíz cuadrada (\texttt{sqrt}) y potencia (\texttt{**}).
+  \item \textbf{Operadores aritméticos:} \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{add1}(incremento), \texttt{sub1}(decremento), raíz cuadrada (\texttt{sqrt}) y potencia (\texttt{**}).
   \item \textbf{Predicados y comparaciones:} igualdad y desigualdad (\texttt{=}, \texttt{!=}), así como comparaciones numéricas (\texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=}).
   \item \textbf{Asignaciones y funciones:} construcciones \texttt{let}, \texttt{let*}, \texttt{letrec}, funciones anónimas con \texttt{lambda}, y aplicación de funciones.
   \item \textbf{Pares ordenados y proyecciones:} \texttt{(}$e1$\texttt{,} $e2${)}, \texttt{first} y \texttt{second}.
@@ -370,7 +370,7 @@ sentencias válidas para el lenguaje. Sin la gramática no podemos darle la estr
 En otras palabras, la \textit{\textbf{sintaxis libre de contexto}} constituye el \textit{esqueleto sintáctico} del lenguaje. Si el \textbf{análisis léxico} segmenta la entrada en \textit{Tokens}, el \textbf{análisis sintáctico} (guiado por una \textit{gramática libre de contexto}) se encarga de verificar que dichos $Tokens$ se ensamblen de manera coherente conforme a las reglas del lenguaje. Sin una gramática bien definida, no sería posible darle forma ni estructura a los programas escritos en\minilisp\hspace{-0.2cm}, ni mucho menos permitir que el intérprete los procese correctamente. Necesitamos de la gramática para dar orden, decidir qué aceptamos y cómo lo aceptamos, de este modo damos más formalidad y menos ambigüedad al lenguaje.
 
 \subsection{La gramática de\minilisp}
-Según Hopcroft y Ullman es su libro \textit{\textbf{Introduction to Automata Theory, Languages, and Computation}}~\cite{ref14}, una \textit{\textbf{gramática libre de contexto}} se define formalmente como una tupla:
+Según Hopcroft y Ullman es su libro \textit{\textbf{Introduction to Automata Theory, Languages, and Computation}}~\cite{HyU}, una \textit{\textbf{gramática libre de contexto}} se define formalmente como una tupla:
 \[
 G = (V, T, P, S)
 \]

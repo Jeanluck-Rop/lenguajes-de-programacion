@@ -1,6 +1,16 @@
 \chapter{Azúcar Sintáctica}
+El término \textit{azúcar sintáctica} \textit{(syntactic sugar)} fue introducido por Peter J.Landin en 1964. La azúcar sintáctica consiste en construcciones del lenguaje que pueden ser sistemáticamente traducidas a formas más básicas sin alterar la semántica del programa. Es decir, no añaden nuevas capacidades expresivas, sino que facilitan la escritura o lectura del código.
 
-Una vez que hemos ``\textit{limpiado}'' la Sintaxis Concreta y Léxica nos queda la Sintaxis Abstracta y como vimos, con ella logramos capturar la estructura esencial del programa. Sin embargo, podemos reducir aún más estos \textbf{ASA} porque a pesar de ya haber elimida los elementos superficiales de la Sintaxis Concreta, hay expresiones redundantes o que pueden representarse como otras, lo que nos reduce en mayor medida las reglas debemos implementar al momento de la evaluación. Por ejemplo:
+Landin fue un pionero de la teoría de lenguajes de programación, utilizó el término para describir aquellas construcciones que, aunque convenientes para el programador, pueden eliminarse mediante una transformación mecánica sin modificar el significado del programa.
+
+\begin{quote}
+  Landin uso este termino por primera vez en su trabajo sobre la correspondencia entre programación y cálculo lambda, específicamente en el artículo \textit{"The Next 700 Programming Languages"}~\cite{landin}, aunque la idea aparece en escritos de 1964.
+\end{quote}
+
+Continunado con nuestro proyecto. Una vez que hemos elimindo todos los elementos superficilaes y auxiliares de la sintaxis concreta y léxica para quedarnos únicamente con la represntación mínima y estructural del programa, es decir, el \textbf{Arbol de Sintaxis Abstracta} (ASA) logramos capturar la estructura esencial del programa. 
+Pasamos a la siguiente fase,reducir aún más estos \textbf{ASA} porque a pesar de ya haber eliminado los elementos superficiales de la Sintaxis Concreta, hay expresiones redundantes o que pueden representarse como otras,hacer esto nos reduce en mayor medida las reglas que debemos implementar al momento de la evaluación, en nuestra implementación pasamos de ASA (con azúcar sintáctica) a AST (sin azúcar sintáctica).
+
+Para explicar lo anterior con mas detalle tomaremos un ejemplo:
 \[
 \texttt{(if0 (+ 8 -8) 0 -1)} \Rightarrow \texttt{(if (= (+ 8 -8) 0) 0 -1)}
 \]
@@ -8,9 +18,6 @@ Una vez que hemos ``\textit{limpiado}'' la Sintaxis Concreta y Léxica nos queda
 
 Estas expresiones \textbf{ASA} sin azúcar sintáctica pertenecen al conjunto que denominamos como \textit{núcleo}, o \textit{core}.
 
-\begin{quote}
-  \textit{Desarrollar más la introducción...}
-\end{quote}
 
 \section{Sintaxis Abstracta sin azúcar en\minilisp}
 
@@ -71,9 +78,41 @@ Necesitamos definir una función que realice el prodecimientod e desazucarar los
   \end{center}
   
   
-  \begin{quote}
-    \textit{Falta la definición de LetRec como azúcar...}
-  \end{quote}
+Pasando al caso específico de \texttt{letrec}, este nos permite definir funciones recursivas locales. Formalmente, la recursión puede desazucararse utilizando un operador de punto fijo. Para lenguajes de evaluación ansiosa se utiliza el operador Z, que implementa recursión sin necesidad de auto-referencia explícita.
+
+\begin{center}
+\texttt{desugar}(\texttt{LetRec}($id$, $value$)$body$) $\Rightarrow$ \texttt{Let} (($id$, App (Lambda ($id$) $value$)(Lambda ($id$) $value$)))
+$body$
+\end{center}
+
+\begin{quote}
+En el trabajo \textit{The Formal of Programming Languages}, el concepto de punto fijo es la herramienta matemática fundamental para dar un significado preciso a las construcciones recurisivas de un lenguaje, como los bucles y las funciones que se llaman a sí mismas~\cite{winskel} 
+\end{quote}
+
+\begin{center}
+El \textbf{combinador de punto fijo Z} se define en cálculo lambda como:
+\[
+Z = \lambda f. (\lambda x. f \, (\lambda y. x \, x \, y)) \, (\lambda x. f \, (\lambda y. x \, x \, y))
+\]
+que satisface la propiedad:
+\[
+Z \, F = F \, (Z \, F) \quad \text{para cualquier término } F
+\]
+\end{center}
+
+\textit{¿Por qué es necesario el combinador Z de punto fijo?}
+En la implementación de nuestro miniLisp, hemos definido las funciones anónimas ($\lambda$) como un núcleo fundamental del lenguaje. Esta decisión se tomo con el fin de poder desazucarar  muchas construcciones del lenguaje.Por ejemplo, let y letstar pueden ser traducidos de forma directa a simples aplicaciones de lambda.
+
+Sin embargo, letrec (la construcción que permite definir funciones recursivas) presenta un desafío.
+
+La recursión, se basa en nombres: una función se llama a sí misma por su propio nombre hasta llegar a un caso base. Pero esto crea una paradoja en nuestro sistema: si el núcleo solo entiende de funciones anónimas, ¿cómo puede una función sin nombre llamarse a sí misma?
+
+Es aquí donde la teoría del punto fijo se vuelve clave.
+
+En lugar de intentar que la función se llame a sí misma (lo cual es imposible sin un nombre), se crea una función "generadora" (un funcional), llamémosla $G$. Esta función $G$ no es recursiva, sino que acepta un argumento. Dicho argumento, llamémoslo $g$, representa la suposición de la función recursiva.
+
+Para solucionar esto es necesario el uso de una "maquina"
+que haga esto automáticamente. Esa máquina es un combinador de punto fijo (como el Combinador Y visto en clase).
 
 \item \textbf{Expresiones lambda:}
   Nuestras expresiones lambda son variádicas, por lo que para representarlas en núcleo necesitamos currificarlas., es decir, necesitamos convertiralas en funciones de un solo argumento:
@@ -94,13 +133,12 @@ Necesitamos definir una función que realice el prodecimientod e desazucarar los
   \begin{center}
     \texttt{desugar}(\texttt{List [$x_1$, $x_2$, $\ldots$ $x_n$]}) $\Rightarrow$ (\texttt{Cons $x_1$ (Cons $x_2$ $\ldots$ (Con $x_{n-1}$ $x_n$}))
   \end{center}
-  
-  \texttt{Head}, \texttt{Tail} ya no trabajan sobre listas \textbf{ASA} sino con \texttt{Nil} y \texttt{Cons}, por lo que estos seran nuestro núcleos para manejar las listas.
-\end{itemize}
 
-  \begin{quote}
-    \textit{Creo estaría bien mencionar que algunos ya no son árboles n-arios sino binarios...}
-  \end{quote}
+De esta manera, la estructura superficial de las listas en la sintaxis concreta, que aparenta ser n-aria se reexpresa en términos de una estructura binaria en el núcleo del lenguaje. En otras palabras, una lista como \texttt{[a,b,c]} no es realmente un nodo con tres hijos, sino una secuencia anidada de constructores
+\texttt{Cons},cada uno tomando dos argumentos: el elemento y la referencia al resto de la lista. 
+
+Esto implica que algunas construcciones que originalmente se representan como árboles n-arios en el \textbf{ASA}, después de ser desazucarizadas corresponden a árboles binarios en el \textbf{AST}. \texttt{Head}, \texttt{Tail} ya no operan sobre listas \textbf{ASA}, sino directamente sobre la estructura \texttt{Nil} y \texttt{Cons}, que constituye el núcleo semántico para listas.
+\end{itemize}
   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -299,26 +337,43 @@ A continuación, esta función se aplica (\texttt{AppC}) al valor \texttt{v} cor
 
 Además, \texttt{LetStar} -como también se  mencionó en la sección anterior- es simplemente azúcar sintáctica de \texttt{Let}. El \texttt{LetStar} permite escribir múltiples asignaciones secuenciales en un mismo bloque, pero semánticamente equivale a una serie de \texttt{Let} anidados. Su desazucarización se implementa recursivamente, construyendo un \texttt{Let} por cada par \texttt{(id, valor)} y utilizando como cuerpo el siguiente \texttt{LetStar}, hasta llegar al cuerpo final.\\
 
-Por otro lado, \texttt{LetRec} como su nombre indica, necesita implementar recursión. 
+Por otro lado tenemos el caso del \texttt{LetRec} :
 
-\begin{quote}
-  \textit{Aqui nos extendemos con la explicacion de los combinadores y sobre todo el combinar Z}
-\end{quote}
-
-Queda desacuzarado como sigue:
-  
 \begin{lstlisting}[style=haskellstyle, caption={Desazucarización de LetRec}]
   desugar :: ASA -> AST
   ---LetRec
   desugar (LetRec i v b) = desugar (Let [(i, App (Var "Z") [Lambda [i] v])] b)
 \end{lstlisting}
 
-Donde la variable \texttt{Var "Z"} queda definida con el combinador \texttt{Z}:
+La construcción \texttt{letrec} permite la definición de funciones recursivas locales.
+Dado que el núcleo del lenguaje no incluye recursión como mecanismo primitivo, esta
+debe expresarse mediante azúcar sintáctica utilizando construcciones ya presentes,
+como funciones anónimas y \texttt{let*}.
+
+La desazucarización transforma la expresión:
 \[
-\texttt{(lambda (f) ((lambda (x) (f (lambda (v) ((x x) v)))) (lambda (x) (f (lambda (v) ((x x) v)))))) metida en el ambiente}
+\text{letrec }\, i = v \;\text{ in }\; b
+\]
+en la siguiente forma equivalente:
+
+\[
+\text{let* } \left[ \left(i,\, (\lambda i.\, v)\,(\lambda i.\, v)\right) \right]\, b
 \]
 
-Profundizaremos en esto más adelante.\\
+Este patrón corresponde a la expansión operacional del combinador de punto fijo para
+lenguajes con evaluación estricta (combinador \(Z\) mencionado anteriormente). La función \(\lambda i.\, v\) se
+aplica a sí misma, permitiendo que \(i\) haga referencia a su propia definición dentro
+de \(v\), sin necesidad de introducir recursión directamente en el núcleo semántico del
+lenguaje.
+
+\bigskip
+De esta manera, \texttt{letrec} se reduce a una combinación de aplicación lambda y
+\texttt{let*}, asegurando que el análisis y la ejecución posterior puedan realizarse de
+acuerdo con las reglas ya definidas para el lenguaje base. Una vez realizada la
+transformación, se invoca nuevamente a \texttt{desugar} para continuar el proceso hasta
+obtener una expresión completamente desazucarizada en el árbol AST.
+
+\bigskip
 
 Una vez establecido lo anterior, continuamos con el caso de los \textbf{ASA} \texttt{Lambda} en nuestro lenguaje, operan con una lista de parámetros siendo esto azúcar sintáctica, por lo que definimos la función auxiliar \texttt{desugarLmb} done ''\textit{currificamos}`` la función en \texttt{FunC} que trabaja sobre un parámetro:
 
@@ -463,9 +518,10 @@ De este modo terminamos con el algoritmo de la función \texttt{desugar} para de
 
 \bigskip
 
-Así concluímos con la implementación de desazucarar nuestros Árboles de Sintaxis Abstracta , quedando como resultado los núcleos de nuestro lenguaje\minilisp{-0.2cm}. Como vimos, este proceso nos ayuda enormemente a reducir las futuras reglas del interprete, disminuyendo la carga de trabajo y evitando operaciones redundantes y hasta cierto punto innecesarias, quedándonos con lo escencial para facilitar la evaluación y además prevalece nuestro mayorobjetivo que es no alterar ni arriesgar la entrada original del usuario.
+Concluimos así con la implementación del proceso de desazucarado de nuestros Árboles de Sintaxis Abstracta, obteniendo como resultado el núcleo fundamental de nuestro lenguaje \minilisp. Como vimos, este procedimiento es esencial, pues nos permite simplificar la estructura del lenguaje al eliminar construcciones sintácticas superficiales y reducirlas a formas más primitivas.
 
-\begin{quote}
-  \textit{Aquí podríamos extender más el cierre del tema de azúcar sintáctica}
-\end{quote}
+Este enfoque no solo disminuye la complejidad de las reglas necesarias para el intérprete, sino que también evita operaciones redundantes, facilitando el análisis, la evaluación y el mantenimiento del lenguaje. Además, garantiza el respeto absoluto a la intención del usuario, manteniendo intacta la semántica del programa original.
+
+En resumen, la eliminación del azúcar sintáctica constituye una fase clave en el diseño de lenguajes funcionales, ya que nos permite trabajar con una base sólida, mínima y expresiva sobre la cual construir el resto de las capacidades del lenguaje, asegurando claridad, consistencia y elegancia en su implementación.
+
 \bigskip
