@@ -1,56 +1,106 @@
 \chapter{Semántica Operacional}
+Una vez que hemos establecido la sintaxis del lenguaje en sus formas núcleo, el siguiente paso es proporcionar significado formal a los programas: 
+especificar cómo deben ejecutarse y cuál es el resultado de cada construcción del lenguaje. Para ello recurrimos a la \emph{semántica operacional}, un enfoque formal que describe el comportamiento de los programas mediante reglas que modelan su ejecución paso a paso o de manera global.
 
-Una vez hemos establecido nuestro sintaxis del lenguaje en núcleos, lo siguiente a realizar darle el significado a estos programas. Para ello recurrimos a la semántica operacional, un enfoque que describe la dinámica de ejecución de los programas mediante un conjunto de reglas de inferencia.
+
+La formalización de la semántica permite razonar rigurosamente sobre programas, verificar propiedades (por ejemplo corrección y seguridad), y relacionar la especificación formal con una implementación (intérprete o compilador). Existen distintos enfoques para dar semántica a un lenguaje (operacional, denotacional y axiomática). En este trabajo nos centraremos en la semántica operacional y, concretamente, en el estilo \emph{small-step} (semántica estructural), que es el más conveniente para \minilisp por su claridad al exponer transformaciones intermedias.
+
+
+\section{¿Qué es la semántica operacional?}
+La semántica operacional especifica el significado de los programas describiendo cómo estos evolucionan durante su ejecución. En lugar de asignar directamente un valor matemático al programa, se define un sistema de reglas de inferencia que muestran cómo un programa avanza desde un estado inicial hasta un estado final (o intermedio). Cada regla representa un paso válido de evaluación en el lenguaje.
+Este enfoque permite expresar la dinámica del programa de manera clara, estructural y verificable, lo que resulta especialmente útil para lenguajes funcionales como \minilisp.
+
+Dos estilos comunes son:
+\begin{itemize}
+\item\textbf{Semántica Natural (Big-step)}
+La \textit{semántica natural}, también llamada \textit{big-step}, evalúa expresiones completas en una sola derivación, directamente desde el programa inicial hasta el valor final. Es decir, describe qué resultado obtiene un programa, sin enfocarse en cada uno de los pasos intermedios.
+\end{itemize}
 
 \begin{quote}
-  \textit{Desarrollar la introducción y explicación de la formalización de la semántica y semántica operacional.}
+  Fue introducida por Gordon Plotkin en 1981 como parte de su trabajo fundacional en semántica estructural.
+ Describe la evaluación completa de los programas.~\cite{Plotkin}
 \end{quote}
 
-La semántica operacional...
-\begin{quote}
-  \textit{Continuar con la definicion de semantica operacional .}
-\end{quote}
+\begin{itemize}
+\item\textbf{Semántica Estructural (Small-step)}
+La \textit{semántica estructural}, también conocida como \textit{small-step}, especifica la evaluación como una secuencia de pasos pequeños, donde cada regla transforma una expresión en otra más simple hasta llegar a un valor final.
+\end{itemize}
 
-%se formula como un sistema de transición, donde el comportamiento de un programa se entiende como una sucesión de pasos que transforman configuraciones intermedias hasta llegar a un resultado final. Este enfoque no solo captura el proceso de evaluación de manera formal y precisa, sino que además mantiene una correspondencia directa entre la estructura sintáctica del lenguaje y su dinámica de ejecución. Facilita la implementación de intérpretes, ya que las reglas pueden traducirse de manera casi inmediata en algoritmos. Proporciona un marco para el razonamiento formal sobre las propiedades del lenguaje (corrección, terminación, equivalencias, etc.).
+Se abordara a detalle su historia mas adelante.
 
-Existen dos estilos principales:
-
-Semantica Natural conocido como paso grande (Big-step)
-\begin{quote}
-  \textit{Definir brevemente lo que es paso pequeño y quien lo definio.}
-\end{quote}
-
-Semantica Estructural conocida como paso pequeño (Small-step)
-\begin{quote}
-  \textit{Definir brevemente lo que es paso grande y quien lo definio.}
-\end{quote}
-
-Para nuestro lenguaje nos enfocaremos en este último.
+\textit{Elección del enfoque para MiniLisp}
+Para nuestro lenguaje \minilisp utilizaremos la semántica operacional de estilo \textit{small-step}, ya que este enfoque nos permite observar y controlar cada transformación intermedia del programa, lo cual es ideal para entender con precisión el proceso de evaluación y para implementar un intérprete paso a paso.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Semántica Estructural (Paso pequeño)}
-Se le conoce también como semántica de paso pequeño o de transición describe paso a paso la ejecución mostrando los cómputos que genera en cada paso individualmente.
+La \textbf{semántica estructural de paso pequeño} (\textit{small-step operational semantics}) describe la ejecución de los programas como una secuencia de transiciones elementales. En este enfoque, el significado de un programa no se define únicamente por su resultado final, sino por la sucesión de configuraciones que atraviesa durante su evaluación. Cada paso representa una transformación mínima y formalmente justificada sobre una expresión, lo que permite capturar con precisión el proceso computacional.
 
-\begin{quote}
-  \textit{Aqui ya describimos toda la historia de paso pequeño, qué significa paso pequeño y por que debemos impleemntarlo}
-\end{quote}
+Formalmente, esta semántica define una relación de transición:
+\[
+e \;\longrightarrow\; e'
+\]
+que indica que la expresión \(e\) evoluciona en un solo paso a la expresión \(e'\). La relación de evaluación completa se obtiene mediante la clausura reflexivo–transitiva:
+\[
+e \;\longrightarrow^{*}\; v
+\]
+donde \(v\) es un valor.  
 
-%Para modelar esta noción, definimos la siguiente relación:
-%\begin{center}$e_1 \rightarrow e_2$}end{center}
-%que a diferencia de la semántica natural, no relaciona necesariamente expresiones con su valor final, si no que relaciona expresiones con expresiones (pudiendo ser estados finales). Se lee como en un paso e1 se reduce a e2. La definición de reglas en este tipo de semántica, es más complicada pues se tienen que considerar pasos intermedios que en ocasiones pasan desapercibidos al ejecutar o analizar un programa. antes de definir las reglas debemos definir lo que es un sistema de transicion.
+Este enfoque fue sistematizado por Gordon Plotkin como parte del marco \textbf{Structural Operational Semantics (SOS)}~\cite{Plotkin}, el cual enfatiza la correspondencia directa entre la estructura sintáctica del lenguaje y sus reglas de evaluación. La semántica de paso pequeño resulta especialmente útil en el estudio de lenguajes funcionales como \minilisp, donde el orden de evaluación, la sustitución y la estructura de funciones juegan un papel esencial en la ejecución.
+
+\subsection*{Motivos para emplear la semántica de paso pequeño}
+Optar por este estilo semántico ofrece varias ventajas:
+\begin{itemize}
+  \item \textbf{Claridad sobre el proceso de ejecución}: permite observar cada paso de la evaluación, en contraste con la semántica de \textit{big-step}, que solo muestra el estado inicial y el resultado final.
+  \item \textbf{Modelo fiel para intérpretes}: las reglas se traducen casi directamente en algoritmos, facilitando la implementación de un intérprete paso a paso.
+  \item \textbf{Razonamiento formal detallado}: es más adecuada para estudiar propiedades como determinismo, progresión, preservación de tipos, y analizar comportamientos intermedios.
+  \item \textbf{Adecuada para depuración y evaluación interactiva}: permite observar el flujo de ejecución e inspeccionar expresiones intermedias, lo cual es crucial para sistemas educativos e intérpretes interactivos.
+\end{itemize}
+
+En el contexto de \minilisp, la semántica de paso pequeño nos permite capturar explícitamente cómo las expresiones se reducen, aplicando reglas como la reducción \(\beta\), la evaluación de condicionales, y la expansión de funciones recursivas. Esta formalización establece la base teórica para la implementación del intérprete desarrollado en este proyecto.
+
 
 \subsection{Sistema de transición}
-\begin{quote}
-  \textit{Dar la definicion y explicacion de un sistema de transision y como la aplicaremos a nustro proyecto. Tambien mencionamos y describimos los estados finales pero solo eso, no los definimos para el lenguaje}
-\end{quote}
 
-%Para modelar formalmente la ejecución, definimos un **sistema de transición**, el cual especifica cómo se produce la evolución de los estados durante la evaluación. **Definición (Sistema de transición):** Un sistema de transición es una tupla (E,$\delta$,I,F) donde: $E$: conjunto (posiblemente infinito) de estados. $\delta \subseteq E \times E$: relación de transición, que indica cómo un estado puede evolucionar a otro. $I\subseteq E$: conjunto de estados iniciales, desde los cuales comienza la ejecución. $F \subseteq E$: conjunto de estados finales, que representan los puntos de término de la ejecución.
-%En este marco, el comportamiento de un programa se formaliza como una secuencia de transiciones: $e_0 \;\to\; e_1 \;\to\; e_2 \;\to\; \dots \;\to\; e_f$ Donde $e_0 \in I$, $e_f \in F$ y cada paso $(e_i, e_{i+1}) \in \delta$ está justificado por una regla de inferencia. $\#\#$ Sistema de transición  *small-step* para Iris El sistema de transición de paso pequeño para el lenguaje se define como la tupla $(E, \to, I, F)$, donde: $E = \{\, e \mid e \in ASA \,\}$ es el conjunto de expresiones bien formadas en sintaxis abstracta. $\to \;\subseteq\; E \times E$ es la relación de reducción (small-step) que relaciona una expresión con otra expresión (intermedia o final). Usaremos la notación $e \to e'$ para indicar una reducción de un paso de $e$ a $e'$. $I = E$, es decir, cualquier expresión bien formada puede considerarse un estado inicial. $F$ es el conjunto de estados finales (valores canónicos) dado por: $F \;=\; \{\, Num(n) \mid n \in \mathbb{Z} \,\} \;\cup\; \{\, Boolean(b) \mid b \in \{True,False\} \,\} \;\cup\; \{\, Pair(f,s) \mid f,s \in F \,\} \;\cup\; \{\, Closure(l,\varepsilon) \mid l \text{ es una función y } \varepsilon \text{ es un ambiente léxico} \,\} \;\cup\; \{\, Error \mid \text{la ejecución es interrumpida} \,\}.$ En este sistema, la evaluación se modela como una secuencia finita o infinita de reducciones de un solo paso: $e_0 \;\to\; e_1 \;\to\; e_2 \;\to\; \cdots$ donde $ e_0 \in I$. Una ejecución ha terminado normalmente cuando se alcanza $e_k \in F$. Si en algún paso se llega a la expresión especial $Error$, la ejecución queda interrumpida y se considera una terminación anómala.
+Para modelar formalmente la ejecución de nuestro lenguaje, utilizamos un \textbf{sistema de transición}. Este marco matemático permite describir cómo un programa evoluciona paso a paso mediante la aplicación de reglas de reducción.
 
-\begin{quote}
-  \textit{Explicar lo que es la cerradura }
-\end{quote}
+Un \textbf{sistema de transición} es una tupla \((E, \rightarrow, I, F)\) donde:
+
+\begin{itemize}
+  \item \(E\) es el conjunto (posiblemente infinito) de \textbf{estados} del sistema.
+  \item \(\rightarrow \subseteq E \times E\) es la \textbf{relación de transición}, que indica cómo un estado puede transformarse en otro.
+  \item \(I \subseteq E\) es el conjunto de \textbf{estados iniciales}, desde los cuales comienza la ejecución.
+  \item \(F \subseteq E\) es el conjunto de \textbf{estados finales}, es decir, aquellos estados donde la ejecución se considera terminada.
+\end{itemize}
+
+La ejecución de un programa se modela entonces como una secuencia de transiciones:
+
+\[
+e_0 \;\rightarrow\; e_1 \;\rightarrow\; e_2 \;\rightarrow\; \cdots \;\rightarrow\; e_n
+\]
+
+donde \(e_0 \in I\), cada transición \(e_i \rightarrow e_{i+1}\) está justificada por una regla de evaluación, y \(e_n \in F\) representa un estado final.
+
+En el contexto de \minilisp, usaremos este formalismo para describir cómo las expresiones del lenguaje se transforman gradualmente hasta producir un valor o alcanzar una condición de término. Los \textbf{estados finales} corresponderán a valores que ya no pueden seguir reduciéndose, tales como números, valores booleanos, funciones evaluadas y otras construcciones que definiremos formalmente más adelante.
+
+
+\subsubsection*{Sobre la noción de cerradura (closure)}
+
+Un elemento fundamental en la semántica de lenguajes funcionales es la \textbf{cerradura} o \textit{closure}. Una closure es una representación formal de una función junto con el entorno léxico en el cual fue definida. Esto significa que, además del cuerpo de la función, se almacena la información necesaria para interpretar correctamente sus variables libres.
+
+\[
+\text{closure} = \langle \lambda x.\, e,\; \rho \rangle
+\]
+
+donde:
+
+\begin{itemize}
+  \item \(\lambda x.\, e\) es una expresión lambda, es decir, la definición de la función.
+  \item \(\rho\) es un \textbf{ambiente léxico} que mapea variables a valores.
+\end{itemize}
+
+Las closures permiten implementar correctamente \textit{scoping léxico}, asegurando que las funciones mantengan acceso a las variables del contexto donde fueron creadas, aun cuando se utilicen fuera de dicho contexto. Aunque mencionamos este concepto aquí, su definición formal y su rol dentro de los estados finales se precisará en secciones posteriores.
+
 
 \subsection{Estados Finales en\minilisp}
 
@@ -156,9 +206,11 @@ La función \texttt{toFinalState} transforma cada estructura del núcleo AST en 
 
 \subsection{Reglas de evaluación}
 
-\begin{quote}
-  \textit{Dar una introduccion de que son las reglas de evaluacion y por que son necesarias, ademas completar con la explicacion de las reglas de evaluacion. Hablar de los ambientes}
-\end{quote}
+Las reglas de evaluación constituyen el núcleo de la semántica operacional estructural. Su propósito es describir formalmente cómo una expresión del lenguaje progresa paso a paso hasta convertirse en un valor. Cada regla establece una relación de transición entre estados del programa, donde un estado suele estar compuesto por una expresión y un ambiente (o entorno) de ejecución.
+
+Estas reglas son necesarias porque proporcionan una base rigurosa para entender, implementar y razonar formalmente sobre el comportamiento de un lenguaje de programación. Al definir el significado de un programa mediante reglas inductivas, aseguramos que cada paso de cómputo esté claramente especificado y sea verificable. Además, permiten demostrar propiedades importantes como corrección, determinismo, o progresión de los programas.
+
+Un componente fundamental en esta formalización es el ambiente ($\varepsilon$), que modela el contexto donde se evalúan las expresiones. El ambiente es una estructura que asocia identificadores del lenguaje con valores, y se actualiza o consulta durante la evaluación. En esencia, actúa como una memoria que mantiene las asignaciones vigentes en cada punto del cómputo. Las reglas operan entonces sobre pares $\langle \text{expresión}, \varepsilon \rangle$, indicando cómo se transforma la expresión manteniendo o modificando dicho ambiente.
 
 \begin{itemize}
 \item Expresiones atómicas:
@@ -171,9 +223,8 @@ La función \texttt{toFinalState} transforma cada estructura del núcleo AST en 
     \frac{lookup\ i\ \varepsilon \ \text{no está definido}}{\langle Varv(i), \varepsilon \rangle \to \text{Error en la ejecución de la evaluación}}
     \]
 
-    \begin{quote}
-      \textit{Aqui se puede poner la explicacion breve de lo que hace lookup}
-    \end{quote}
+El operador \texttt{lookup} busca el valor asociado a un identificador dentro del ambiente \(\varepsilon\). Si el identificador se encuentra definido, \texttt{lookup} devuelve su valor; en caso contrario, la evaluación produce un error, ya que se intenta acceder a una variable no declarada o fuera de su alcance. De esta manera, \texttt{lookup} garantiza que toda referencia a variables se resuelva correctamente según el entorno léxico vigente.
+
     
   \item NumV(n):
     \[
@@ -411,19 +462,33 @@ Como se puede ver en las reglas para los comparadores, la regla final cuando amb
   \]
 \end{itemize}
 
-\begin{quote}
-  \textit{Puede que sea buena idea dar un cierre a esto antes de entrar en Haskell}
-\end{quote}
+\subsubsection*{Conclusión}
+  En resumen, las reglas de evaluación proporcionan el marco formal necesario para describir con precisión el proceso de ejecución de los programas dentro de un lenguaje. A través de estas reglas se establece, de manera inductiva, cómo las expresiones evolucionan paso a paso bajo un ambiente de evaluación, garantizando así un comportamiento bien definido y verificable. Este enfoque no solo facilita la implementación y el razonamiento formal del lenguaje, sino que también permite identificar errores semánticos de forma rigurosa, asegurando que cada etapa del cómputo sea consistente con la semántica especificada.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Intérprete para\minilisp}
 
-Una vez definimos formalmente lo que será la \textbf{\textit{Semántica Operacional Estrcutural}} para nuestro lenguaje podemos programar el interprete del mismo que será el encargado de aplica la evaluación al programa del usuario, más precisamente a las expreciones \texttt{ASV} que ya han depurado el programa original.
+Una vez definida formalmente la Semántica Operacional Estructural para nuestro lenguaje, estamos en posición de implementar un intérprete que materialice dicha semántica en código. El propósito del intérprete es ejecutar programas escritos en nuestro \minilisp, aplicando las reglas de evaluación paso a paso hasta obtener un valor final o detectar un error semántico.
 
-\begin{quote}
-  \textit{creo podemos extendernos mas aqui}
-\end{quote}
+En otras palabras, el intérprete funge como puente entre la especificación teórica y el comportamiento observable del lenguaje: toma las expresiones del usuario, las transforma a la sintaxis abstracta sin azúcar sintáctica (ASV), y posteriormente dirige el proceso de evaluación conforme a las reglas formales previamente establecidas.
+
+El intérprete opera manteniendo un ambiente de ejecución (\(\varepsilon\)) y evaluando cada expresión de acuerdo con la relación de transición definida en el sistema de semántica estructural. Cada paso de evaluación corresponde directamente a una instancia de alguna de nuestras reglas inferenciales, lo cual garantiza que la implementación permanezca fiel al modelo teórico.
+
+De manera general, nuestro intérprete debe:
+
+\begin{itemize}
+  \item Recibir una expresión en sintaxis concreta y traducirla a su representación en el ASA y posteriormente ASV.
+  \item Inicializar un ambiente de ejecución vacío o con valores predefinidos.
+  \item Aplicar las reglas de evaluación de manera iterativa (paso a paso), hasta alcanzar un valor final (estado final), una expresión bloqueada, o un error.
+  \item Gestionar ambientes y cierres (\textit{closures}) para implementar alcance léxico y funciones como valores de primera clase.
+  \item Reportar resultados o errores de evaluación al usuario de forma clara.
+\end{itemize}
+
+Es importante destacar que, dado que nuestra semántica es de paso pequeño (\textit{small-step}), el intérprete refleja explícitamente la evolución del programa a través de múltiples transiciones, lo cual facilita tanto la verificación formal como la depuración y el entendimiento del proceso de ejecución.
+
+Con este componente, obtenemos un sistema completo: comenzamos con la especificación formal, definimos su semántica, y finalmente construimos un ejecutor funcional que sigue rigurosamente dichas reglas. Esto garantiza que el lenguaje \texttt{MINILISP} no solo está formalmente fundamentado, sino que también es operacionalmente realizable.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -751,8 +816,15 @@ CallStack (from HasCallStack):
   error, called at ./Interprete.hs:154:18 in main:Interprete
 \end{minted}
 
-Debido a que hasta el momento estamos utilizamos evaluación glotona con alcance estático, debemos de implementar una manera de que no suceda esto. Y es con...
+Este error ocurre porque el combinador \textbf{Z}, bajo un esquema de evaluación glotona, intenta evaluar inmediatamente el argumento que representa la función recursiva. En términos operacionales, la versión clásica del combinador de punto fijo asume evaluación perezosa (lazy evaluation): el argumento debe permanecer sin evaluar hasta que sea estrictamente necesario. En nuestro caso, la evaluación glotona fuerza la aplicación prematura de la función a sí misma, lo que conduce a buscar variables aún no ligadas en el ambiente, provocando fallos como la variable \texttt{v} no definida.
 
-\begin{quote}
-  \textit{Extender aqui la explicacion de por que falla al evaluar el combinador como el uso de evaluacion glotona}
-\end{quote}
+En otras palabras, la raíz del problema es que:
+
+\begin{itemize}
+  \item el combinador \textbf{Z} está diseñado para lenguajes con evaluación perezosa,
+  \item nuestro intérprete aplica evaluación glotona,
+  \item y como consecuencia, la expansión recursiva ocurre antes de que el ambiente esté correctamente extendido.
+\end{itemize}
+
+Para soportar recursión en un lenguaje con evaluación estricta necesitamos, entonces, adaptar la construcción del combinador o modificar la semántica para permitir que las referencias recursivas se establezcan antes de evaluarse efectivamente. En la siguiente sección abordamos precisamente esta extensión.
+
