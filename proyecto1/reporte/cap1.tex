@@ -1,25 +1,36 @@
 \chapter{Introducción}
-Lorem ipsum dolor sit amet consectetur adipiscing elit, varius dictum egestas quisque hac rutrum. Posuere sociosqu leo vitae dui metus proin massa feugiat laoreet non sodales potenti, fusce cursus pharetra risus elementum hendrerit litora pretium cubilia dapibus vulputate luctus, dictumst egestas enim nibh tellus id in mattis orci ut quis. Non phasellus molestie luctus curae turpis viverra condimentum pretium, proin dis auctor odio nunc facilisis eros morbi mauris, nam penatibus senectus vel placerat quisque convallis.
-
-Convallis feugiat ullamcorper massa nisi dictum justo vitae, suscipit luctus proin libero tortor mattis, felis dictumst lobortis ac est leo. Sagittis imperdiet urna vehicula pretium platea porta fames nam mollis massa facilisis laoreet accumsan, aptent molestie ligula dictumst neque ad ullamcorper dictum class interdum quis dignissim. Laoreet fringilla nam orci ut aptent luctus, venenatis quis a dictum bibendum scelerisque nec, aliquet habitant felis sagittis suscipit.
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \section{Motivación}
-Lorem ipsum dolor sit amet consectetur adipiscing elit, varius dictum egestas quisque hac rutrum. Posuere sociosqu leo vitae dui metus proin massa feugiat laoreet non sodales potenti, fusce cursus pharetra risus elementum hendrerit litora pretium cubilia dapibus vulputate luctus, dictumst egestas enim nibh tellus id in mattis orci ut quis. Non phasellus molestie luctus curae turpis viverra condimentum pretium, proin dis auctor odio nunc facilisis eros morbi mauris, nam penatibus senectus vel placerat quisque convallis.
 
-Convallis feugiat ullamcorper massa nisi dictum justo vitae, suscipit luctus proin libero tortor mattis, felis dictumst lobortis ac est leo. Sagittis imperdiet urna vehicula pretium platea porta fames nam mollis massa facilisis laoreet accumsan, aptent molestie ligula dictumst neque ad ullamcorper dictum class interdum quis dignissim. Laoreet fringilla nam orci ut aptent luctus, venenatis quis a dictum bibendum scelerisque nec, aliquet habitant felis sagittis suscipit.
+El estudio de los lenguajes de programación es uno de los pilares fundamentales de las ciencias de la computación. Comprender cómo se definen, interpretan y ejecutan permite no solo utilizarlos como herramientas, sino también analizarlos y extenderlos desde la perspectiva formal. En este contexto, la implementación de un lenguaje estilo \textbf{Lisp} ofrece un terreno fértil para explorar la relación entre teoría y práctica: su sintaxis minimalista, su semántica clara y su estructura recursiva facilitan su análisis formal.
+
+El proyecto \textbf{MiniLisp} surge con la intención de integrar los conceptos teóricos vistos en clase dentro de una implementación concreta en \textbf{Haskell}. De este modo, este trabajo busca fortalecer la comprensión del proceso completo de formalización de un lenguaje de programación: desde la definición léxica y gramatical, hasta la evaluación de programas mediante un intérprete funcional.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Objetivos}
-Lorem ipsum dolor sit amet consectetur adipiscing elit, varius dictum egestas quisque hac rutrum. Posuere sociosqu leo vitae dui metus proin massa feugiat laoreet non sodales potenti, fusce cursus pharetra risus elementum hendrerit litora pretium cubilia dapibus vulputate luctus, dictumst egestas enim nibh tellus id in mattis orci ut quis. Non phasellus molestie luctus curae turpis viverra condimentum pretium, proin dis auctor odio nunc facilisis eros morbi mauris, nam penatibus senectus vel placerat quisque convallis.
 
-Convallis feugiat ullamcorper massa nisi dictum justo vitae, suscipit luctus proin libero tortor mattis, felis dictumst lobortis ac est leo. Sagittis imperdiet urna vehicula pretium platea porta fames nam mollis massa facilisis laoreet accumsan, aptent molestie ligula dictumst neque ad ullamcorper dictum class interdum quis dignissim. Laoreet fringilla nam orci ut aptent luctus, venenatis quis a dictum bibendum scelerisque nec, aliquet habitant felis sagittis suscipit.
+\subsubsection{Objetivo general}
+Desarrollar e implementar una versión extendida del lenguaje \textbf{MiniLisp} que formalice su sintaxis y semántica, y que permita ejecutar programas a través de un intérprete en \textbf{Haskell}, manteniendo coherencia entre el modelo teórico y la implementación práctica.
+
+\subsubsection{Objetivos específicos}
+\begin{enumerate}
+    \item Definir formalmente la sintaxis léxica y libre de contexto del lenguaje, incluyendo operadores, estructuras de control y mecanismos de definición local.
+    \item Implementar un analizador léxico y un analizador sintáctico utilizando las herramientas \textbf{Alex} y \textbf{Happy}, respectivamente.
+    \item Diseñar la sintaxis abstracta usando dos niveles, un \textbf{ASA} con azúcar sintáctica y \textbf{AST} como núcleo del lenguaje.
+    \item Desarrollar un módulo de eliminación de azúcar sintáctica (\textbf{Desugar}) que traduzca expresiones superficiales a su representación mínima.
+    \item Implementar un intérprete funcional (\textbf{Interp}) basado en la semántica operacional, utilizando ambientes y \textbf{evaluación ansiosa} (eager evaluation).
+    \item Proveer una interfaz interactiva que permita ejecutar programas escritos en la sintaxis concreta de \textbf{MINILISP}.
+\end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Delimitación del Proyecto}
-Lorem ipsum dolor sit amet consectetur adipiscing elit, varius dictum egestas quisque hac rutrum. Posuere sociosqu leo vitae dui metus proin massa feugiat laoreet non sodales potenti, fusce cursus pharetra risus elementum hendrerit litora pretium cubilia dapibus vulputate luctus, dictumst egestas enim nibh tellus id in mattis orci ut quis. Non phasellus molestie luctus curae turpis viverra condimentum pretium, proin dis auctor odio nunc facilisis eros morbi mauris, nam penatibus senectus vel placerat quisque convallis.
 
-Convallis feugiat ullamcorper massa nisi dictum justo vitae, suscipit luctus proin libero tortor mattis, felis dictumst lobortis ac est leo. Sagittis imperdiet urna vehicula pretium platea porta fames nam mollis massa facilisis laoreet accumsan, aptent molestie ligula dictumst neque ad ullamcorper dictum class interdum quis dignissim. Laoreet fringilla nam orci ut aptent luctus, venenatis quis a dictum bibendum scelerisque nec, aliquet habitant felis sagittis suscipit.
+El proyecto se reduce al diseño e implementación de un subconjunto de \textbf{Lisp} llamado \textbf{MINILISP}, con el propósito de estudiar los principios fundamentales de los lenguajes funcionales y su formalización. Por lo tanto:
+\begin{itemize}
+    \item No se abordará la \textbf{gestión de tipos} ni el \textbf{análisis estático}.
+    \item El sistema de evaluación se restringe a la \textbf{evaluación ansiosa} (eager evaluation).
+    \item La semántica implementada se limita al \textbf{nivel estructural}, sin considerar aspectos de optimización, compilación ni concurrencia.
+    \item El alcance del proyecto comprende la construcción del \textbf{intérprete}, no un compilador ni un entorno gráfico.
+\end{itemize}
