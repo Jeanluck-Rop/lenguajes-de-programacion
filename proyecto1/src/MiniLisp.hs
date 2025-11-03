@@ -12,18 +12,22 @@ import EvalStrict
 import Saca
 import Control.Exception (catch, SomeException)
 
+-- Combinador Z
 combZ :: String
 combZ = "(lambda (f) ((lambda (x) (f (lambda (v) ((x x) v)))) (lambda (x) (f (lambda (v) ((x x) v))))))"
 
+
+-- Evaluamos el combinador Z
 z :: ASV
 --z = eval (toFinalState $ desugar $ parse $ lexer combZ) []
 z = evalS (desugar $ parse $ lexer combZ) []
+
 
 -- Punto de entrada principal
 main :: IO ()
 main =
   do
-  putStrLn "Bienvenido a MiniLisp "
+  putStrLn "\nBienvenido a MiniLisp. "
   putStrLn "Escriba (exit) para salir."
   minilisp
 
@@ -41,6 +45,7 @@ minilisp =
       run str
       minilisp
 
+
 -- Envuelve la evaluacion con manejo de errores
 run :: String -> IO ()
 run input =
@@ -54,6 +59,7 @@ run input =
       let asv = evalS (ast) [("Z", z)]
       putStrLn (saca asv))
     errors
+
 
 -- Manejador de errores
 errors :: SomeException -> IO ()

@@ -4,13 +4,13 @@ import AST
 import ASV
 import Interprete
 
-{-- Funcion de evaluación perezosa --}
+{-- Funcion de evaluacion perezosa --}
 {--
 Evaluamos una expresion usando strict para evaluar los puntos estrictos forzosamente.
 --}
 evalS :: AST -> Env -> ASV
 --Valores
-evalS (VarC i) env = lookupS i env
+evalS (VarC i) env = mirarriba i env
 evalS (NumC n) _   = (NumV n)
 evalS (BoolC b) _  = (BoolV b)
 evalS NiL _        = NiV

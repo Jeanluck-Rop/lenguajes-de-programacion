@@ -1,5 +1,216 @@
 \chapter{Resultados}
-Bien, una vez hemos visto toda la teoría de nuestro\minilisp y además de que hemos mostrado el código que lo implementa en Haskell, veamos como funciona:
+Bien, una vez hemos visto toda la teoría de nuestro\minilisp y además de que hemos mostrado el código mismo.
+En este capítulo presentamos los resultados obtenidos tras la implementación completa del lenguaje\minilisp.
+Se mostrará el funcionamiento de cada una de las etapas principales del lenguaje (\textbf{\textit{lexer}},
+\textbf{\textit{parser}}, \textbf{\textit{desugar}}, \textbf{\textit{interprete}}), acompañadas de ejemplos que
+ilustran tanto su entrada como su salida.
+
+\noindent
+Además, se presenta el \textbf{\textit{menú interactivo}} del proyecto, que permite al usuario ejecutar comandos
+y evaluar expresiones sin hacer el proceso paso a paso. Este componente sirve como punto de unión entre todas las
+fases del lenguaje, permitiendo observar la interacción completa desde la lectura del código fuente hasta la
+obtención del resultado final.\\
+
+\noindent
+En conjunto, buscamos que este capítulo tenga como propósito mostrar de forma integrada y funcional el resultado del trabajo desarrollado a lo largo de este reporte. Más que solo validar la implementación, buscamos evidenciar la coherencia entre el diseño teórico del lenguaje y su comportamiento práctico, demostrando que los principios formales de la sintaxis y la semántica pueden efectivamente traducirse en un sistema ejecutable, expresivo y consistente.
+
+\section{\minilisp}
+
+Primero mostramos los resultados individuales de cada fase del código implementado que le da vida a nuestro lenguaje\minilisp{-0.2cm}.\\
+
+Utilizamos el intérprete interactivo de Haskell \texttt{GHCi} para compilar, cargar módulos y ejecutar las pruebas de de nuestra implementación. En el archivo \texttt{README.md} mostramos más a detalle como inicializar y compilar nuestro proyecto.
+
+%%%%%%%%%%%%%%%%%%
+\subsection{Lexer}
+Como se vió a inicios del reporte, el \textit{analizador léxico} es el primer paso en la ejecución del lenguaje.
+Recibe el programa del usuario como cadena de caracteres y devuelve una lista de \textit{Tokens} ya definido.\\
+
+Generamos el analizador léxico con \texttt{Alex}:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  $ alex Lexer.x
+\end{minted}
+
+Iniciamos el intérprete interactico de Haskell y para no tener que escribir siempre el nombre completo del módulo \texttt{Lexer}, cargalo:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  $ ghci
+  GHCi, version 9.4.5: https://www.haskell.org/ghc/  :? for help
+  ghci> :l Lexer.hs
+\end{minted}
+
+Ya con esto podemos probar nuestra función \texttt{lexer}, que no es muy impresionante, como dijimos, va verificando la entrada detectando los \textit{Tokens}:
+
+\begin{itemize}
+\item \textbf{Variables:}
+  
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> lexer "var12 #f 512 #t sum 90ba"
+    [TokenVar "var12",TokenBool False,TokenNum 512,TokenBool True,TokenVar "sum",TokenNum 90,TokenVar "ba"]
+  \end{minted}
+
+  Podemos ver que el \texttt{lexer} separa adecuadamente entre variables, números y booleanos asignándolos a su respectivo \texttt{Token}. Incluso \textit{var12} se guarda completo como \texttt{TokenVar "var12"} justo como lo definimos, donde las variables comienzan siempre con un caracter seguido de una combinación de caracteres o números. Se puede apreciar también con el vaso de \textit{90ba} donde lo separa como dos \textit{Token} distintos, pues lo números no puden tener caracteres ni las variables pueden comenzar con números.
+
+\item \textbf{Operadores:}
+
+  Veamos la lista de operadores generada por una cadena de operaciones (para acortar la extensión de esta sección):
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> lexer "(expt (+ (- (* 10 3) (/ (add1 5) (sub1 4))) (sqrt 81)))"
+    [TokenPA,TokenExpt,
+      TokenPA,TokenAdd,
+       TokenPA,TokenSub,
+        TokenPA,TokenMul,TokenNum 10,TokenNum 3,TokenPC,
+         TokenPA,TokenDiv,
+          TokenPA,TokenAdd1,TokenNum 5,TokenPC,
+          TokenPA,TokenSub1,TokenNum 4,TokenPC,
+          TokenPC,TokenPC,
+       TokenPA,TokenSqrt,TokenNum 81,TokenPC,TokenPC,TokenPC]
+  \end{minted}
+
+  Como se puede apreciar, los símbolos y palabras reservadas para operadores son detectadas correctamente por el
+  \texttt{lexer}. No verificamos aún que los argumentos sean válidos en cantidad y tipo, pero si verificamos que los símbolos sean solo los definidos:
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> lexer "(+ 3)"
+    [TokenPA,TokenAdd,TokenNum 3,TokenPC]
+    ghci> lexer "(sqrt hola)"
+    [TokenPA,TokenSqrt,TokenVar "hola",TokenPC]
+    ghci> lexer "(% 3 5)"
+    [TokenPA,*** Exception: Lexical error: caracter no reconocido = "%" | codepoints = [37]
+      CallStack (from HasCallStack):
+      error, called at Lexer.hs:10816:24 in main:Lexer
+  \end{minted}
+
+\item \textbf{Comparadores:}
+  
+  De manera análoga, tenemos los comparadores:
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> lexer "(!= 0 9 9) (= 6 6 1) (> 1 1) (< 4 3) (>= 7 3 5) (<= 22 22 2) (not #t)"
+    [TokenPA,TokenNeq,TokenNum 0,TokenNum 9,TokenNum 9,TokenPC,
+      TokenPA,TokenEq,TokenNum 6,TokenNum 6,TokenNum 1,TokenPC,
+      TokenPA,TokenGt,TokenNum 1,TokenNum 1,TokenPC,
+      TokenPA,TokenLt,TokenNum 4,TokenNum 3,TokenPC,
+      TokenPA,TokenGeq,TokenNum 7,TokenNum 3,TokenNum 5,TokenPC,
+      TokenPA,TokenLeq,TokenNum 22,TokenNum 22,TokenNum 2,TokenPC,
+      TokenPA,TokenNot,TokenBool True,TokenPC]
+  \end{minted}
+  
+  Como se mencionó, en este punto no es relevante para el \texttt{lexer} los argumentos de cada comparador.
+  
+\item \textbf{Condicionales:}
+  
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> lexer "(cond [(= (sqrt 1000) (expt 10)) -1] [(!= (sub1 9) (add1 8)) 1] [else 0])"
+    [TokenPA,TokenCond,
+      TokenLI,TokenPA,TokenEq,TokenPA,TokenSqrt,TokenNum 1000,TokenPC,TokenPA,TokenExpt,TokenNum 10,TokenPC,TokenPC,TokenNum (-1),TokenLD,
+      TokenLI,TokenPA,TokenNeq,TokenPA,TokenSub1,TokenNum 9,TokenPC,TokenPA,TokenAdd1,TokenNum 8,TokenPC,TokenPC,TokenNum 1,TokenLD,
+      TokenLI,TokenElse,TokenNum 0,TokenLD,TokenPC]
+  \end{minted}
+  
+\item \textbf{Pares y Listas:}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> lexer "[(8,10),[],(#t,#f)]"
+    [TokenLI,
+      TokenPA,TokenNum 8,TokenComma,TokenNum 10,TokenPC,TokenComma,
+      TokenLI,TokenLD,TokenComma,
+      TokenPA,TokenBool True,TokenComma,TokenBool False,TokenPC,
+     TokenLD]
+  \end{minted}
+  
+\item \textbf{Lets y Expresiones Lambda:}
+  
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> lexer "(let (x 10) (expt x))"
+    [TokenPA,TokenLet,TokenPA,TokenVar "x",TokenNum 10,TokenPC,TokenPA,TokenExpt,TokenVar "x",TokenPC,TokenPC]
+  \end{minted}
+  
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> lexer "(let* ((x 2)) (+ x 3))"
+    [TokenPA,TokenLetStar,TokenPA,TokenPA,TokenVar "x",TokenNum 2,TokenPC,TokenPC,TokenPA,TokenAdd,TokenVar "x",TokenNum 3,TokenPC,TokenPC]
+  \end{minted}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> lexer "((lambda (x) (+ x 1)) 5)"
+    [TokenPA,TokenPA,TokenLambda,TokenPA,TokenVar "x",TokenPC,TokenPA,TokenAdd,TokenVar "x",TokenNum 1,TokenPC,TokenPC,TokenNum 5,TokenPC]
+  \end{minted}
+  
+\end{itemize}
+
+Así, aunque los resultados del \texttt{lexer} no son tan emocionantes como lo pudieran ser para el \texttt{desugar} o \texttt{eval}, hemos mostrado con estos ejemplos que hasta el momento, el análisis sintáctico para el lenguaje funciona.
+
+\noindent
+A partir de este momento no mostraremos los resultados de aplicar las fases a únicamente variables ya que es redundante su procedimiento pues podemos ver su progreso en las fases del lenguaje a través de las demás expresiones.
+
+%%%%%%%%%%%%%%%%%%
+\subsection{Parser}
+
+En la fase del \texttt{Parser} la situación se vuelve más interesante pues es donde aplicamos la gramática del lenguaje y decidimos las estructuras del programa que son válidas. Veamos ejemplos para algunas expresiones donde son rechazados por el \texttt{Parser}:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  ghci> tokens = lexer "(+ 3)"
+  ghci> parse tokens 
+  *** Exception: Error al Parsear los Tokens
+  CallStack (from HasCallStack):
+  error, called at ./Grammar.hs:1265:16 in main:Grammar
+\end{minted}
+
+Falla porque la suma es un operador variádico que requiere de al menos dos elementos, por eso hay erroe en el \texttt{Parser}. De manera similar, fallan los operadores de resta, multiplicación y división con un solo argumentos, pues, requieren también de dos argumentos como mínimo.
+
+\noindent
+Los ejemplos válidos serían:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  ghci> tokens = lexer "(+ 52 34 42)"
+  ghci> parse tokens 
+  Add [Num 52,Num 34,Num 42]
+  ghci> tokens = lexer "(- 22 -11 7)"
+  ghci> parse tokens 
+  Sub [Num 22,Num (-11),Num 7]
+  ghci> tokens = lexer "(* 2 200)"
+  ghci> parse tokens 
+  Mul [Num 2,Num 200]
+  ghci> tokens = lexer "(/ 21 0)"
+  ghci> parse tokens 
+  Div [Num 21,Num 0]
+\end{minted}
+
+Nótese que en la división no marcamos error al dividir por cero, pues recrodemos que eso es trabajo de la semántica, estamos en el \textit{análisis sintáctico}.\\
+
+Otro caso son los operadores unarios:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  ghci> tokens = lexer "(sqrt 33 81)"
+  ghci> parse tokens 
+  *** Exception: Error al Parsear los Tokens
+  CallStack (from HasCallStack):
+  error, called at ./Grammar.hs:1265:16 in main:Grammar
+  ghci> tokens = lexer "(expt 21 1 3)"
+  ghci> parse tokens 
+  *** Exception: Error al Parsear los Tokens
+  CallStack (from HasCallStack):
+  error, called at ./Grammar.hs:1265:16 in main:Grammar
+\end{minted}
+
+\textt{Sqrt} y \texttt{Expt} fallan porque son operadores unarios, la gramática rechaza tener más de uno:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  ghci> tokens = lexer "(sqrt 81)"
+  ghci> parse tokens 
+  Sqrt (Num 81)
+  ghci> tokens = lexer "(expt 16)"
+  ghci> parse tokens 
+  Expt (Num 16)
+\end{minted}
+
+
+%%%%%%%%%%%%%%%%%%
+\subsection{Desugar}
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
