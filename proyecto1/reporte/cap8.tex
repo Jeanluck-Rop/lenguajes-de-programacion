@@ -1,1 +1,28 @@
 \chapter{Conclusiones}
+
+\subsection*{Reflexión}
+El desarrollo de \textbf{MINILISP} ha sido un ejercicio riguroso de diseño e implementación de un lenguaje de programación, cubriendo las etapas fundamentales de la teoría de lenguajes: desde la \textbf{Sintaxis Concreta} hasta la \textbf{Semántica Operacional}. La elección de \textbf{Haskell} y sus herramientas (\texttt{Alex} y \texttt{Happy}) fue muy útil, ya que la naturaleza funcional e inmutable del lenguaje anfitrión facilitó la construcción clara del modelo y la adaptación de conceptos abstractos, como los \textbf{Árboles de Sintaxis Abstracta (ASA)} y los estados finales.
+
+El proyecto se caracteriza por un proceso de diseño bien estructurado que priorizó la claridad:
+\begin{itemize}
+    \item \textbf{Análisis Formal}: La definición de la \textbf{Sintaxis Concreta} mediante la gramática \textbf{EBNF} sentó una base sólida para el análisis léxico y sintáctico.
+    \item \textbf{Gestión de la Complejidad (Azúcar Sintáctica)}: La etapa de \textbf{desazucarización} fue crucial, transformando construcciones expresivas pero complejas (como operadores variádicos, \texttt{let*}, \texttt{cond} y la aplicación de funciones n-arias) en un núcleo (\textbf{AST}) más simple y homogéneo. Esto redujo drásticamente el número de reglas necesarias para la semántica, haciendo el intérprete más limpio y fácil de verificar. La correcta desazucarización de operadores variádicos y comparadores a estructuras binarias anidadas, manteniendo la consistencia de tipos, fue un punto crítico.
+    \item \textbf{Estrategia Semántica}: La transición inicial de la \textbf{Semántica Estructural (Paso Pequeño)} a la implementación de \textbf{evaluación perezosa (Paso Grande o Big-Step)} con \textbf{Puntos Estrictos} fue esencial para manejar la recursión de forma correcta a través del constructo \texttt{letrec} y el \textbf{Combinador Z}, superando el problema de la evaluación glotona inicial.
+\end{itemize}
+
+\subsection*{Limitaciones Encontradas}
+A pesar de los logros, se identificaron áreas con limitaciones:
+\begin{itemize}
+    \item \textbf{Tipado y Verificación}: El lenguaje \textbf{carece de un sistema de tipos explícito} que verifique la corrección de los programas antes de la ejecución. Errores de tipo sólo se detectan durante la evaluación semántica (por ejemplo, intentar operar con un valor no numérico).
+    \item \textbf{Pares y Listas}: Aunque se depuró la ambigüedad en la sintaxis de listas utilizando \texttt{Cons} y \texttt{Nil} frente a un simple encadenamiento de pares, la implementación del \texttt{TailV} en el intérprete requirió una función auxiliar (\texttt{tailDeep}) para forzar la evaluación perezosa en el segundo elemento de la lista anidada, lo que añade complejidad.
+    \item \textbf{Ausencia del Combinador Z Explícito}: Si bien el concepto del \textbf{Combinador Z} fue fundamental para habilitar \texttt{letrec}, la solución final lo integra de manera implícita en la regla de \texttt{letrec} para la evaluación perezosa, sin una representación formal completamente visible en el ambiente como un valor canónico evaluado.
+\end{itemize}
+
+\subsection*{Posibles Extensiones Futuras}
+El diseño modular de MINILISP permite varias extensiones:
+\begin{itemize}
+    \item \textbf{Sistema de Tipos Estático (Type Checker)}:
+    Implementar un \textbf{Type Checker} para verificar la coherencia del programa antes de la evaluación. Esto podría basarse en reglas de inferencia para un subconjunto del lenguaje, mejorando la robustez y la detección temprana de errores.
+    \item \textbf{Manejo de Cadenas (Strings)}:
+    Extender el alfabeto y los tokens para soportar operaciones con cadenas de caracteres.
+\end{itemize}
