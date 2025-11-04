@@ -25,100 +25,195 @@ Para aplicar este mecanismo, sí o sí necesitamos nuestras reglas semánticas d
 \section{Reglas semánticas perezosas con strict}
 
 \begin{itemize}
+\item NumV(n) :
+$$\langle\text{NumV}(n), \varepsilon\rangle \to \langle\text{NumV}(n), \varepsilon\rangle$$
+
+\item BoolV(b):
+$$\langle\text{BoolV}(b), \varepsilon\rangle \to \langle\text{BoolV}(b), \varepsilon\rangle$$
+
 \item AddV(i,d):
-  \[
-  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle AddV(i,d), \varepsilon \rangle \to \langle AddV(i',d), \varepsilon \rangle}
-  \]
-  \[
-  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle AddV(NumV(n),d), \varepsilon \rangle \to \langle Add(NumV(n),d'), \varepsilon \rangle}
-  \]
-  \[
-  \frac{}{\langle AddV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n +_{\Z} m), \varepsilon \rangle}
-  \]
+  $$
+\frac{
+  \text{strict}(i, \varepsilon) = \text{NumV}(n) \qquad \text{strict}(d, \varepsilon) = \text{NumV}(m)
+}{
+  \langle \text{AddV}(i, d), \varepsilon \rangle \to \langle \text{NumV}(n + m), \varepsilon \rangle
+}
+$$
+
 \item SubV(i,d):
-  \[
-  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle SubV(i,d), \varepsilon \rangle \to \langle SubV(i',d), \varepsilon \rangle}
-  \]
-  \[
-  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle SubV(NumV(n),d), \varepsilon \rangle \to \langle SubV(NumV(n),d'), \varepsilon \rangle}
-  \]
-  \[
-  \frac{}{\langle SubV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n -_{\Z} m), \varepsilon \rangle}
-  \]
+  $$
+\frac{
+  \text{strict}(i, \varepsilon) = \text{NumV}(n) \qquad \text{strict}(d, \varepsilon) = \text{NumV}(m)
+}{
+  \langle \text{SubV}(i, d), \varepsilon \rangle \to \langle \text{NumV}(n + m), \varepsilon \rangle
+}
+$$
+
 \item MulV(i,d):
-  \[
-  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle MulV(i,d), \varepsilon \rangle \to \langle MulV(i',d), \varepsilon \rangle}
-  \]
-  \[
-  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle MulV(NumV(n),d), \varepsilon \rangle \to \langle MulV(NumV(n),d'), \varepsilon \rangle}
-  \]
-  \[
-  \frac{}{\langle MulV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n *_{\Z} m), \varepsilon \rangle}
-  \]
+  $$
+\frac{
+  \text{strict}(i, \varepsilon) = \text{NumV}(n) \qquad \text{strict}(d, \varepsilon) = \text{NumV}(m)
+}{
+  \langle \text{MulV}(i, d), \varepsilon \rangle \to \langle \text{NumV}(n + m), \varepsilon \rangle
+}
+$$
+
 \item DiV(i,d):
-  \[
-  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle DiV(i,d), \varepsilon \rangle \to \langle DiV(i',d), \varepsilon \rangle}
-  \]
-  \[
-  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle DiV(NumV(n),d), \varepsilon \rangle \to \langle DiV(NumV(n),d'), \varepsilon \rangle}
-  \]
-  \[
-  \frac{}{\langle DiV(NumV(n),NumV(0)), \varepsilon \to \text{Error en la ejecución de la evaluación}}
-  \]
-  \[
-  \frac{}{ \langle DiV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n\ /_{\Z}\ m), \varepsilon \rangle} \quad (m \neq 0)
-  \]
-\item SqrtV(n):
-\[
-  \frac{\langle n, \varepsilon \rangle \to \langle n', \varepsilon \rangle}{\langle SqrtV(n), \varepsilon \rangle \to \langle SqrtV(n'), \varepsilon \rangle}
-  \]
-  \[
-  \frac{n < 0}{\langle SqrtV(NumV(n)), \varepsilon \to \text{Error en la ejecución de la evaluación}}
-  \]
-  \[
-  \frac{}{\langle SqrtV(NumV(n)), \varepsilon \rangle \to \langle NumV(\sqrt{n}_{\N}), \varepsilon \rangle}  \quad (n \geq 0)
-  \]
-\item NotV(b):
-\[
-  \frac{\langle b, \varepsilon \rangle \to \langle n', \varepsilon \rangle}{\langle NotV(b), \varepsilon \rangle \to \langle NotV(b'), \varepsilon \rangle}
-  \]
-  \[
-  \frac{}{\langle NotV(BoolV(b)), \varepsilon \rangle \to \langle BoolV(\neg_{\P}b) \varepsilon \rangle}
-  \]
+  $$
+\frac{
+  \text{strict}(i, \varepsilon) = \text{NumV}(n) \qquad \text{strict}(d, \varepsilon) = \text{NumV}(m)
+}{
+  \langle \text{DiV}(i, d), \varepsilon \rangle \to \langle \text{NumV}(n + m), \varepsilon \rangle
+}
+$$
+
+$$
+\frac{
+  \text{strict}(d) = \text{NumV}(0)
+}{
+  \langle \text{DivV}(i, d), \varepsilon \rangle \to \text{Error}
+}
+$$
+
+$$
+\frac{
+  \text{strict}(i) = \text{NumV}(n) \qquad \text{strict}(d) = \text{NumV}(m) \qquad m \neq 0
+}{
+  \langle \text{DivV}(i, d), \varepsilon \rangle \to \langle \text{NumV}(n/m), \varepsilon \rangle
+}
+$$
+
+\item SqrtV(e):
+$$
+\frac{
+  \text{strict}(e) = \text{NumV}(n) \qquad n < 0
+}{
+  \langle \text{SqrtV}(n), \varepsilon \rangle \to \text{Error}
+}
+$$
+
+$$
+\frac{
+  \text{strict}(e) = \text{NumV}(n) \qquad n \geq 0
+}{
+  \langle \text{SqrtV}(e), \varepsilon \rangle \to \langle \text{NumV}(\sqrt{n}), \varepsilon \rangle
+}
+$$
+
+\item NotV(e):
+$$
+\frac{
+  \text{strict}(e) = \text{BoolV}(b) \qquad n \geq 0
+}{
+  \langle \text{NotV}(e), \varepsilon \rangle \to \langle \text{BoolV}{\not b}, \varepsilon \rangle
+}
+$$
+
+\item EqualV(i,d)
+$$
+\frac{
+  \text{strict}(i) = \text{NumV}(n) \qquad \text{strict}(d) = \text{NumV}(m)
+}{
+  \langle \text{EqualV}(i, d), \varepsilon \rangle \to \langle \text{BoolV}(n = m), \varepsilon \rangle
+}
+$$
   
-\item EqualV(i,d
-  \[
-  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle EqualV(i,d), \varepsilon \rangle \to \langle EqualV(i',d), \varepsilon \rangle}
-  \]
-  \[
-  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle EqualV(NumV(n),d), \varepsilon \rangle \to \langle EqualV(NumV(n),d'), \varepsilon \rangle}
-  \]
-  \[
-  \frac{}{\langle EqualV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n =_{\Z} m), \varepsilon \rangle}
-  \]
 \item LessV(i,d):
-  \[
-  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle LessV(i,d), \varepsilon \rangle \to \langle LessV(i',d), \varepsilon \rangle}
-  \]
-  \[
-  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle LessV(NumV(n),d), \varepsilon \rangle \to \langle LessV(NumV(n),d'), \varepsilon \rangle}
-  \]
-  \[
-  \frac{}{\langle LessV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n <_{\Z} m), \varepsilon \rangle}
-  \]
-\item GreaterV(i,d):
+$$
+\frac{
+  \text{strict}(e_1) = \text{NumV}(n) \qquad \text{strict}(e_2) = \text{NumV}(m)
+}{
+  \langle \text{LessV}(e_1, e_2), \varepsilon \rangle \to \langle \text{BoolV}(n < m), \varepsilon \rangle
+}
+$$
+  
 \item DiffV(i,d):
+$$
+\frac{
+  \text{strict}(e_1) = \text{NumV}(n) \qquad \text{strict}(e_2) = \text{NumV}(m)
+}{
+  \langle \text{DiffV}(e_1, e_2), \varepsilon \rangle \to \langle \text{BoolV}(n \neq m), \varepsilon \rangle
+}
+$$
+
 \item LeqV(i,d):
+$$
+\frac{
+  \text{strict}(e_1) = \text{NumV}(n) \qquad \text{strict}(e_2) = \text{NumV}(m)
+}{
+  \langle \text{LeqV}(e_1, e_2), \varepsilon \rangle \to \langle \text{BoolV}(n \le m), \varepsilon \rangle
+}
+$$
+
 \item GeqV(i,d):
-\item PairV(f,s):  
+$$
+\frac{
+  \text{strict}(e_1) = \text{NumV}(n) \qquad \text{strict}(e_2) = \text{NumV}(m)
+}{
+  \langle \text{GeqV}(e_1, e_2), \varepsilon \rangle \to \langle \text{BoolV}(n \ge m), \varepsilon \rangle
+}
+$$
+
+\item PairV(f,s):
+$$
+\langle \text{PairV}(f, s), \varepsilon \rangle \to \langle \text{PairV}(f, s), \varepsilon \rangle
+$$
+
 \item FstV(p):
+$$
+\frac{
+  \text{strict}(p) = \text{PairV}(f, s)
+}{
+  \langle \text{FstV}(p), \varepsilon \rangle \to \langle f, \varepsilon \rangle
+}
+$$
+
 \item SndV(p):
-\item IfV(c,t,e):
+$$
+\frac{
+  \text{strict}(p) = \text{PairV}(f, s)
+}{
+  \langle \text{SndV}(p), \varepsilon \rangle \to \langle s, \varepsilon \rangle
+}
+$$
+  
 \item ConV(i,d):
+$$
+\langle \text{ConV}(i, d), \varepsilon \rangle \to \langle \text{ConV}(i, d), \varepsilon \rangle
+$$
+  
 \item HeadV(l):
+$$
+\frac{
+  \text{strict}(l) = \text{ConV}(i, d)
+}{
+  \langle \text{HeadV}(l), \varepsilon \rangle \to \langle i, \varepsilon \rangle
+}
+$$
+
 \item TailV(l);
+$$
+\frac{
+  \text{strict}(l) = \text{ConV}(i, d)
+}{
+  \langle \text{TailV}(l), \varepsilon \rangle \to \langle d, \varepsilon \rangle
+}
+$$
+
 \item FunV(p,c):
+$$
+\langle \text{FunV}(p, c), \varepsilon \rangle \to \langle \text{Closure}(p, c, \varepsilon), \varepsilon \rangle
+$$
+
 \item AppV(f,a):
+$$
+\frac{
+  \text{strict}(f) = \text{Closure}(p, c, \varepsilon')
+}{
+  \langle \text{AppV}(f, a), \varepsilon \rangle \to \langle c, \varepsilon'[p \leftarrow a] \rangle
+}
+$$
+  
 \end{itemize}
 
 \begin{quote}
@@ -346,6 +441,70 @@ Para el caso de \texttt{AppC}:
 
 De este modo tenemos una evaluación adecuada para introducir recursión con \texttt{LetRec} en nuestro lenguaje\minilisp{-0.2cm}, pues como mencionamos, necesitamos meter al ambiente inicial la evaluación de nuestro combinador \textbf{Z}, el cuál se mostró que presentaba errores con la evaluación glotona.
 
-\begin{quote}
-  \textit{Aqui podemos poner un cierre del interprete, recursion y evaluacion glotona}
-\end{quote}
+\section{Cierre: intérprete, recursión y evaluación glotona}
+
+En este capítulo hemos introducido la idea de \emph{puntos estrictos} y la operación meta-semántica \textbf{strict} para mezclar evaluación perezosa con los contextos que requieren valores canónicos. Antes de terminar, conviene cerrar con tres observaciones importantes relacionadas con la representación de cierres en el intérprete, el tratamiento de la recursión y el contraste con la evaluación \emph{glotona} (estricta).
+
+\subsection{Cierre del intérprete (closures)}
+Un intérprete funcional perezoso debe representar funciones como \emph{closures} que capturan su ambiente léxico en el momento de la creación. Formalmente, una función se convierte en el valor
+\[
+Closure(p,c,\varepsilon)
+\]
+donde \(p\) es el parámetro (o patrón), \(c\) el cuerpo y \(\varepsilon\) el ambiente en el que la función fue creada. Esta representación garantiza que, al aplicar la función, las referencias libres del cuerpo se resuelvan respecto al ambiente léxico original.
+
+En un intérprete real (implementación), un closure típicamente contiene:
+\begin{itemize}
+  \item el código del cuerpo (o un puntero/índice a ese código);
+  \item un mapa de identidades a valores diferidos (thunks) o valores ya evaluados;
+  \item una semántica consistente para la sustitución o enlace del parámetro con el argumento.
+\end{itemize}
+
+\subsection{Recursión y combinadores}
+La recursión puede introducirse de varias maneras:
+\begin{enumerate}
+  \item \textbf{Ligada (letrec / definiciones recursivas)}: extiende el ambiente con una entrada que referencia una celda que puede actualizarse o auto-referenciarse.
+  \item \textbf{Combinadores de punto fijo (por ejemplo \(Y\))}: expresan la recursión sin nombres mediante un combinador que produce un punto fijo de funciones.
+\end{enumerate}
+
+Es importante destacar la diferencia de comportamiento del combinador \(Y\) según la estrategia de evaluación:
+
+\paragraph{Estrategia perezosa.} Con evaluación perezosa, el combinador \(Y\) puede ser útil porque el desempaquetado del punto fijo se hace cuando el cuerpo lo requiere, permitiendo definiciones recursivas sin evaluación inmediata que provoque bucles infinitos. Por eso, muchas construcciones recursivas clásicas basadas en \(Y\) funcionan en lenguajes perezosos.
+
+\paragraph{Estrategia glotona (estricta).} En evaluación estricta, el uso directo del combinador \(Y\) clásico provoca normalmente no-terminación: la autoinvocación se expande inmediatamente y nunca alcanza un punto en que se pueda seguir computando. Para obtener recursión en un lenguaje estricto se suele necesitar:
+\begin{itemize}
+  \item \texttt{letrec} o \texttt{fix} implementado con celdas mutables (o un mecanismo de enlace que permita referencias a sí mismo), o
+  \item transformar las definiciones mediante técnicas como \emph{lambda-lifting} o introducir explícitamente una celda recursiva (thunk auto-referente) que posponga la evaluación.
+\end{itemize}
+
+\subsubsection*{Ejemplo informal}
+Sea la definición recursiva factorial, expresada con un combinador de punto fijo:
+\[
+fact = Y(\lambda f.\ \lambda n.\ \text{if } n = 0 \text{ then } 1 \text{ else } n * f(n-1)).
+\]
+En evaluación perezosa, las llamadas a \(f\) se fuerzan sólo cuando es necesario, y \(Y\) puede comportarse adecuadamente. En evaluación estricta, la expansión de \(Y\) genera una evaluación infinita antes de que se alcance alguna condición base, salvo que se use una forma de \texttt{letrec} o una celda recursiva.
+
+\subsection{Evaluación glotona (estricta): reglas contrastantes}
+Para clarificar el contraste con la semántica perezosa con \textbf{strict}, presentamos una versión compacta de la regla de aplicación en evaluación estricta (call-by-value), que ilustra la diferencia con la regla lazy que usamos antes.
+
+\[
+\frac{\langle f, \varepsilon\rangle \to^* \langle Closure(p,c,\varepsilon_f),\varepsilon\rangle \qquad
+      \langle a, \varepsilon\rangle \to^* \langle v_a,\varepsilon\rangle}
+     {\langle AppV(f,a),\varepsilon\rangle \to \langle c,\; \varepsilon_f[p\leftarrow v_a]\rangle}
+\]
+
+En palabras: en evaluación estricta evaluamos primero \textbf{la función} hasta obtener un closure y \textbf{el argumento} hasta obtener un valor canónico \(v_a\); sólo entonces realizamos la sustitución/enlace del parámetro. Esto contrasta con la regla lazy:
+
+\[
+\frac{strict(f)=Closure(p,c,\varepsilon_f)}
+     {\langle AppV(f,a),\varepsilon\rangle \to \langle c,\; \varepsilon_f[p\leftarrow a]\rangle}
+\]
+donde en el segundo miembro \emph{no} se evalúa \(a\) al aplicar: se guarda la expresión \(a\) (thunk) en el ambiente del closure.
+
+\subsection{Cierre}
+Con esto concluimos el tratamiento de los puntos estrictos y su integración en la semántica de \minilisp. Hemos mostrado cómo conservar la pereza por defecto mientras forzamos evaluación en contextos donde es necesaria, y cómo este diseño afecta la representación de cierres, la forma de implementar recursión y las diferencias prácticas frente a una semántica glotona. En capítulos posteriores podremos:
+\begin{itemize}
+  \item mostrar la implementación concreta de \textbf{strict} en el intérprete (código y gestión de thunks),
+  \item dar ejemplos paso a paso de evaluación de expresiones recursivas bajo ambas estrategias, y
+  \item discutir optimizaciones (memoización de thunks, eliminación de thunks no necesarios, etc.).
+\end{itemize}
+
