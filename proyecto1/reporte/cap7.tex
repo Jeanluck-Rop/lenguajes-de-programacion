@@ -16,15 +16,15 @@ En conjunto, buscamos que este capítulo tenga como propósito mostrar de forma 
 
 \section{\minilisp}
 
-Primero mostramos los resultados individuales de cada fase del código implementado que le da vida a nuestro lenguaje\minilisp{-0.2cm}.\\
+Primero mostramos los resultados individuales de cada fase del código implementado que le da vida a nuestro lenguaje\minilisp{-0.2cm}.
 
+\noindent
 Utilizamos el intérprete interactivo de Haskell \texttt{GHCi} para compilar, cargar módulos y ejecutar las pruebas de de nuestra implementación. En el archivo \texttt{README.md} mostramos más a detalle como inicializar y compilar nuestro proyecto.
 
 %%%%%%%%%%%%%%%%%%
 \subsection{Lexer}
 Como se vió a inicios del reporte, el \textit{analizador léxico} es el primer paso en la ejecución del lenguaje.
-Recibe el programa del usuario como cadena de caracteres y devuelve una lista de \textit{Tokens} ya definido.\\
-
+Recibe el programa del usuario como cadena de caracteres y devuelve una lista de \textit{Tokens} ya definido.
 Generamos el analizador léxico con \texttt{Alex}:
 
 \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
@@ -46,7 +46,8 @@ Ya con esto podemos probar nuestra función \texttt{lexer}, que no es muy impres
   
   \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
     ghci> lexer "var12 #f 512 #t sum 90ba"
-    [TokenVar "var12",TokenBool False,TokenNum 512,TokenBool True,TokenVar "sum",TokenNum 90,TokenVar "ba"]
+    [TokenVar "var12",TokenBool False,TokenNum 512,
+      TokenBool True,TokenVar "sum",TokenNum 90,TokenVar "ba"]
   \end{minted}
 
   Podemos ver que el \texttt{lexer} separa adecuadamente entre variables, números y booleanos asignándolos a su respectivo \texttt{Token}. Incluso \textit{var12} se guarda completo como \texttt{TokenVar "var12"} justo como lo definimos, donde las variables comienzan siempre con un caracter seguido de una combinación de caracteres o números. Se puede apreciar también con el vaso de \textit{90ba} donde lo separa como dos \textit{Token} distintos, pues lo números no puden tener caracteres ni las variables pueden comenzar con números.
@@ -77,7 +78,8 @@ Ya con esto podemos probar nuestra función \texttt{lexer}, que no es muy impres
     ghci> lexer "(sqrt hola)"
     [TokenPA,TokenSqrt,TokenVar "hola",TokenPC]
     ghci> lexer "(% 3 5)"
-    [TokenPA,*** Exception: Lexical error: caracter no reconocido = "%" | codepoints = [37]
+    [TokenPA,*** Exception: Lexical error:
+      caracter no reconocido = "%" | codepoints = [37]
       CallStack (from HasCallStack):
       error, called at Lexer.hs:10816:24 in main:Lexer
   \end{minted}
@@ -87,7 +89,8 @@ Ya con esto podemos probar nuestra función \texttt{lexer}, que no es muy impres
   De manera análoga, tenemos los comparadores:
 
   \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
-    ghci> lexer "(!= 0 9 9) (= 6 6 1) (> 1 1) (< 4 3) (>= 7 3 5) (<= 22 22 2) (not #t)"
+    ghci> lexer "(!= 0 9 9) (= 6 6 1)
+                 (> 1 1) (< 4 3) (>= 7 3 5) (<= 22 22 2) (not #t)"
     [TokenPA,TokenNeq,TokenNum 0,TokenNum 9,TokenNum 9,TokenPC,
       TokenPA,TokenEq,TokenNum 6,TokenNum 6,TokenNum 1,TokenPC,
       TokenPA,TokenGt,TokenNum 1,TokenNum 1,TokenPC,
@@ -102,10 +105,13 @@ Ya con esto podemos probar nuestra función \texttt{lexer}, que no es muy impres
 \item \textbf{Condicionales:}
   
   \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
-    ghci> lexer "(cond [(= (sqrt 1000) (expt 10)) -1] [(!= (sub1 9) (add1 8)) 1] [else 0])"
+    ghci> lexer "(cond [(= (sqrt 1000) (expt 10)) -1]
+                  [(!= (sub1 9) (add1 8)) 1] [else 0])"
     [TokenPA,TokenCond,
-      TokenLI,TokenPA,TokenEq,TokenPA,TokenSqrt,TokenNum 1000,TokenPC,TokenPA,TokenExpt,TokenNum 10,TokenPC,TokenPC,TokenNum (-1),TokenLD,
-      TokenLI,TokenPA,TokenNeq,TokenPA,TokenSub1,TokenNum 9,TokenPC,TokenPA,TokenAdd1,TokenNum 8,TokenPC,TokenPC,TokenNum 1,TokenLD,
+      TokenLI,TokenPA,TokenEq,TokenPA,TokenSqrt,TokenNum 1000,TokenPC,
+      TokenPA,TokenExpt,TokenNum 10,TokenPC,TokenPC,TokenNum (-1),TokenLD,
+      TokenLI,TokenPA,TokenNeq,TokenPA,TokenSub1,TokenNum 9,TokenPC,
+      TokenPA,TokenAdd1,TokenNum 8,TokenPC,TokenPC,TokenNum 1,TokenLD,
       TokenLI,TokenElse,TokenNum 0,TokenLD,TokenPC]
   \end{minted}
   
@@ -124,17 +130,20 @@ Ya con esto podemos probar nuestra función \texttt{lexer}, que no es muy impres
   
   \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
     ghci> lexer "(let (x 10) (expt x))"
-    [TokenPA,TokenLet,TokenPA,TokenVar "x",TokenNum 10,TokenPC,TokenPA,TokenExpt,TokenVar "x",TokenPC,TokenPC]
+    [TokenPA,TokenLet,TokenPA,TokenVar "x",TokenNum 10,TokenPC,
+      TokenPA,TokenExpt,TokenVar "x",TokenPC,TokenPC]
   \end{minted}
   
   \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
     ghci> lexer "(let* ((x 2)) (+ x 3))"
-    [TokenPA,TokenLetStar,TokenPA,TokenPA,TokenVar "x",TokenNum 2,TokenPC,TokenPC,TokenPA,TokenAdd,TokenVar "x",TokenNum 3,TokenPC,TokenPC]
+    [TokenPA,TokenLetStar,TokenPA,TokenPA,TokenVar "x",TokenNum 2,TokenPC,TokenPC,
+      TokenPA,TokenAdd,TokenVar "x",TokenNum 3,TokenPC,TokenPC]
   \end{minted}
 
   \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
     ghci> lexer "((lambda (x) (+ x 1)) 5)"
-    [TokenPA,TokenPA,TokenLambda,TokenPA,TokenVar "x",TokenPC,TokenPA,TokenAdd,TokenVar "x",TokenNum 1,TokenPC,TokenPC,TokenNum 5,TokenPC]
+    [TokenPA,TokenPA,TokenLambda,TokenPA,TokenVar "x",TokenPC,
+      TokenPA,TokenAdd,TokenVar "x",TokenNum 1,TokenPC,TokenPC,TokenNum 5,TokenPC]
   \end{minted}
   
 \end{itemize}
@@ -194,7 +203,7 @@ Otro caso son los operadores unarios:
   error, called at ./Grammar.hs:1265:16 in main:Grammar
 \end{minted}
 
-\textt{Sqrt} y \texttt{Expt} fallan porque son operadores unarios, la gramática rechaza tener más de uno:
+\texttt{Sqrt} y \texttt{Expt} fallan porque son operadores unarios, la gramática rechaza tener más de uno:
 
 \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
   ghci> tokens = lexer "(sqrt 81)"
@@ -205,20 +214,486 @@ Otro caso son los operadores unarios:
   Expt (Num 16)
 \end{minted}
 
+Las demás expresiones funcionan igual, dan error en el \texttt{Parser} con una gramática inválida, por ello veamos como queda el resultado de parsear programas válidos:
+
+\begin {itemize}
+\item \textbf{Comparadores:}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "(= (+ 2 3) (* 5 1))"
+    ghci> parse tokens
+    Equal [Add [Num 2,Num 3],Mul [Num 5,Num 1]]
+  \end{minted}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "(< (+ 1 2) (* 2 3))"
+    ghci> parse tokens
+    Less [Add [Num 1,Num 2],Mul [Num 2,Num 3]]
+  \end{minted}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "(> (* 3 3) (+ 4 2))"
+    ghci> parse tokens
+    Greater [Mul [Num 3,Num 3],Add [Num 4,Num 2]]
+  \end{minted}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "(!= (* 2 3) (+ 3 3))"
+    ghci> parse tokens
+    Diff [Mul [Num 2,Num 3],Add [Num 3,Num 3]]
+  \end{minted}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "(<= (+ 2 3) (* 2 3))"
+    ghci> parse tokens
+    Leq [Add [Num 2,Num 3],Mul [Num 2,Num 3]]
+  \end{minted}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "(>= (* 3 3) (+ 4 2))"
+    ghci> parse tokens
+    Geq [Mul [Num 3,Num 3],Add [Num 4,Num 2]]
+  \end{minted}
+  
+  Notemos que las estructuras se muestran como se deben, con sus argumento guardados como listas y sus etiquetas respectivas a sus \textit{Tokens}.
+  
+\item \textbf{Condicionales:}
+  
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "(if (> 3 2) (+ 1 2) (* 2 2))"
+    ghci> parse tokens
+    If (Greater [Num 3,Num 2]) (Add [Num 1,Num 2]) (Mul [Num 2,Num 2])
+  \end{minted}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "(if0 (- 3 3) (+ 1 2) (* 3 3))"
+    ghci> parse tokens
+    If0 (Sub [Num 3,Num 3]) (Add [Num 1,Num 2]) (Mul [Num 3,Num 3])
+  \end{minted}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "(cond [(< x 0) (- 0 x)] [(= x 0) 0] [else (+ x 1)])"
+    ghci> parse tokens
+    Cond [(Less [Var "x",Num 0],Sub [Num 0,Var "x"]),
+      (Equal [Var "x",Num 0],Num 0)] (Add [Var "x",Num 1])
+  \end{minted}
+  
+\item \textbf{Pares y Listas:}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "((+ 1 2), (* 3 4))"
+    ghci> parse tokens
+    Pair (Add [Num 1,Num 2]) (Mul [Num 3,Num 4])
+  \end{minted}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "(fst ((+ 1 2), (sqrt 9)))"
+    ghci> parse tokens
+    Fst (Pair (Add [Num 1,Num 2]) (Sqrt (Num 9)))
+  \end{minted}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "(snd ((sqrt 16), (+ 3 5)))"
+    ghci> parse tokens
+    Snd (Pair (Sqrt (Num 16)) (Add [Num 3,Num 5]))
+  \end{minted}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "[[1, 2, (3, 4)], #t, (+ 1 2)]"
+    ghci> parse tokens 
+    List [List [Num 1,Num 2,Pair (Num 3) (Num 4)],
+      Boolean True,Add [Num 1,Num 2]]
+  \end{minted}
+  
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "(head [[1, 2], (+ 3 4), #f])"
+    ghci> parse tokens
+    Head (List [List [Num 1,Num 2],Add [Num 3,Num 4],Boolean False])
+  \end{minted}
+  
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "(tail [[(+ 1 2)], (* 3 4), #t])"
+    ghci> parse tokens
+    Tail (List [List [Add [Num 1,Num 2]],Mul [Num 3,Num 4],Boolean True])
+  \end{minted}
+  
+\item \textbf{Lets y Expresiones Lambda:}
+  
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "(let ((x 2) (y (* x 3))) (+ x y))"
+    ghci> parse tokens
+    Let [("x",Num 2),("y",Mul [Var "x",Num 3])] (Add [Var "x",Var "y"])
+  \end{minted}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "(let* ((x 2) (y (+ x 3)) (z (* y 2))) (+ x y z))"
+    ghci> parse tokens
+    LetStar [("x",Num 2),("y",Add [Var "x",Num 3]),
+      ("z",Mul [Var "y",Num 2])] (Add [Var "x",Var "y",Var "z"])
+  \end{minted}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens =
+           lexer "(letrec (fact
+                   (lambda (n) (if0 n 1 (* n (fact (sub1 n)))))) (fact 5))"
+    ghci> parse tokens
+    LetRec "fact" (Lambda ["n"] (If0 (Var "n") (Num 1)
+    (Mul [Var "n",App (Var "fact") [Sub1 (Var "n")]])))
+    (App (Var "fact") [Num 5])
+  \end{minted}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "(lambda (x y) (if (> x y) (- x y) (+ x y)))"
+    ghci> parse tokens
+    Lambda ["x","y"] (If (Greater [Var "x",Var "y"])
+    (Sub [Var "x",Var "y"]) (Add [Var "x",Var "y"]))
+  \end{minted}
+
+  \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+    ghci> tokens = lexer "((lambda (f x) (f x)) (lambda (y) (* y y)) 4)"
+    ghci> parse tokens
+    App (Lambda ["f","x"] (App (Var "f") [Var "x"]))
+    [Lambda ["y"] (Mul [Var "y",Var "y"]),Num 4]
+  \end{minted}
+  
+\end{itemize}
+
+Podemos observar que las salidas generadas por el parser corresponden correctamente a la estructura del \textbf{\textit{Árbol de Sintaxis Abstracta}} definido para \minilisp. Cada expresión se traduce en una construcción interna con sus operadores y argumentos organizados en listas.
+
+\noindent
+En los ejemplos de comparadores y condicionales, se refleja cómo las expresiones se agrupan jerárquicamente, respetando el orden y los paréntesis del código fuente.
+Las secciones de pares y listas muestran la correcta interpretación de estructuras anidadas y de funciones de acceso como \texttt{fst}, \texttt{snd}, \texttt{head} y \texttt{tail}.
+Por último, las construcciones de \texttt{let}, \texttt{let*}, \texttt{letrec} y \texttt{lambda} evidencian el manejo de entornos locales y funciones como valores, preparando el terreno para su posterior desazucarización y evaluación semántica.\\
+
+
+En conjunto, estos resultados confirman que la gramática y el parser generan correctamente los ASA esperados para cada tipo de expresión del lenguaje MiniLisp. Nótese que además que estas estructuras son \textbf{ASA} con azúcar, pues se puede apreciar por ejemplo, el uso listas en Haskell para ciertas estructuras. Aún nos falta la fase de desazucarización.
+
 
 %%%%%%%%%%%%%%%%%%
 \subsection{Desugar}
 
+Veremos los resultados interesantes del proceso de desazucarización:
 
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  ghci> tokens = lexer "(add1 (* 2 3))"
+  ghci> asa = parse tokens
+  ghci> desugar asa
+  AddC (MulC (NumC 2) (NumC 3)) (NumC 1)
+\end{minted}
 
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  ghci> tokens = lexer "(sub1 (+ 4 (* 2 3)))"
+  ghci> asa = parse tokens
+  ghci> desugar asa
+  SubC (AddC (NumC 4) (MulC (NumC 2) (NumC 3))) (NumC 1)
+\end{minted}
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  ghci> tokens = lexer "(expt (add1 (* 2 2)))"
+  ghci> asa = parse tokens
+  ghci> desugar asa
+  MulC (AddC (MulC (NumC 2) (NumC 2)) (NumC 1)) (AddC (MulC (NumC 2) (NumC 2)) (NumC 1))
+\end{minted}
+
+Como se puede ver, \texttt{add1}, \texttt{sub1} y \texttt{expt}, se convierten en suma, resta y multiplicación respectivamente.
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  ghci> tokens = lexer "(>= (* 3 3) (+ 4 2))"
+  ghci> asa = parse tokens
+  ghci> desugar asa
+  GeqC (MulC (NumC 3) (NumC 3)) (AddC (NumC 4) (NumC 2))
+\end{minted}
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  ghci> tokens = lexer "(= 4 0 (+ 9 3))"
+  ghci> asa = parse tokens 
+  ghci> desugar asa
+  IfC (EqualC (NumC 4) (NumC 0)) (EqualC (NumC 0) (AddC (NumC 9) (NumC 3))) (BoolC False)
+\end{minted}
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  ghci> tokens = lexer "(!= 1 1 (- 7 7))"
+  ghci> asa = parse tokens 
+  ghci> desugar asa
+  IfC (DiffC (NumC 1) (NumC 1)) (DiffC (NumC 1) (SubC (NumC 7) (NumC 7))) (BoolC False)
+\end{minted}
+
+De igual manera, los comparadores ya no son una lista de comparaciones, sino un encadenamiento de condicionales. De manera similar con las condiciones \texttt{If0} y \texttt{Cond} que pasan a \texttt{IfC}.
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  ghci> tokens = lexer "(if0 (- 3 3) (+ 1 2) (* 3 3))"
+  ghci> asa = parse tokens
+  ghci> desugar asa
+  IfC (EqualC (SubC (NumC 3) (NumC 3)) (NumC 0)) (AddC (NumC 1) (NumC 2)) (MulC (NumC 3) (NumC 3))
+\end{minted}
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  ghci> tokens = lexer "(cond [(< x 0) (- 0 x)] [(= x 0) 0] [else (+ x 1)])"
+  ghci> asa = parse tokens
+  ghci> desugar asa
+  IfC (LessC (VarC "x") (NumC 0)) (SubC (NumC 0) (VarC "x")) (IfC (EqualC (VarC "x") (NumC 0)) (NumC 0) (AddC (VarC "x") (NumC 1)))
+\end{minted}
+
+En el caso de las listas notemos que se han convertido en una encadenación de $cons$.
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  ghci> tokens = lexer "[1, 2, 3]"
+  ghci> asa = parse tokens
+  ghci> desugar asa
+  ConS (NumC 1) (ConS (NumC 2) (NumC 3))
+  ghci> tokens = lexer "[[1, 2, (3, 4)], #t, (+ 1 2)]"
+  ghci> asa = parse tokens
+  ghci> desugar asa
+  ConS (ConS (NumC 1) (ConS (NumC 2) (PairC (NumC 3) (NumC 4)))) (ConS (BoolC True) (AddC (NumC 1) (NumC 2)))
+\end{minted}
+
+Para los lets, como se puede apreciar a continuación, se han convertido en aplicaciones de funciones.
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  ghci> tokens = lexer "(let ((x 5)) (+ x 1))"
+  ghci> asa = parse tokens
+  ghci> desugar asa
+  AppC (FunC "x" (AddC (VarC "x") (NumC 1))) (NumC 5)
+  ghci> tokens = lexer "(let ((x 2) (y (* x 3))) (+ x y))"
+  ghci> asa = parse tokens
+  ghci> desugar asa
+  AppC (FunC "x" (AppC (FunC "y" (AddC (VarC "x") (VarC "y"))) (MulC (VarC "x") (NumC 3)))) (NumC 2)
+\end{minted}
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  ghci> tokens = lexer "(let* ((x 2) (y (+ x 3)) (z (* y 2))) (+ x y z))"
+  ghci> asa = parse tokens
+  ghci> desugar asa
+  AppC (FunC "x" (AppC (FunC "y" (AppC (FunC "z" (AddC (VarC "x") (AddC (VarC "y") (VarC "z")))) (MulC (VarC "y") (NumC 2)))) (AddC (VarC "x") (NumC 3)))) (NumC 2)
+\end{minted}
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  ghci> tokens = lexer "(letrec (fact (lambda (n) (if0 n 1 (* n (fact (sub1 n)))))) (fact 5))"
+  ghci> asa = parse tokens
+  ghci> desugar asa
+  AppC (FunC "fact" (AppC (VarC "fact") (NumC 5))) (AppC (VarC "Z") (FunC "fact" (FunC "n" (IfC (EqualC (VarC "n") (NumC 0)) (NumC 1) (MulC (VarC "n") (AppC (VarC "fact") (SubC (VarC "n") (NumC 1))))))))
+\end{minted}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Menú interactivo}
 
+Para mostrar los resultados del intérprete, utilizaremos un menú interactivo que tendrá la función de recibir la entrada del usuario, para procesarla a través de todas las fases de \texttt{Lexer}, \texttt{Parser} y \texttt{Desugar} para eventualmente realizar el proceso de evaluación semántica.\\
+
+El menú interactivo queda definido en el archivo \texttt{MiniLisp.hs} como sigue:
+
+\begin{lstlisting}[style=haskellstyle, caption={Menú interactivo de\minilisp}]
+module MiniLisp where
+import Token
+import ASA
+import AST
+import ASV
+import Lexer
+import Grammar
+import Desugar
+import Interprete
+import EvalStrict
+import Saca
+import Control.Exception (catch, SomeException)
+-- Combinador Z
+combZ :: String
+combZ = "(lambda (f) ((lambda (x) (f (lambda (v) ((x x) v)))) (lambda (x) (f (lambda (v) ((x x) v))))))"
+-- Evaluamos el combinador Z
+z :: ASV
+z = evalS (desugar $ parse $ lexer combZ) []
+-- Punto de entrada principal
+main :: IO ()
+main =
+  do
+  putStrLn "\nBienvenido a MiniLisp. "
+  putStrLn "Escriba (exit) para salir."
+  minilisp
+-- Bucle principal del interprete
+minilisp =
+  do
+    putStr "[MiniLisp]> "
+    str <- getLine
+    if str == ""
+      then minilisp
+      else if str == ":q"
+           then putStrLn "Bye :)"
+      else do
+      run str
+      minilisp
+-- Envuelve la evaluacion con manejo de errores
+run :: String -> IO ()
+run input =
+  catch
+    (do
+      let tokens = lexer input
+      let asa = parse tokens
+      let ast = desugar asa
+      let asv = evalS (ast) [("Z", z)]
+      putStrLn (saca asv))
+    errors
+-- Manejador de errores
+errors :: SomeException -> IO ()
+errors e = putStrLn $ "[Error]: " ++ show e
+\end{lstlisting}
+
+Importamos todos los módulos a usar en el proyecto. Definimos el combinador \textbf{Z} y aplicamos us evaluación como es requerido para la recursión en\minilisp{-0.2cm}.
+
+\noindent
+El punto de entrada pincipal del lenguaje es la función \texttt{main}, donde damos la bienvenida al usuario y comnzamos el intérprete interactivo de\minilisp{-0.2cm}. De este modo hacemos lo siguiente para correr el proyecto:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+  $ ghci
+  GHCi, version 9.4.5: https://www.haskell.org/ghc/  :? for help
+  ghci> :l MiniLisp.hs
+  ghci> main
+
+  Bienvenido a MiniLisp. 
+  Escriba (exit) para salir.
+  [MiniLisp]> 
+\end{minted}
+
+Como primer instancia, definimos y evaluamos el \textbf{combinador Z}. Este combinador es una herramienta fundamental para implementar la recursión en \minilisp{}, ya que el lenguaje carece de recursión directa a nivel del núcleo. El resultado de evaluar el combinador se guarda en la variable \texttt{z}, que se introduce en el ambiente inicial de evaluación. Así, los programas que usan \texttt{letrec} pueden implementar funciones recursivas correctamente.
+
+\noindent
+El bucle principal del intérprete que, en una arrebato increíble de originalidad lo llamamos \texttt{minilisp}, es donde leemos la entrada del usuario, y la pasamos a una función \texttt{run} para que sea procesada. En este bucle antes de mandar la cadena a ser evaluada comprobamos que si es vacía o la cadena reservada para salir del intérprete.
+
+\noindent
+La función \texttt{run} es la que coordina todas las fases de análisis, evaluación y muestreo al usuario. Desde iniciar el proceso pasando como argumento la cadena recibida al \texttt{Lexer}, como su evaluación en \texttt{AST} (con \texttt{EvalS}) dentro de un ambiente inicial que contiene la definición del combinador \textbf{Z}, necesario para la recursión. Esta función mete de inicio a ese ambiente, la variable \textbf{Z} con su respectiva evaluación. \texttt{run} se ejecuta dentro de un bloque \texttt{catch} permite capturar cualquier excepción que ocurra durante el análisis o la evaluación, evitando que el intérprete se detenga ante un error. En su lugar, se muestra un mensaje informativo en pantalla y el programa continúa su ejecución de forma segura.\\
+
+Finalmente, para la visualización de los resultados, nos hace falta explicar la función \texttt{saca}. Esta función es una función auxiliar que se encarga de mostrar el resultado de la evaluación al usuario.  
+Esto es necesario porque los valores evaluados en \minilisp{} se representan mediante constructores internos del tipo \texttt{ASV}, los cuales no son legibles directamente. La función \texttt{saca} transforma estos valores en una representación textual clara y amigable para el usuario.\\
+
+La función \texttt{saca} queda implementada en el archivo \texttt{Saca.hs} como sigue:
+
+\begin{lstlisting}[style=haskellstyle, caption={Procedimiento \texttt{saca} para mostrar el resultado al usuario}]
+module Saca where
+
+import ASV
+
+--Funcion para obtener el resultado e imprimirlo como cadena y no como tipo de dato ASV
+saca :: ASV -> String
+saca (NiV) = "[]"
+saca (NumV n) = show n
+saca (BoolV b)
+  | b == True = "#t"
+  | otherwise = "#f"
+saca (ClosureF p c e) = "#<procedure>"
+saca (ConV f s) = "[" ++ sacaElems (ConV f s) ++ "]"
+saca (PairV f s) = "(" ++ saca f ++ "," ++ saca s ++ ")"
+saca _ = "#<unknown>"
+
+-- Funcion auxiliar para recorrer ConV
+sacaElems :: ASV -> String
+sacaElems NiV = "[]"
+sacaElems (ConV x xs) = saca x ++ ", " ++ sacaElems xs
+sacaElems x = saca x
+\end{lstlisting}
+
+Nos apoyamos de \textit{pattern matching} para proceder con los casos correspondientes, estos son solo los valores canónicos:
+
+\begin{itemize}
+\item \texttt{NiV}: devolvemos la lista vacía y nada más.
+\item \texttt{NumV}: devolvemos el valor $n$ que guarda \texttt{NumV}, este ya es un número en Haskell y utilizamos \texttt{show} para mostrarlo en su representación de salida.
+\item \texttt{BoolV}: comprobamos que valor tiene $b$. Si es \texttt{True} devolvemos la cadena "$\#t$", en otro caso "$\#f$" para \texttt{False}.
+\item \texttt{ClosureF}: si el valor es una una cerradura, no se imprime su contenido interno sino que se representa como \texttt{#<procedure>}. Esto es un indicador textual, no un valor de lenguaje; se usa para que el usuario sepa que el valor es una función, pero no puede imprimirse directamente,  no es un valor real del lenguaje, sino una representación simbólica para el usuario.
+\item \texttt{ConV}: cuando caemos en este valor, quiere decir que debemos representarlo como listas. Para ello nos auxiliaremos en la función \texttt{sacaElems} para formar una cadena con el formato adecuado y así devolver una representación fiel de los elementos.\\
+
+  Esta función \texttt{sacaElems} recorre el encadenamiento de \texttt{ConV}, si hay dos elementos representamos estos recursivamente con la función\texttt{saca} separados por comas, cuando hemos llegado al último elemento, lo regresamos tal cual.
+  
+\item \texttt{PairV}: es más simple que \texttt{ConV}, solo es representar dos elementos recursivamente con \texttt{saca} entre paréntesis y separados por una coma.
+
+\item Si el valor canónico \texttt{ASV} recibido no es ninguno de los anteriores, entonces este no es válido, cosa que no debería ni puede suceder pero lo ponemos por completitud.
+\end{itemize}
+
+Ya con esto, veamos los resultados finales del lenguaje\minilisp{-0.2cm}:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+[MiniLisp]> (+ (* 2 3 -1) (- 10 4 9 -22) (sqrt 16) (expt 36) (/ 1 2))
+1331
+\end{minted}
+
+Comprobemos arugmento por argumento que la expresion anterior es correcta:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+[MiniLisp]> (* 2 3 -1)
+-6
+[MiniLisp]> (- 10 4 9 -22)
+37
+[MiniLisp]> (sqrt 16)
+4
+[MiniLisp]> (expt 36)
+1296
+[MiniLisp]> (/ 1 2)
+0
+[MiniLisp]> 
+\end{minted}
+
+Al sumar los resultado se puede apreciar que los valores coinciden.
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+[MiniLisp]> (+ -6 37 4 1296 0)
+1331
+\end{minted}
+
+Veamos otro ejemplo:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+[MiniLisp]> (let ((y 31) (x -22)) (cond [(< x 0 y) (- 0 x y)] [(= x 0) 0] [else (+ x 1)]))
+53
+\end{minted}
+
+Aquí, al resolver paso por paso, tenemos que se asigna $31$ a $y$ y $-22$ a $x$, por lo que la primer comprobación debería ser correcta al sustituir las variables:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+[MiniLisp]> (< -22 0 31)
+#t
+\end{minted}
+
+Por lo que se resuelve su cláusula:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+[MiniLisp]> (- 0 -22 31)
+53
+\end{minted}
+
+Por último veamos un ejemplo de evaluación para listas, se espera que cada elemento de la lista se evalúe, regresando una lista con valores evaluados. Hacemos el recordatorio también de que nuestras listas son heterogéneas:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+[MiniLisp]> [[1, 2], (3, 4), (not #t), (+ 1 2 3 4 5 6), (!= 9 7 3 5), [], (/ 2 4), (not (not (= 9 9))), (tail [1, 2, 3]), ((lambda (f x) (f x)) (lambda (y) (* y y)) 4)]
+[[1, 2], (3,4), #f, 21, #t, [], 0, #t, 3, 16]
+\end{minted}
+
+Al evaluar cada elemento por separado, se puede apreciar que estos resultados coinciden:
+
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+[MiniLisp]> [1, 2]
+[1, 2]
+[MiniLisp]> (3, 4)
+(3,4)
+[MiniLisp]> (not #t)
+#f
+[MiniLisp]> (+ 1 2 3 4 5 6)
+21
+[MiniLisp]> (!= 9 7 3 5)
+#t
+[MiniLisp]> []
+[]
+[MiniLisp]> (/ 2 4)
+0
+[MiniLisp]> (not (not (= 9 9)))
+#t
+[MiniLisp]> (tail [1, 2, 3])
+3
+[MiniLisp]> ((lambda (f x) (f x)) (lambda (y) (* y y)) 4)
+16
+\end{minted}
+
+En el archivo \texttt{README.md} se incluyen ejemplos más detallados para cada expresión.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Funciones de prueba}
+
+Para implementar las funciones de prueba, necesitamos modificar nuestro menú interactivo, pues necesitamos detecar estas funciones de prueba
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

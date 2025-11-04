@@ -946,8 +946,6 @@ IfC (LessC (VarC "x") (NumC 0)) (SubC (NumC 0) (VarC "x")) (IfC (EqualC (VarC "x
 ```
 
 ### Listas
-
-+ Diferencia
 ```
 ghci> tokens = lexer "[1, 2, 3]"
 ghci> asa = parse tokens
@@ -1079,7 +1077,7 @@ Escriba (exit) para salir.
 [MiniLisp]> 
 ```
 
-Ahora, veamos el resultado de la evaluación de cada ejemplo:
+Ahora, veamos el resultado de la evaluación de cada ejemplo. Pero cabe remarcar que recomendamos tener mucho cuidado al escribir cualquier programa de prueba, pues parace ser que `getLine` no registra adecuadamente la tecla de retroceso `backspace`; de preferencia copiar y pegar los programas:
 
 ### Valores
 
@@ -1355,46 +1353,4 @@ CallStack (from HasCallStack):
 6
 [MiniLisp]> ((lambda (f x) (f x)) (lambda (y) (* y y)) 4)
 16
-```
-
-
-
-
-
-
-
-
-
-Parser
-
-Nuestro parser funciona porque, por ejemplo, al intentar dar un numero de argumentos invalida sale error en el aprser:
-
-```
-ghci> tokens = lexer "(+ 1)"
-ghci> parse tokens 
-*** Exception: Parser Error
-CallStack (from HasCallStack):
-  error, called at Grammar.hs:1210:16 in main:Grammar
-ghci> tokens = lexer "(+ 1 2)"
-ghci> parse tokens 
-Add [Num 1,Num 2]
-ghci> 
-```
-
-
-## LetRec:
-```
-[MiniLisp]> (letrec (sum (lambda (n) (if0 n 0 (+ n (sum (- n 1)))))) (sum 3))
-[Error]: Var 'Z' no definida
-CallStack (from HasCallStack):
-  error, called at ./Interprete.hs:154:18 in main:Interprete
-[MiniLisp]> 
-```
-
-```
-[MiniLisp]> (letrec (sum (lambda (n) (if0 n 0 (+ n (sum (- n 1)))))) (sum 3))
-[Error]: Var 'v' no definida
-CallStack (from HasCallStack):
-  error, called at ./Interprete.hs:154:18 in main:Interprete
-[MiniLisp]> 
 ```

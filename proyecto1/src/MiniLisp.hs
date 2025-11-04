@@ -11,6 +11,7 @@ import Interprete
 import EvalStrict
 import Saca
 import Control.Exception (catch, SomeException)
+import Data.List (isPrefixOf)
 
 -- Combinador Z
 combZ :: String
@@ -51,7 +52,16 @@ run :: String -> IO ()
 run input =
   catch
     (do
-      let tokens = lexer input
+        expr <-
+        if "fact" `isPrefixOf` input
+          then return $ factExpr (read (last (words input)))
+        else if "sum" `isPrefixOf` input
+          then return $ sumExpr (read (last (words input)))
+        else if "fibo" `isPrefixOf` input
+          then return $ fiboExpr (read (last (words input)))
+        else return input
+
+      let tokens = lexer expr
       let asa = parse tokens
       let ast = desugar asa
       --let asv = eval (toFinalState ast) []

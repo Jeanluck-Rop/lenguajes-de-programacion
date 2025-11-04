@@ -9,7 +9,7 @@ saca (NumV n) = show n
 saca (BoolV b)
   | b == True = "#t"
   | otherwise = "#f"
-saca (Closure p c e) = "#<procedure>"
+--saca (Closure p c e) = "#<procedure>"
 saca (ClosureF p c e) = "#<procedure>"
 saca (ConV f s) = "[" ++ sacaElems (ConV f s) ++ "]"
 saca (PairV f s) = "(" ++ saca f ++ "," ++ saca s ++ ")"
