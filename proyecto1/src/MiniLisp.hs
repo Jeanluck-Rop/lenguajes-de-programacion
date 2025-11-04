@@ -41,7 +41,7 @@ minilisp =
     str <- getLine
     if str == ""
       then minilisp
-      else if str == ":q"
+      else if str == ":q" || str == "(exit)"
            then putStrLn "Bye :)"
       else do
       run str
