@@ -392,7 +392,8 @@ Veremos los resultados interesantes del proceso de desazucarización:
   ghci> tokens = lexer "(expt (add1 (* 2 2)))"
   ghci> asa = parse tokens
   ghci> desugar asa
-  MulC (AddC (MulC (NumC 2) (NumC 2)) (NumC 1)) (AddC (MulC (NumC 2) (NumC 2)) (NumC 1))
+  MulC (AddC (MulC (NumC 2) (NumC 2)) (NumC 1))
+       (AddC (MulC (NumC 2) (NumC 2)) (NumC 1))
 \end{minted}
 
 Como se puede ver, \texttt{add1}, \texttt{sub1} y \texttt{expt}, se convierten en suma, resta y multiplicación respectivamente.
@@ -408,14 +409,16 @@ Como se puede ver, \texttt{add1}, \texttt{sub1} y \texttt{expt}, se convierten e
   ghci> tokens = lexer "(= 4 0 (+ 9 3))"
   ghci> asa = parse tokens 
   ghci> desugar asa
-  IfC (EqualC (NumC 4) (NumC 0)) (EqualC (NumC 0) (AddC (NumC 9) (NumC 3))) (BoolC False)
+  IfC (EqualC (NumC 4) (NumC 0)) (EqualC (NumC 0) (AddC (NumC 9) (NumC 3)))
+      (BoolC False)
 \end{minted}
 
 \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
   ghci> tokens = lexer "(!= 1 1 (- 7 7))"
   ghci> asa = parse tokens 
   ghci> desugar asa
-  IfC (DiffC (NumC 1) (NumC 1)) (DiffC (NumC 1) (SubC (NumC 7) (NumC 7))) (BoolC False)
+  IfC (DiffC (NumC 1) (NumC 1)) (DiffC (NumC 1) (SubC (NumC 7) (NumC 7)))
+      (BoolC False)
 \end{minted}
 
 De igual manera, los comparadores ya no son una lista de comparaciones, sino un encadenamiento de condicionales. De manera similar con las condiciones \texttt{If0} y \texttt{Cond} que pasan a \texttt{IfC}.
@@ -424,14 +427,16 @@ De igual manera, los comparadores ya no son una lista de comparaciones, sino un 
   ghci> tokens = lexer "(if0 (- 3 3) (+ 1 2) (* 3 3))"
   ghci> asa = parse tokens
   ghci> desugar asa
-  IfC (EqualC (SubC (NumC 3) (NumC 3)) (NumC 0)) (AddC (NumC 1) (NumC 2)) (MulC (NumC 3) (NumC 3))
+  IfC (EqualC (SubC (NumC 3) (NumC 3)) (NumC 0)) (AddC (NumC 1) (NumC 2))
+      (MulC (NumC 3) (NumC 3))
 \end{minted}
 
 \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
   ghci> tokens = lexer "(cond [(< x 0) (- 0 x)] [(= x 0) 0] [else (+ x 1)])"
   ghci> asa = parse tokens
   ghci> desugar asa
-  IfC (LessC (VarC "x") (NumC 0)) (SubC (NumC 0) (VarC "x")) (IfC (EqualC (VarC "x") (NumC 0)) (NumC 0) (AddC (VarC "x") (NumC 1)))
+  IfC (LessC (VarC "x") (NumC 0)) (SubC (NumC 0) (VarC "x"))
+      (IfC (EqualC (VarC "x") (NumC 0)) (NumC 0) (AddC (VarC "x") (NumC 1)))
 \end{minted}
 
 En el caso de las listas notemos que se han convertido en una encadenación de $cons$.
@@ -444,7 +449,8 @@ En el caso de las listas notemos que se han convertido en una encadenación de $
   ghci> tokens = lexer "[[1, 2, (3, 4)], #t, (+ 1 2)]"
   ghci> asa = parse tokens
   ghci> desugar asa
-  ConS (ConS (NumC 1) (ConS (NumC 2) (PairC (NumC 3) (NumC 4)))) (ConS (BoolC True) (AddC (NumC 1) (NumC 2)))
+  ConS (ConS (NumC 1) (ConS (NumC 2) (PairC (NumC 3) (NumC 4))))
+       (ConS (BoolC True) (AddC (NumC 1) (NumC 2)))
 \end{minted}
 
 Para los lets, como se puede apreciar a continuación, se han convertido en aplicaciones de funciones.
@@ -457,21 +463,28 @@ Para los lets, como se puede apreciar a continuación, se han convertido en apli
   ghci> tokens = lexer "(let ((x 2) (y (* x 3))) (+ x y))"
   ghci> asa = parse tokens
   ghci> desugar asa
-  AppC (FunC "x" (AppC (FunC "y" (AddC (VarC "x") (VarC "y"))) (MulC (VarC "x") (NumC 3)))) (NumC 2)
+  AppC (FunC "x" (AppC (FunC "y" (AddC (VarC "x") (VarC "y")))
+       (MulC (VarC "x") (NumC 3)))) (NumC 2)
 \end{minted}
 
 \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
   ghci> tokens = lexer "(let* ((x 2) (y (+ x 3)) (z (* y 2))) (+ x y z))"
   ghci> asa = parse tokens
   ghci> desugar asa
-  AppC (FunC "x" (AppC (FunC "y" (AppC (FunC "z" (AddC (VarC "x") (AddC (VarC "y") (VarC "z")))) (MulC (VarC "y") (NumC 2)))) (AddC (VarC "x") (NumC 3)))) (NumC 2)
+  AppC (FunC "x" (AppC (FunC "y" (AppC (FunC "z" (AddC (VarC "x")
+         (AddC (VarC "y") (VarC "z")))) (MulC (VarC "y") (NumC 2))))
+       (AddC (VarC "x") (NumC 3)))) (NumC 2)
 \end{minted}
 
 \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
-  ghci> tokens = lexer "(letrec (fact (lambda (n) (if0 n 1 (* n (fact (sub1 n)))))) (fact 5))"
+  ghci> tokens = lexer "(letrec (fact (lambda (n)
+                        (if0 n 1 (* n (fact (sub1 n)))))) (fact 5))"
   ghci> asa = parse tokens
   ghci> desugar asa
-  AppC (FunC "fact" (AppC (VarC "fact") (NumC 5))) (AppC (VarC "Z") (FunC "fact" (FunC "n" (IfC (EqualC (VarC "n") (NumC 0)) (NumC 1) (MulC (VarC "n") (AppC (VarC "fact") (SubC (VarC "n") (NumC 1))))))))
+  AppC (FunC "fact" (AppC (VarC "fact") (NumC 5))) (AppC (VarC "Z")
+         (FunC "fact" (FunC "n" (IfC (EqualC (VarC "n") (NumC 0))
+       (NumC 1) (MulC (VarC "n") (AppC (VarC "fact") (SubC (VarC "n") (NumC 1)))
+       )))))
 \end{minted}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -595,7 +608,7 @@ Nos apoyamos de \textit{pattern matching} para proceder con los casos correspond
 \item \texttt{NiV}: devolvemos la lista vacía y nada más.
 \item \texttt{NumV}: devolvemos el valor $n$ que guarda \texttt{NumV}, este ya es un número en Haskell y utilizamos \texttt{show} para mostrarlo en su representación de salida.
 \item \texttt{BoolV}: comprobamos que valor tiene $b$. Si es \texttt{True} devolvemos la cadena "$\#t$", en otro caso "$\#f$" para \texttt{False}.
-\item \texttt{ClosureF}: si el valor es una una cerradura, no se imprime su contenido interno sino que se representa como \texttt{#<procedure>}. Esto es un indicador textual, no un valor de lenguaje; se usa para que el usuario sepa que el valor es una función, pero no puede imprimirse directamente,  no es un valor real del lenguaje, sino una representación simbólica para el usuario.
+\item \texttt{ClosureF}: si el valor es una una cerradura, no se imprime su contenido interno sino que se representa como \texttt{$\#$<procedure>}. Esto es un indicador textual, no un valor de lenguaje; se usa para que el usuario sepa que el valor es una función, pero no puede imprimirse directamente,  no es un valor real del lenguaje, sino una representación simbólica para el usuario.
 \item \texttt{ConV}: cuando caemos en este valor, quiere decir que debemos representarlo como listas. Para ello nos auxiliaremos en la función \texttt{sacaElems} para formar una cadena con el formato adecuado y así devolver una representación fiel de los elementos.\\
 
   Esta función \texttt{sacaElems} recorre el encadenamiento de \texttt{ConV}, si hay dos elementos representamos estos recursivamente con la función\texttt{saca} separados por comas, cuando hemos llegado al último elemento, lo regresamos tal cual.
@@ -638,7 +651,8 @@ Al sumar los resultado se puede apreciar que los valores coinciden.
 Veamos otro ejemplo:
 
 \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
-[MiniLisp]> (let ((y 31) (x -22)) (cond [(< x 0 y) (- 0 x y)] [(= x 0) 0] [else (+ x 1)]))
+[MiniLisp]> (let ((y 31) (x -22)) (cond [(< x 0 y) (- 0 x y)] [(= x 0) 0]
+                                        [else (+ x 1)]))
 53
 \end{minted}
 
@@ -659,7 +673,9 @@ Por lo que se resuelve su cláusula:
 Por último veamos un ejemplo de evaluación para listas, se espera que cada elemento de la lista se evalúe, regresando una lista con valores evaluados. Hacemos el recordatorio también de que nuestras listas son heterogéneas:
 
 \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
-[MiniLisp]> [[1, 2], (3, 4), (not #t), (+ 1 2 3 4 5 6), (!= 9 7 3 5), [], (/ 2 4), (not (not (= 9 9))), (tail [1, 2, 3]), ((lambda (f x) (f x)) (lambda (y) (* y y)) 4)]
+[MiniLisp]> [[1, 2], (3, 4), (not #t), (+ 1 2 3 4 5 6), (!= 9 7 3 5),
+             [], (/ 2 4), (not (not (= 9 9))), (tail [1, 2, 3]),
+             ((lambda (f x) (f x)) (lambda (y) (* y y)) 4)]
 [[1, 2], (3,4), #f, 21, #t, [], 0, #t, 3, 16]
 \end{minted}
 
@@ -693,24 +709,168 @@ En el archivo \texttt{README.md} se incluyen ejemplos más detallados para cada 
 
 \section{Funciones de prueba}
 
-Para implementar las funciones de prueba, necesitamos modificar nuestro menú interactivo, pues necesitamos detecar estas funciones de prueba
+En esta sección implementamos tres funciones especiales: la suma de los primeros $n$ números naturales, el factorial de un número y el n-ésimo número de Fibonacci.
+Estas funciones nos sirven como ejemplos prácticos para probar las capacidades del lenguaje\minilisp{-0.2cm} y en especial, de su capacidades recursivas.
+
+\noindent
+Debido a que cada una de estas funciones se define naturalmente mediante recursión, nos auxiliamos de la expresión \texttt{letrec}, con la cual definimos funciones recursivas dentro del lenguaje.\\
+
+Para poder ejecutar estas funciones directamente desde el menú interactivo, modificamos la función \texttt{run} de nuestro archivo \texttt{MiniLisp.hs}.
+Agregamos lógica que detecta cuando la entrada del usuario comienza con alguna palabra clave: \texttt{fact}, \texttt{sum} o \texttt{fibo}.
+
+\[
+\text{\texttt{fact}(\texttt{Int})} \quad \text{\texttt{sum}(\texttt{Int})} \quad \text{\texttt{fibo}(\texttt{Int})}
+\]
+
+Cuando se detecta uno de estos comandos, se genera dinámicamente una expresión \texttt{MiniLisp} equivalente que utiliza \texttt{letrec} y luego se evalúa normalmente.
+
+\begin{lstlisting}[style=haskellstyle, caption={Implementación de las funciones especiales de\minilisp}]
+-- Envuelve la evaluacion con manejo de errores
+run :: String -> IO ()
+run input =
+  catch
+    (do
+        expr <-
+          if "fact" `isPrefixOf` input
+          then return $ fact (read (last (words input)))
+          else if "sum" `isPrefixOf` input
+               then return $ sumSum (read (last (words input)))
+          else if "fibo" `isPrefixOf` input
+               then return $ fibo (read (last (words input)))
+          else return input 
+      
+        let tokens = lexer expr
+        let asa = parse tokens
+        let ast = desugar asa
+        let asv = evalS (ast) [("Z", z)]
+        putStrLn (saca asv))
+    errors
+\end{lstlisting}
+
+La función \texttt{isPrefixOf} de Haskell, nos permite verificar si la cadena introducida por el usuario comienza con un determinado prefijo. De esta forma, si el usuario escribe \texttt{fact 5}, el intérprete genera internamente el código \texttt{MiniLisp} equivalente y lo evalúa como si el usuario lo hubiese escrito explícitamente.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Suma primeros $n$ números naturales}
 
+Para calcular la suma de los primeros $n$ números naturales se utiliza una definición recursiva simple:
+
+\[
+\texttt{sum}(n) =
+\begin{cases}
+0, & \text{si } n {=} 0,\\[2pt]
+n {+} \texttt{sum}(n-1) & \text{en otro caso}
+\end{cases}
+\]
+
+\bigskip
+
+La implementación en Haskell genera una expresión en \minilisp con \texttt{letrec} que define y ejecuta esta función:
+
+\begin{lstlisting}[style=haskellstyle, caption={Función para obtener el factorial de un número con \texttt{letrec}}]
+--Generamos la suma de los primeros n numeros con letrec
+sumSum :: Int -> String
+sumSum n = "(letrec (sum (lambda (n) (if0 n 0 (+ n (sum (- n 1)))))) (sum " ++ show n ++ "))"
+\end{lstlisting}
+
+Algunos ejemplos de ejecución son:
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+[MiniLisp]> sum 15
+120
+[MiniLisp]> sum 5
+15
+[MiniLisp]> sum 50
+1275
+[MiniLisp]> sum 3
+6
+\end{minted}
+
+El intérprete convierte internamente esta entrada en la expresión:
+\[
+\texttt{(letrec (sum (lambda (n) (if0 n 0 (+ n (sum (- n 1)))))) (sum 5))}
+\]
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Factorial}
+
+De manera análoga, para el factorial usamos la definición recursiva clásica:
+
+\[
+\texttt{fact}(n) =
+\begin{cases}
+1, & \text{si } n {=} 0,\\[2pt]
+n \times \texttt{fact}(n-1) & \text{en otro caso}
+\end{cases}
+\]
+
+\bigskip
+
+La función generadora en Haskell construye la expresión correspondiente:
+
+\begin{lstlisting}[style=haskellstyle, caption={Función para obtener la suma de los primeros $n$ números naturales con \texttt{letrec}}]
+--Generamos la funcion factorial con letrec
+fact :: Int -> String
+fact n = "(letrec (fact (lambda (n) (if0 n 1 (* n (fact (- n 1)))))) (fact " ++ show n ++ "))"
+\end{lstlisting}
+
+Algunos ejemplos de ejecución serían:
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+[MiniLisp]> fact 5
+120
+[MiniLisp]> fact 8
+40320
+[MiniLisp]> fact 3
+6
+[MiniLisp]> fact 7
+5040
+\end{minted}
+
+Donde la entrada \texttt{fact 7} por ejemplo, se traduce internamente como:
+\[
+\texttt{(letrec (fact (lambda (n) (if0 n 1 (* n (fact (- n 1)))))) (fact 5))}
+\]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Fibonacci}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+La sucesión de Fibonacci se define recursivamente como:
 
-\subsection{Función \texttt{map} para listas}
+\[
+\texttt{fibo}(n) =
+\begin{cases}
+0, & \text{si } n {=} 0,\\
+1, & \text{si } n {=} 1,\\
+\texttt{fibo}(n-1) {+} \texttt{fibo}(n-2) & \text{en otro caso}
+\end{cases}
+\]
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bigskip
 
-\subsection{Función \texttt{filter} para listas}
+Su implementación en Haskell genera el código\minilisp{-0.2cm} correspondiente con \texttt{letrec}:
+
+\begin{lstlisting}[style=haskellstyle, caption={Función para obtener el n-ésimo número de la suceción de Fibonacci con con \texttt{letrec}}]
+--Generamos el n-esimo numero de Fibonacci con letrec
+fibo :: Int -> String
+fibo n = "(letrec (fib (lambda (n) (if0 n 0 (if0 (- n 1) 1 (+ (fib (- n 1)) (fib (- n 2))))))) (fib " ++ show n ++ "))"
+\end{lstlisting}
+
+Como ejemplos de ejecución tenemos:
+\begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
+[MiniLisp]> fibo 12
+144
+[MiniLisp]> fibo 18
+2584
+[MiniLisp]> fibo 7
+13
+[MiniLisp]> fibo 2
+1
+\end{minted}
+
+El intérprete genera internamente la siguiente definición:
+\[
+\texttt{(letrec (fib (lambda (n) (if0 n 0 (if0 (- n 1) 1 (+ (fib (- n 1)) (fib (- n 2))))))) (fib 7))}
+\]
+
+Estas funciones de prueba no sólo demuestran la expresividad del lenguaje donde el sistema de evaluación de\minilisp{-0.2cm} maneja correctamente la recursión, sino también que la implementación del combinador \textbf{Z} y las expresiones \texttt{letrec} permiten definir y evaluar funciones complejas sin necesidad de estructuras externas. Además, muestran cómo el menú interactivo puede extenderse para admitir comandos personalizados que simplifican la interacción del usuario con el intérprete.

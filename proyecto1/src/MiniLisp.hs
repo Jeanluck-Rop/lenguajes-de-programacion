@@ -10,6 +10,7 @@ import Desugar
 import Interprete
 import EvalStrict
 import Saca
+import Funciones
 import Control.Exception (catch, SomeException)
 import Data.List (isPrefixOf)
 
@@ -53,21 +54,21 @@ run input =
   catch
     (do
         expr <-
-        if "fact" `isPrefixOf` input
-          then return $ factExpr (read (last (words input)))
-        else if "sum" `isPrefixOf` input
-          then return $ sumExpr (read (last (words input)))
-        else if "fibo" `isPrefixOf` input
-          then return $ fiboExpr (read (last (words input)))
-        else return input
-
-      let tokens = lexer expr
-      let asa = parse tokens
-      let ast = desugar asa
-      --let asv = eval (toFinalState ast) []
-      --let asv = eval (toFinalState ast) [("Z", z)]
-      let asv = evalS (ast) [("Z", z)]
-      putStrLn (saca asv))
+          if "fact" `isPrefixOf` input
+          then return $ fact (read (last (words input)))
+          else if "sum" `isPrefixOf` input
+               then return $ sumSum (read (last (words input)))
+          else if "fibo" `isPrefixOf` input
+               then return $ fibo (read (last (words input)))
+          else return input 
+      
+        let tokens = lexer expr
+        let asa = parse tokens
+        let ast = desugar asa
+        --let asv = eval (toFinalState ast) []
+        --let asv = eval (toFinalState ast) [("Z", z)]
+        let asv = evalS (ast) [("Z", z)]
+        putStrLn (saca asv))
     errors
 
 
