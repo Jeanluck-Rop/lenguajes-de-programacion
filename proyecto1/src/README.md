@@ -1354,3 +1354,41 @@ CallStack (from HasCallStack):
 [MiniLisp]> ((lambda (f x) (f x)) (lambda (y) (* y y)) 4)
 16
 ```
+
+## Funciones de prueba
+
++ Factorial:
+```
+[MiniLisp]> fact 5
+120
+[MiniLisp]> fact 8
+40320
+[MiniLisp]> fact 3
+6
+[MiniLisp]> fact 7
+5040
+```
+
++ Suma de los primeros n números naturales:
+```
+[MiniLisp]> sum 15
+120
+[MiniLisp]> sum 5
+15
+[MiniLisp]> sum 50
+1275
+[MiniLisp]> sum 3
+6
+```
+
++ Fibonacci:
+```
+[MiniLisp]> fibo 12
+144
+[MiniLisp]> fibo 18
+2584
+[MiniLisp]> fibo 7
+13
+[MiniLisp]> fibo 2
+1
+```

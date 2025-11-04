@@ -873,10 +873,10 @@ Como ejemplos de ejecución tenemos:
 
 El intérprete genera internamente la siguiente definición:
 \[
-\texttt{(letrec (fib (lambda (n)}
+\texttt{(letrec (fibo (lambda (n)}
 \]
 \[
-\quad \quad \texttt{(if0 n 0 (if0 (- n 1) 1 (+ (fib (- n 1)) (fib (- n 2))))))) (fib 7))}
+\quad \quad \texttt{(if0 n 0 (if0 (- n 1) 1 (+ (fibo (- n 1)) (fibo (- n 2))))))) (fibo 7))}
 \]
 
 Estas funciones de prueba no sólo demuestran la expresividad del lenguaje donde el sistema de evaluación de\minilisp{-0.2cm} maneja correctamente la recursión, sino también que la implementación del combinador \textbf{Z} y las expresiones \texttt{letrec} permiten definir y evaluar funciones complejas sin necesidad de estructuras externas. Además, muestran cómo el menú interactivo puede extenderse para admitir comandos personalizados que simplifican la interacción del usuario con el intérprete.

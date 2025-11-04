@@ -47,11 +47,16 @@ Para compilar el reporte manualmente:
 pdflatex -shell-escape reporte.tex
 ```
 
-Si se presentan errores por falta de paquetes de `LaTeX`, instale los siguientes paquetes (el comando de instalación varía entre distribuciones Linux):
-
-### RedHat
+Si se presentan errores por falta de paquetes de `LaTeX`, asegúrese de tener instalados los siguientes paquetes:
 
 ```
+book, inputenc, fontenc, babel, ulem, hyperref,
+listings, tcolorbox, xcolor, float,
+algorithm, algpseudocode, chngcntr,
+graphicx, enumitem, geometry,
+amsmath, amssymb, amsthm,
+forest, fancyhdr, minted
+
 ```
 
 Si aún aparecen errores después de instalar los paquetes, pruebe compilando nuevamente el archivo `reporte.tex`. De cualquier modo, el archivo **Reporte_MiniLisp.pdf** ya se incluye como versión final precompilada.
