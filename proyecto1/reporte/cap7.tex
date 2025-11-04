@@ -136,14 +136,16 @@ Ya con esto podemos probar nuestra función \texttt{lexer}, que no es muy impres
   
   \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
     ghci> lexer "(let* ((x 2)) (+ x 3))"
-    [TokenPA,TokenLetStar,TokenPA,TokenPA,TokenVar "x",TokenNum 2,TokenPC,TokenPC,
+    [TokenPA,TokenLetStar,
+      TokenPA,TokenPA,TokenVar "x",TokenNum 2,TokenPC,TokenPC,
       TokenPA,TokenAdd,TokenVar "x",TokenNum 3,TokenPC,TokenPC]
   \end{minted}
 
   \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
     ghci> lexer "((lambda (x) (+ x 1)) 5)"
     [TokenPA,TokenPA,TokenLambda,TokenPA,TokenVar "x",TokenPC,
-      TokenPA,TokenAdd,TokenVar "x",TokenNum 1,TokenPC,TokenPC,TokenNum 5,TokenPC]
+      TokenPA,TokenAdd,TokenVar "x",TokenNum 1,TokenPC,TokenPC,
+      TokenNum 5,TokenPC]
   \end{minted}
   
 \end{itemize}
@@ -272,7 +274,8 @@ Las demás expresiones funcionan igual, dan error en el \texttt{Parser} con una 
   \end{minted}
 
   \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
-    ghci> tokens = lexer "(cond [(< x 0) (- 0 x)] [(= x 0) 0] [else (+ x 1)])"
+    ghci> tokens = lexer "(cond [(< x 0) (- 0 x)] [(= x 0) 0]
+                                [else (+ x 1)])"
     ghci> parse tokens
     Cond [(Less [Var "x",Num 0],Sub [Num 0,Var "x"]),
       (Equal [Var "x",Num 0],Num 0)] (Add [Var "x",Num 1])
@@ -870,7 +873,10 @@ Como ejemplos de ejecución tenemos:
 
 El intérprete genera internamente la siguiente definición:
 \[
-\texttt{(letrec (fib (lambda (n) (if0 n 0 (if0 (- n 1) 1 (+ (fib (- n 1)) (fib (- n 2))))))) (fib 7))}
+\texttt{(letrec (fib (lambda (n)}
+\]
+\[
+\quad \quad \texttt{(if0 n 0 (if0 (- n 1) 1 (+ (fib (- n 1)) (fib (- n 2))))))) (fib 7))}
 \]
 
 Estas funciones de prueba no sólo demuestran la expresividad del lenguaje donde el sistema de evaluación de\minilisp{-0.2cm} maneja correctamente la recursión, sino también que la implementación del combinador \textbf{Z} y las expresiones \texttt{letrec} permiten definir y evaluar funciones complejas sin necesidad de estructuras externas. Además, muestran cómo el menú interactivo puede extenderse para admitir comandos personalizados que simplifican la interacción del usuario con el intérprete.

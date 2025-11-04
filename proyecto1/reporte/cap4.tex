@@ -337,7 +337,7 @@ A continuación, esta función se aplica (\texttt{AppC}) al valor \texttt{v} cor
 
 Además, \texttt{LetStar} -como también se  mencionó en la sección anterior- es simplemente azúcar sintáctica de \texttt{Let}. El \texttt{LetStar} permite escribir múltiples asignaciones secuenciales en un mismo bloque, pero semánticamente equivale a una serie de \texttt{Let} anidados. Su desazucarización se implementa recursivamente, construyendo un \texttt{Let} por cada par \texttt{(id, valor)} y utilizando como cuerpo el siguiente \texttt{LetStar}, hasta llegar al cuerpo final.\\
 
-Por otro lado tenemos el caso del \texttt{LetRec} :
+Por otro lado tenemos el caso del \texttt{LetRec}:
 
 \begin{lstlisting}[style=haskellstyle, caption={Desazucarización de LetRec}]
   desugar :: ASA -> AST

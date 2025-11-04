@@ -937,7 +937,13 @@ gramaticales y sus respectivas reglas para \textbf{ASA}.
   (\texttt{if 0 1 -1}) \Rightarrow \texttt{If0} (\texttt{Num 0}) (\texttt{Num 1}) (\texttt{Num -1})
   \]
   \[
-  (\texttt{cond [}(\texttt{> x 0})\texttt{ 1] [}(\texttt{< x 0})\texttt{ 2] [else 3]}) \Rightarrow \texttt{Cond [}(\texttt{Greater [Var "x", Num 0], Num 1}) (\texttt{Less [Var "x", Num 0], Num 2})] (\texttt{Num 3})
+  (\texttt{cond [}(\texttt{> x 0})\texttt{ 1] [}(\texttt{< x 0})\texttt{ 2] [else 3]})
+  \]
+  \[
+  \Rightarrow
+  \]
+  \[
+  \texttt{Cond [}(\texttt{Greater [Var "x", Num 0], Num 1}) (\texttt{Less [Var "x", Num 0], Num 2})] (\texttt{Num 3})
   \]
   
 \item \textbf{Funciones y aplicación.}
@@ -952,7 +958,13 @@ gramaticales y sus respectivas reglas para \textbf{ASA}.
   \]
   \[
   \hspace{-1.8cm}
-  ((\texttt{lambda} (\texttt{x y}) (\texttt{+ x y})) \texttt{2 3}) \Rightarrow \texttt{App} (\texttt{Lambda [``x'', ``y'']} (\texttt{Add [Var ``x'', Var ``y'']}) \texttt{[Num 2, Num 3]})
+  ((\texttt{lambda} (\texttt{x y}) (\texttt{+ x y})) \texttt{2 3})
+  \]
+  \[
+  \Rightarrow
+  \]
+  \[
+  \texttt{App} (\texttt{Lambda [``x'', ``y'']} (\texttt{Add [Var ``x'', Var ``y'']}) \texttt{[Num 2, Num 3]})
   \]
   
 \item \textbf{Listas y operaciones sobre listas.}  

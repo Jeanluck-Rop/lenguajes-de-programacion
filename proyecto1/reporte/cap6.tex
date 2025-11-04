@@ -1,8 +1,7 @@
 \chapter{Puntos Estrictos}
+Este es un capítulo corto pero escencial y crucial para la implementación de nuestro intéprete del lenguaje, ya que al meter recursión de la forma tradicional (como se explica en el capitulo 4 y 5), la manera en la que hemos planteado la evaluación hasta ahora necesita ser remodelada.\\
 
-Este es un capítulo corto pero escencial y crucial para la implementación de nuestro intéprete del lenguaje, ya que al meter recursión de la forma tradicional, la manera en la que hemos planteado la evaluación hasta ahora necesita ser remodela.\\
-
-Para evitar los de variables no definidas al utilizar recursion y combinadores, debemos volver a\minilisp perezo, es decir, debemos reeplantear la estrategia de evaluacion de\minilisp de glotón a perezoso.
+Para evitar el problema de las variables no definidas al utilizar recursion y combinadores, debemos volver a\minilisp perezo, es decir, debemos reeplantear la estrategia de evaluacion de\minilisp de glotón a perezoso.
 
 Al usar evaluación perezosa, existen ciertos puntos dentro de la implementación en los que no puede
 postergarse la evaluación.
@@ -27,13 +26,86 @@ Para aplicar este mecanismo, sí o sí necesitamos nuestras reglas semánticas d
 
 \begin{itemize}
 \item AddV(i,d):
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle AddV(i,d), \varepsilon \rangle \to \langle AddV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle AddV(NumV(n),d), \varepsilon \rangle \to \langle Add(NumV(n),d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle AddV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n +_{\Z} m), \varepsilon \rangle}
+  \]
 \item SubV(i,d):
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle SubV(i,d), \varepsilon \rangle \to \langle SubV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle SubV(NumV(n),d), \varepsilon \rangle \to \langle SubV(NumV(n),d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle SubV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n -_{\Z} m), \varepsilon \rangle}
+  \]
 \item MulV(i,d):
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle MulV(i,d), \varepsilon \rangle \to \langle MulV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle MulV(NumV(n),d), \varepsilon \rangle \to \langle MulV(NumV(n),d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle MulV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n *_{\Z} m), \varepsilon \rangle}
+  \]
 \item DiV(i,d):
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle DiV(i,d), \varepsilon \rangle \to \langle DiV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle DiV(NumV(n),d), \varepsilon \rangle \to \langle DiV(NumV(n),d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle DiV(NumV(n),NumV(0)), \varepsilon \to \text{Error en la ejecución de la evaluación}}
+  \]
+  \[
+  \frac{}{ \langle DiV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n\ /_{\Z}\ m), \varepsilon \rangle} \quad (m \neq 0)
+  \]
 \item SqrtV(n):
+\[
+  \frac{\langle n, \varepsilon \rangle \to \langle n', \varepsilon \rangle}{\langle SqrtV(n), \varepsilon \rangle \to \langle SqrtV(n'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{n < 0}{\langle SqrtV(NumV(n)), \varepsilon \to \text{Error en la ejecución de la evaluación}}
+  \]
+  \[
+  \frac{}{\langle SqrtV(NumV(n)), \varepsilon \rangle \to \langle NumV(\sqrt{n}_{\N}), \varepsilon \rangle}  \quad (n \geq 0)
+  \]
 \item NotV(b):
-\item EqualV(i,d):
+\[
+  \frac{\langle b, \varepsilon \rangle \to \langle n', \varepsilon \rangle}{\langle NotV(b), \varepsilon \rangle \to \langle NotV(b'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle NotV(BoolV(b)), \varepsilon \rangle \to \langle BoolV(\neg_{\P}b) \varepsilon \rangle}
+  \]
+  
+\item EqualV(i,d
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle EqualV(i,d), \varepsilon \rangle \to \langle EqualV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle EqualV(NumV(n),d), \varepsilon \rangle \to \langle EqualV(NumV(n),d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle EqualV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n =_{\Z} m), \varepsilon \rangle}
+  \]
 \item LessV(i,d):
+  \[
+  \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle LessV(i,d), \varepsilon \rangle \to \langle LessV(i',d), \varepsilon \rangle}
+  \]
+  \[
+  \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle LessV(NumV(n),d), \varepsilon \rangle \to \langle LessV(NumV(n),d'), \varepsilon \rangle}
+  \]
+  \[
+  \frac{}{\langle LessV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n <_{\Z} m), \varepsilon \rangle}
+  \]
 \item GreaterV(i,d):
 \item DiffV(i,d):
 \item LeqV(i,d):

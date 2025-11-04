@@ -105,7 +105,6 @@ Las closures permiten implementar correctamente \textit{scoping léxico}, asegur
 \subsection{Estados Finales en\minilisp}
 
 Definimos los estados finales para el lenguaje\minilisp{-0.2cm}:
-
 \begin{align*}
   F = &\{\, Num_{V}(n) \mid n \in \Z\,\}\: \cup \:\{\, Boolean_{V}(b) \mid b \in \{True,False\}\,\}\: \cup \:\{\, Pair_{V}(f,s) \mid f,s\in F\,\}\: \cup \\
   &\{\, Cons_{V}(h,t) \mid h,t\in C\,\}\: \cup \:\{\, Nil_{V} \mid \text{ es la lista vacía}\}\: \cup \\
@@ -488,7 +487,7 @@ De manera general, nuestro intérprete debe:
 
 Es importante destacar que, dado que nuestra semántica es de paso pequeño (\textit{small-step}), el intérprete refleja explícitamente la evolución del programa a través de múltiples transiciones, lo cual facilita tanto la verificación formal como la depuración y el entendimiento del proceso de ejecución.
 
-Con este componente, obtenemos un sistema completo: comenzamos con la especificación formal, definimos su semántica, y finalmente construimos un ejecutor funcional que sigue rigurosamente dichas reglas. Esto garantiza que el lenguaje \texttt{MINILISP} no solo está formalmente fundamentado, sino que también es operacionalmente realizable.
+Con este componente, obtenemos un sistema completo: comenzamos con la especificación formal, definimos su semántica, y finalmente construimos un ejecutor funcional que sigue rigurosamente dichas reglas. Esto garantiza que el lenguaje\minilisp no solo está formalmente fundamentado, sino que también es operacionalmente realizable.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
