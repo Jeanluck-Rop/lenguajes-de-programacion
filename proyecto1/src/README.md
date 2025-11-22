@@ -1325,7 +1325,7 @@ CallStack (from HasCallStack):
 ```
 [MiniLisp]> (let* ((x 2)) (+ x 3))
 5
-[MiniLisp]> (let* ((x 2) (y (+ x 3)) (z (* y 2))) (+ x y z))
+[MiniLisp]> (let ((x 2) (y (+ x 3)) (z (* y 2))) (+ x y z))
 17
 ```
 

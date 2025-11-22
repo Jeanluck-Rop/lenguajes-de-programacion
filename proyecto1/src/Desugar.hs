@@ -38,7 +38,7 @@ desugar (If c t e) = IfC (desugar c) (desugar t) (desugar e)
 desugar (Cond cs e) = desugarCond cs e
 --Lets
 desugar (Let iv b) = desugarLet iv b
-desugar (LetStar [] body) = desugar body
+desugar (LetStar [] body) = desugar body--anidar abstracciones que apunten a funciones
 desugar (LetStar (iv:ivs) b) = desugar (Let [iv] (LetStar ivs b))
 --Let recursivo
 desugar (LetRec i v b) = desugar (Let [(i, App (Var "Z") [Lambda [i] v])] b)
