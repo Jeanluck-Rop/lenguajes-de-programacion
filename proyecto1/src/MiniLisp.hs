@@ -21,8 +21,8 @@ combZ = "(lambda (f) ((lambda (x) (f (lambda (v) ((x x) v)))) (lambda (x) (f (la
 
 -- Evaluamos el combinador Z
 z :: ASV
---z = eval (toFinalState $ desugar $ parse $ lexer combZ) []
-z = evalS (desugar $ parse $ lexer combZ) []
+z = eval (toFinalState $ desugar $ parse $ lexer combZ) []
+--z = evalS (desugar $ parse $ lexer combZ) []
 
 
 -- Punto de entrada principal
@@ -66,8 +66,8 @@ run input =
         let asa = parse tokens
         let ast = desugar asa
         --let asv = eval (toFinalState ast) []
-        --let asv = eval (toFinalState ast) [("Z", z)]
-        let asv = evalS (ast) [("Z", z)]
+        let asv = eval (toFinalState ast) [("Z", z)]
+        --let asv = evalS (ast) [("Z", z)]
         putStrLn (saca asv))
     errors
 

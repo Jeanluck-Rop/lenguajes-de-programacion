@@ -36,10 +36,17 @@ desugar (Snd p) = SndC (desugar p)
 desugar (If0 c t e) = IfC (EqualC (desugar c) (NumC 0)) (desugar t) (desugar e)
 desugar (If c t e) = IfC (desugar c) (desugar t) (desugar e)
 desugar (Cond cs e) = desugarCond cs e
+
 --Lets
+{-- VERSION SIN CORRECCIONES--}
+--desugar (Let iv b) = desugarLet iv b
+--desugar (LetStar [] body) = desugar body--anidar abstracciones que apunten a funciones
+--desugar (LetStar (iv:ivs) b) = desugar (Let [iv] (LetStar ivs b))
+
+{-- VERSION CORREGIDA --}
 desugar (Let iv b) = desugarLet iv b
-desugar (LetStar [] body) = desugar body--anidar abstracciones que apunten a funciones
-desugar (LetStar (iv:ivs) b) = desugar (Let [iv] (LetStar ivs b))
+desugar (LetStar ivs body) = desugarLetStar ivs body
+
 --Let recursivo
 desugar (LetRec i v b) = desugar (Let [(i, App (Var "Z") [Lambda [i] v])] b)
 --Expresiones lambda
@@ -72,10 +79,28 @@ desugarCond :: [(ASA, ASA)] -> ASA -> AST
 desugarCond [] e = desugar e
 desugarCond ((c, t):cs) e = IfC (desugar c) (desugar t) (desugarCond cs e)
 
---Funciones auxiliares para desazucarar let
+--Funciones auxiliares para desazucarar lets
+
+{-- VERSION SIN CORRECCIONES --}
+-- Este desazucarizacion crea una transformacion secuencial, no paralelo.
+-- Debemos crear una sola lambda con todos los parametros.
+--desugarLet :: [(String, ASA)] -> ASA -> AST
+--desugarLet [] b = desugar b
+--desugarLet ((p, v):ps) b = AppC (FunC p (desugarLet ps b)) (desugar v)
+
+{-- VERSION CORREGIDA --}
+--Let Paralelo
+--Creamos una sola lambda con los parametros y aplicando los valores en paralelo
 desugarLet :: [(String, ASA)] -> ASA -> AST
-desugarLet [] b = desugar b
-desugarLet ((p, v):ps) b = AppC (FunC p (desugarLet ps b)) (desugar v)
+desugarLet ivs body =
+  foldl AppC (desugarLmb params body) (map (desugar . snd) ivs)
+  where
+    params = map fst ivs -- Extraemos solo los nombres para construir una unica abstraccion
+--Let* Secuencial
+--Anidamos las lambdas de forma secuencial
+desugarLetStar :: [(String, ASA)] -> ASA -> AST
+desugarLetStar [] b = desugar b
+desugarLetStar ((p,v):ps) b = AppC (FunC p (desugarLetStar ps b)) (desugar v)
 
 --Funcion auxiliar para desazucarar las funcioneslambda
 desugarLmb :: [String] -> ASA -> AST

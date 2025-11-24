@@ -139,19 +139,35 @@ pasito (IfV c t e) env             = let (c', env') = pasito c env
                                      in (IfV c' t e, env')
 --Funciones
 pasito (FunV p c) env = (Closure p c env, env)
+
 --Aplicacion de funciones
+
+{-- VERSION SIN CORRECCIONES --}
+-- Evaluamos 'a' en el ambiente de ejecución (env), no en el ambiente capturado por el closure (env').
+-- Es por ello que se evalua el ambiente incorrecto y nos provoca variables libres con el combinador Z
+--pasito (AppV (Closure p c env') a) env
+--  | isValue a = (c, (p, a):env')
+--  | otherwise =
+--    let (a', env'') = pasito a env
+--    in (AppV (Closure p c env') a', env'')  
+--pasito (AppV f a) env = let (f', env') = pasito f env
+--                        in (AppV f' a, env')
+
+{-- VERSION CORREGIDA --}
+-- Evaluamos el argumento usando el ambiente actual, pero la aplicación final usará env'
+-- (el ambiente capturado), manteniendo el alcance estático de manera adecuada.
 pasito (AppV (Closure p c env') a) env
-  | isValue a = (c, (p, a):env')
+  | isValue a = (c, (p,a) : env')
   | otherwise =
-    let (a', env'') = pasito a env
-    in (AppV (Closure p c env') a', env'')  
+    let (a', env') = pasito a env
+    in (AppV (Closure p c env') a', env')
 pasito (AppV f a) env = let (f', env') = pasito f env
                         in (AppV f' a, env')
 
 
 {-- Funcion mirarriba (lookup) para la busqueda de variables en el ambiente --}
 mirarriba :: String -> Env -> ASV
-mirarriba i [] = error ("Var '" ++ i ++ "' no definida")
+mirarriba i [] = error ("Variable 'Var " ++ i ++ "' no definida")
 mirarriba i ((j, v):e)
   | i == j = v
   | otherwise = mirarriba i e
