@@ -4,21 +4,18 @@ componentes esenciales y en cómo se relacionan entre sí, ignorando los detalle
 escritos por el usuario (detalles necesarios para nosotros como programadores, pero generalmente irrelevantes
 para el intérprete).
 
-Está enfocada en capturar la \textbf{lógica} y \textbf{jerarquía} del programa dejando de lado elementos
-puramente sintácticos como los paréntesis o el formato. Formalizar en ella nos permitirá desarrollar un
-intérprete más eficiente y robusto, ya que nos facilita la detección de errores, la optimización del código y de
-incorporar en un futuro nuevas funcionalidades sin mayor problema. Justo como en todo nuestro campo de trabajo,
+Está enfocada en capturar la \textbf{lógica} y \textbf{jerarquía} del programa dejando de lado elementos puramente sintácticos como los paréntesis o el formato. Formalizar en ella nos permitirá desarrollar un intérprete más eficiente y robusto, ya que nos facilita la detección de errores, la optimización del código y de incorporar en un futuro nuevas funcionalidades sin mayor problema. Justo como en todo nuestro campo de trabajo,
 buscamos hacer que nuestro código sea expandible y para ello tenemos que definir una estructura sólida desde el
 comienzo.\\
 
 En comparación con la sintaxis concreta, la sintaxis abstracta es más clara y simple, pues elimina los detalles
 sintácticos (como paréntesis), enfocándose en la estructura lógica de las operaciones. Esta simplificación
 reduce la complejidad del análisis y mejora la eficiencia de las herramientas que operan sobre el código, como
-analizadores, optimizadores e intérpretes.
+analizadores, optimizadores e intérpretes\cite{HyU}.
 
 Mientras la sintaxis concreta nos da una representación más cercana al lenguaje humano (legible y expresiva), la sintaxis abstracta nos brinda una representación más adecuada para el procesamiento automático. Ambas son
 complementarias: la primera facilita la escritura del código, y la segunda permite su interpretación y
-evaluación.\\
+evaluación\cite{HyU - PierceBC}.\\
 
 Cabe mencionar que existe un concepto intermedio denominado \textbf{azúcar sintáctica}, el cual se refiere a
 aquellas construcciones del lenguaje que hacen más legible el código sin agregar nueva funcionalidad. En
@@ -33,14 +30,14 @@ más adelante en este aspecto al tratar la reducción de expresiones y la elimin
 \section{Árboles de Sintaxis Abstracta}
 A menudo, la sintaxis abstracta suele representarse como un \textit{\textbf{Árbol de Sintaxis Abstracta}}. Esta
 es una representación jerárquica modela la estructura lógica del programa: cada nodo del árbol corresponde a una
-construcción del lenguaje, y las hojas representan valores o identificadores.
+construcción del lenguaje, y las hojas representan valores o identificadores \cite{HyU}.
 
 A diferencia de la sintaxis concreta, en un \textbf{ASA} los paréntesis, comas y demás símbolos delimitadores no
 se representan explícitamente, pues su propósito es estructural, no semántico. Lo que sí se conserva es la
 relación jerárquica entre las partes del programa: qué elementos dependen de otros y cómo se combinan.\\
 
 Formalmente, un \textit{Árbol de Sintaxis Abstracta} puede definirse como una tupla ordenada $A =$ ($N, E, R$)
-donde:
+donde \cite{HyU - PierceBC}:
 
 \begin{itemize}
   \item $N$ es un conjunto finito de \textbf{nodos}, que representan las construcciones del lenguaje mediante etiquetas y las hojas representan a sus respectivos valores.
@@ -70,11 +67,11 @@ intuitiva, cada expresión definida en la gramática tiene su respectiva etiquet
 
 Hacemos la pequeña pero importante aclaración de que, las expresiones para pares, listas, aplicación de funciones
 , etc., que no hayamos definido una palabra reservada o algún caracter que el usuario deba escribir para
-identificarlos como tales, tendrán su etiqueta. Pues aunque no tengas estas palabras clave, se disntinguen por
+identificarlos como tales, tendrán su etiqueta. Pues aunque no tengas estas palabras reservadas, se disntinguen por
 su sintaxis definida en la gramática.
 
 Con un extraordinario uso de la imaginación, tenemos las siguientes etiquetas para nuestras expresiones
-de\minilisp\hspace{-0.2cm} y definimos la descripción de sus reglas:
+de\minilisp\hspace{-0.2cm} y definimos la descripción de sus reglas de formación de las expresiones en la sintaxis abstracta (ASA):
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Expresiones atómicas}
@@ -127,8 +124,21 @@ de\minilisp\hspace{-0.2cm} y definimos la descripción de sus reglas:
   \]
 \end{itemize}
 
-Las reglas anteriores podemos considerarlas como los \textit{nodos hoja} de\minilisp\hspace{-0.2cm} ya que no
-tenemos que evaluar nada más.
+Las reglas anteriores podemos considerarlas como los \textit{nodos hoja} de\minilisp\hspace{-0.2cm} (no requieren descomponerse en subexpresiones).
+
+\begin{tcolorbox} [title=\textbf{Corrección 6: aclaración sobre el uso de tipos de Haskell}, colframe=red!75!black, colback=red!5!white]
+
+El uso de los tipos \texttt{String}, \texttt{Int} y \texttt{Bool} no implica que la definición de la 
+sintaxis abstracta de nuestra implementación de MINILISP dependa del lenguaje anfitrión Haskell. Estos nombres se emplean 
+únicamente como notación conveniente para referirnos, respectivamente, a cadenas, números enteros 
+y valores booleanos del lenguaje MINILISP. 
+
+La sintaxis abstracta del lenguaje es independiente del lenguaje de implementación; las expresiones 
+atómicas \texttt{Var(s)}, \texttt{Num(n)} y \texttt{Boolean(b)} se definen por sus propiedades en 
+MINILISP, no por los tipos del entorno de programación utilizado para construir el intérprete.
+
+\end{tcolorbox}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -342,6 +352,12 @@ modo tenemos los dos casos:
   
 \end{itemize}
 
+\begin{tcolorbox} [title=\textbf{Corrección 7: Sobre citar el formato}, colframe=red!75!black, colback=red!5!white]
+
+La notación utilizada en esta parte del proyecto se basa principalmente en las notas de clase del profesor\cite{ref4} Esta misma notación se puede encontrar en textos fundamentales como Types and Programming Languages de Pierce \cite{PierceBC} y Compilers: Principles, Techniques, and Tools \cite{ref2}.
+
+\end{tcolorbox}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Predicados y comparaciones}
@@ -500,25 +516,24 @@ Para el resto de expresiones, son \textbf{ASA} $n$-$arios$ y cada uno debe termi
 \subsection{Expresiones Let y Términos $\lambda$}
 Para estas reglas tenemos un caso especial, ya que no todas las expresiones en cada regla involucradas son
 variádicas. A diferencia de los operadores aritméticos, aquí las estructuras del \textbf{ASA} reflejan la
-manera en que se manejan los entornos y la aplicación de funciones dentro de nuestro lenguaje\minilisp\hspace{-0.2cm}.\\
+manera en que se manejan los ambientes y la aplicación de funciones dentro de nuestro lenguaje\minilisp\hspace{-0.2cm}.\\
 
 En primer lugar, las expresiones de tipo \texttt{let}, \texttt{let*} y \texttt{letrec} se utilizan para
 introducir nuevas asociaciones de variables dentro de un entorno local. Demanera informal, una expresión
 \texttt{let} consta de tres elementos básicos: \textbf{identificadores}, \textbf{valores} y un \textbf{cuerpo}.
-\\
 
 Como se pudo ver en la \textbf{Sintaxis Concreta}, las tres expresiones \texttt{let} tienen el par de
 (\textbf{identificador} \textbf{valor}) y una tercera expresión que vendría siendo el \textbf{body}, con la
-característica de que \texttt{let} y \texttt{let*} tienen el par de asignación variádico.\\
+característica de que \texttt{let} y \texttt{let*} tienen el par de asignación variádico.
 
 Cada una de estas construcciones se representa en el \textbf{ASA} mediante una lista de pares (\texttt{Var},
 \texttt{ASA}), donde cada par asocia un identificador con su correspondiente expresión. De este modo, el
 analizador sintáctico puede reconstruir de manera estructurada las relaciones entre las variables y sus valores
-dentro del entorno.\\
+dentro del entorno.
 
 En particular:
 \begin{itemize}
-\item \texttt{let} define un nuevo entorno donde las variables se evalúan en paralelo (\textbf{alcance estático}).
+\item \texttt{let} define un nuevo ambiente donde las variables se evalúan en paralelo (\textbf{alcance estático}).
 \item \texttt{let*} permite una evaluación secuencial, donde las definiciones anteriores pueden ser utilizadas
   en las siguientes (\textbf{alcance dinámico}).
 \item \texttt{letrec} introduce definiciones recursivas, es decir, variables que pueden hacer referencia a sí
@@ -552,6 +567,30 @@ Por lo que una vez explicado lo anterior, tenemos las siguientes reglas:
 \end{minipage}
 
 \vspace{1cm}
+
+\begin{tcolorbox}[title=\textbf{Corrección 8: aclaración del término “valor” en Let, LetRec y LetStar}, colframe=red!75!black, colback=red!5!white]
+
+En las reglas anteriores el término “valor” fue un uso impreciso. En la sintaxis abstracta de 
+MINILISP, los argumentos \texttt{v}, \texttt{v\_i} o \texttt{v\_j} de los constructores 
+\texttt{Let}, \texttt{LetRec} y \texttt{LetStar} pueden ser \textbf{cualquier expresión ASA}, 
+no necesariamente un valor ya evaluado. 
+
+Por lo tanto, estas reglas deben entenderse como:
+
+\begin{itemize}
+    \item \texttt{LetRec(i, v, b)} es un ASA si \texttt{i} es un identificador y 
+    \texttt{v} y \texttt{b} son expresiones ASA.
+    \item \texttt{Let((i\_1, v\_1), …, (i\_n, v\_n), b)} es un ASA si cada 
+    \texttt{i\_k} es un identificador y cada \texttt{v\_k} y \texttt{b} son expresiones ASA.
+    \item Lo mismo aplica para \texttt{LetStar}.
+\end{itemize}
+
+El uso anterior de la palabra “valor” no debe interpretarse como una restricción semántica en 
+la sintaxis; únicamente se quiso indicar que \texttt{v} y \texttt{v\_i} son componentes 
+expresivos, pero no necesariamente valores finales.
+
+\end{tcolorbox}
+
 
 \hspace{-1.2cm}
 \begin{minipage}[t]{0.45\textwidth}
@@ -601,10 +640,10 @@ Por lo que una vez explicado lo anterior, tenemos las siguientes reglas:
 \vspace{1cm}
 
 Por otra parte, tenemos los términos $\lambda$, para dicha implementación recordemos que los términos lambda se
-dividen en: \textbf{variables}, \textbf{abstracciones $\lambda$} y la aplicación de funciones.\\
+dividen en: \textbf{variables}, \textbf{abstracciones $\lambda$} y la aplicación de funciones\cite{ref9}.\\
 
 Nuestras funciones \texttt{Lambda} se representan en el \textbf{ASA} como una lista de encabezados y una
-expresión que constituye el cuerpo de la función, que vendrían sinedo las \textbf{variables} y
+expresión que constituye el cuerpo de la función, que vendrían siendo las \textbf{variables} y
 \textbf{abstracciones} $\lambda$.
 
 Cada parámetro debe ser un identificador válido, por lo que en el \textbf{ASA} estos terminan \textbf{ASA} de
@@ -621,7 +660,7 @@ esta forma, una aplicación representa el proceso de evaluar una función con su
 
 De este modo, la estructura del \textbf{ASA} distingue entre dos partes:
 \begin{enumerate}
-\item Como explicamos, la primer expresión representa la función que será aplicada (intuitivamente una expresión \texttt{Lambda} en nuestro lenguaje), esta no es variádica.
+\item Como explicamos, la primer expresión representa la función que será aplicada (una expresión \texttt{Lambda} en nuestro lenguaje).
 \item La segunda expresión corresponde a un lista de $n$ argumentos sobre los cuales se aplicará la función anterior, y sí es variádica, ya que puede contener un número arbitrario ($n$) de expresiones.
 \end{enumerate}
 
@@ -994,12 +1033,31 @@ gramaticales y sus respectivas reglas para \textbf{ASA}.
 Produndizaremos más en esto y veremos las pruebas de que nuestra implementación es correcta en la siguiente
 sección.
 
+\begin{tcolorbox}[title=\textbf{Corrección 9: Aclaración sobre la notación $\Rightarrow$ }, colframe=red!75!black, colback=red!5!white]
+La notación $\Rightarrow$ utilizada en los ejemplos no debe interpretarse como una regla formal de 
+reescritura ni como una transformación sintáctica completa. Su propósito es únicamente 
+ilustrar la correspondencia entre una expresión concreta y su representación en la 
+Sintaxis Abstracta (ASA). 
+
+En una implementación real, la traducción desde la sintaxis concreta hacia el ASA es un 
+proceso \textbf{recursivo y composicional}: cada subexpresión se transforma de manera independiente 
+y luego se combinan sus resultados. Esto se realiza en el código, pero no se especificó 
+formalmente en esta sección.
+
+En particular, el constructo \texttt{SugarAdd} no fue introducido como un constructor 
+variádico propio; cualquier azúcar sintáctica de este tipo se descompone automáticamente 
+en aplicaciones del constructor \texttt{Add} durante la fase de construcción del ASA. Por ello, 
+las expresiones del estilo \texttt{(+ x)} o \texttt{(+ (+ 1 2) 3)} quedan representadas como 
+estructuras anidadas de \texttt{Add}, sin que $\Rightarrow$ denote una transformación formal que deba 
+definirse recursivamente en esta sección.
+\end{tcolorbox}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Parser con Happy}
 Happy es es un sistema generador de \textbf{analizadores sintácticos} (\textit{parsers}) para Haskell. Su
 función es transformar una especificación de una \textbf{gramática libre de contexto}, escrita en una notación
-similar a \textbf{BNF}, en un módulo de Haskell que implementa automáticamente el parser correspondiente.\\
+similar a \textbf{BNF}, en un módulo de Haskell que implementa automáticamente el parser correspondiente\cite{ref7}.\\
 
 En nuestro caso, Happy toma como entrada el conjunto de \textit{Tokens} producidos por nuestro \texttt{Lexer}
 en Alex, y construye a partir de ellos una estructura de ASA (definida en \texttt{ASA.hs}), que representa el
@@ -1009,7 +1067,7 @@ La idea central al usar Happy es definir formalmente la gramática de\minilisp\h
 genere el código que realice el proceso de parseo. Esto nos permite integrar el módulo generado
 (\texttt{Grammar.hs}) al resto del proyecto, de modo que podamos transformar cualquier secuencia de \textit{Tokens} válida en una estructura \textbf{ASA} con azúcar. De este modo podemos desazucarala sin problemas y una vez desazucarada, tener la estructura semántica lista para ser evaluada por nuestro intérprete.\\
 
-En Happy, cada producción de la gramática se asocia con una acción semántica en Haskell, que construye el nodo correspondiente en el \textbf{ASA}. De este modo, Happy no solo valida la estructura del programa, sino que también construye automáticamente la representación estructural.\\
+En Happy, cada producción de la gramática se asocia con una acción semántica en Haskell, que construye el nodo correspondiente en el \textbf{ASA}. De este modo, Happy no solo valida la estructura del programa, sino que también construye automáticamente la representación estructural\cite{ref7}.\\
 
 Mostramos a continuación nuestra implementación del \textbf{analizador léxico} con Happy.
 
@@ -1052,6 +1110,7 @@ No hay mucho que enfatizar en el comienzo y definición de errores del parser, s
 \[
 \texttt{parse :: [Token]} \rightarrow \texttt{ASA}
 \]
+
 y será el punto de entrada del parser.
 
 \item \texttt{$\%$tokentype \{ Token \}}: especifica el tipo de dato que Happy debe esperar como entrada
@@ -1220,10 +1279,10 @@ Estas reglas complementarias definen la estructura interna de las construcciones
 \item \texttt{opArgs}: permite operadores aritméticos con un número variable de argumentos.
   La forma \texttt{[$\$$2, $\$$1]} y \texttt{($\$$2 : $\$$1)} implementa recursión por izquierda.
   Gracias a ello, el parser consume la entrada de forma eficiente, usando espacio constante en la pila.
-  Luego, \texttt{reverse} corrige el orden de evaluación.
+  Luego, \texttt{reverse} corrige el orden de evaluación\cite{ref7}.
   Con esta regla nos aseguramos que los operadores aritméticos dados por el usuario tengan al menos dos
   expresiones \texttt{ASA} \texttt{ASA} para ser válidos.
-  
+
 \item \texttt{ids} e \texttt{id}: definimos los pares \texttt{(var ASA)} de las expresiones \texttt{let}, \texttt{id} verifica que sea un par correcto y \texttt{ids} acumula los pares variádicos.
   
 \item \texttt{vars}: define las listas de variables, lo usamos para la lista de encabezados para la expresión
@@ -1249,9 +1308,15 @@ de tiempo y memoria de manera significativa.
 Por ello utilizamos \textit{recursión por izquierda} de la forma \texttt{\{ [$\$$2, $\$$1]\}} y \texttt{\{$\$$2 : $\$$1\}}, así construimos la lista de expresiones variádicas hacia la izquierda y, apoyándonos de \texttt{reverse}, hacemos que esta lista de expresiones vuelva al orden de como el usuario escribió las reglas.\\
 
 \bigskip
+\begin{tcolorbox}[title=\textbf{Corrección 10: Justificación con citas}, colframe=red!75!black, colback=red!5!white]
+
+La razón por la cual usamos \textit{recursión izquierda} en Happy es porque así podemos definir las reglas de producción de forma más eficiente, ya que construimos el resultado del parser en una sola pasada utilizando espacio constante en la pila. Como señala \cite{ref2}, las gramáticas left-recursive son preferidas en el parsing bottom-up porque permiten un uso más eficiente de la pila, evitando el desbordamiento que puede ocurrir con recursión derecha en secuencias largas. La documentación de Happy \cite{ref7} confirma que este enfoque maneja reglas left-recursive de manera eficiente usando espacio constante en la pila, mientras que la \textit{recursión por derecha} podría incrementar la complejidad de tiempo y memoria de manera significativa.
+
+Por ello utilizamos \textit{recursión por izquierda} de la forma \texttt{\{ [\$2, \$1]\}} y \texttt{\{\$2 : \$1\}}, así construimos la lista de expresiones variádicas hacia la izquierda. Como explica \cite{ref6}, esta técnica de acumulación con seguida de \texttt{reverse} es una práctica común en programación funcional para construir listas eficientemente mientras se mantiene el orden correcto final. 
+\end{tcolorbox}
 
 \noindent
-Y así, como hemos visto en el caítulo, el estudio y la construcción de la \textbf{sintaxis abstracta}
+Y así, como hemos visto en el capítulo, el estudio y la construcción de la \textbf{sintaxis abstracta}
 representan uno de los pasos más importantes en el diseño de un lenguaje de programación (como es el caso con
 nuestra implementación de\minilisp\hspace{-0.2cm}). A través del \textit{Árbol de Sintaxis Abstracta (ASA)},
 logramos capturar la estructura esencial de los programas sin los elementos superficiales de la \textbf{sintaxis
@@ -1260,7 +1325,7 @@ representación no solo facilita el análisis y la transformación del código, 
 implementar de manera más limpia y coherente cada parte del lenguaje.\\
 
 \noindent
-Sin embargo, nuestro\minilisp\hspace{-0.2cm} aún no está listo para pasar directamente a la etapa del intérpretE. Aunque el \textbf{ASA} ya elimina mucho del "ruido" sintáctico, todavía contiene construcciones que, si las evaluáramos directamente, requerirían una gran cantidad de reglas semánticas adicionales. Por eso, antes de interpretar, necesitamos un paso intermedio: el proceso de \textbf{desazucarización}, distinguir la \textbf{azúcar sintáctica} y eliminarla.\\
+Sin embargo, nuestro\minilisp\hspace{-0.2cm} aún no está listo para pasar directamente a la etapa del intérprete. Aunque el \textbf{ASA} ya elimina mucho del ruido sintáctico, todavía contiene construcciones que, si las evaluáramos directamente, requerirían una gran cantidad de reglas semánticas adicionales. Por eso, antes de interpretar, necesitamos un paso intermedio: el proceso de \textbf{desazucarización}, distinguir la \textbf{azúcar sintáctica} y eliminarla.\\
 
 \noindent
 Lo que buscamos es simplificar aún más nuestra \textbf{sintaxis abstracta}, transformando las construcciones más complejas o redundantes en formas más básicas que el intérprete pueda manejar de manera uniforme.

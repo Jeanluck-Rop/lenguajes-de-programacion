@@ -26,11 +26,30 @@ Para nuestro lenguaje\minilisp\hspace{-0.2cm}, como una introducción a la imple
 
 \begin{itemize}
   \item \textbf{Variables.}
-  \item \textbf{Números entero.}
+  \item \textbf{Números enteros.}
   \item \textbf{Booleanos.}
   \item \textbf{Operadores aritméticos.}
   \item \textbf{Predicados y comparaciones.}
-  \item \textbf{Asignaciones y funciones.}
+
+%%% Corrección 1 %%%%
+  \begin{tcolorbox}[title=\textbf{Corrección 1: Diferencia entre predicados y comparaciones}, colframe=red!75!black, colback=red!5!white]
+    \begin{itemize}
+    \item \textbf{Comparaciones}:  
+    Son expresiones cuyo propósito es evaluar una relación entre dos valores, típicamente numéricos.  
+    Ejemplos característicos incluyen \texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=}, \texttt{=}.  
+    Estas operaciones devuelven un valor booleano, pero su propósito principal es \emph{evaluar una relación matemática}.
+
+    \item \textbf{Predicados}:  
+    Un predicado es cualquier función que \textbf{produce un valor booleano} como resultado.  
+    Pueden implementar comparaciones, pero también pueden realizar verificaciones más complejas, como:  
+    En nuestro caso en especial por predicados nos referimos especificamente al \texttt{not}.
+    \end{itemize}
+
+En resumen, \textbf{todas las comparaciones son predicados}, pero \textbf{no todos los predicados son comparaciones}.  
+Las comparaciones se limitan a relaciones matemáticas entre valores; los predicados abarcan cualquier función cuyo resultado sea un booleano.
+\end{tcolorbox}
+
+  \item \textbf{Asignaciones (aplicación de funciones) y funciones anónimas.}
   \item \textbf{Pares ordenados y proyecciones.}
   \item \textbf{Condicionales.}
   \item \textbf{Listas.}
@@ -45,9 +64,9 @@ que se convierten en programas válidos del lenguaje. Mientras que la \textit{si
 \textbf{reglas formales de escritura} que garantizan que un programa pueda ser reconocido y analizado
 correctamente. Su correcta definición es fundamental para el funcionamiento del analizador léxico
 (\textit{Lexer}) y del analizador sintáctico (\textit{Parser}), ya que determina las entradas válidas que ambos
-deben procesar. Esto se logra mediante un \textbf{Análisis léxico} y un \textbf{Análisis sintáctico}.
+deben procesar. Esto se logra mediante un \textbf{Análisis léxico} y un \textbf{Análisis sintáctico}\cite{ref2}.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%2.1 Sintaxis léxiva listo %%%%%%%
 
 \section{Sintaxis Léxica}
 La definición léxica se establece mediante un conjunto de \textbf{expresiones regulares}, las cuales constituyen
@@ -55,7 +74,7 @@ la base formal sobre la que se construyen los componentes básicos de un lenguaj
 Dichas expresiones definen los patrones válidos de caracteres que pueden formar identificadores, números,
 operadores, palabras reservadas y otros símbolos que componen el vocabulario fundamental del lenguaje.
 
-En pocas palabras, citando al profesor:
+En pocas palabras, citando algo mencionado por profesor en clase:
 \begin{quote}
   ``\textit{Formalmente, la sintaxis léxica se define usando \textbf{expresiones regulares} y \textbf{autómatas finitos}}.''
 \end{quote}
@@ -68,10 +87,12 @@ sino que se encarga de definir los elementos básicos que lo conforman.
 
 En términos prácticos, esta especificación léxica permitirá posteriormente implementar un \textit{analizador
   léxico}, encargado de recorrer la entrada del usuario y separar cada componente del programa según las reglas
-aquí definidas.
+aquí definidas\cite{ref2}.
+
+%%%%%% 2.1.1 Analisis Léxico %%%%%
 
 \subsection{Análisis Léxico}
-Nuestra sintaxis se constituye de un \textbf{Análisis léxico}. El análisis léxico constituye la fase inicial en
+Nuestra sintaxis se constituye apartir de un \textbf{análisis léxico}. El análisis léxico constituye la fase inicial en
 el proceso de interpretación de lenguajes de programación. Cumple una función fundamental dentro del proceso de
 compilación o interpretación, ya que actúa como un filtro inicial entre el texto fuente escrito por el usuario
 y las estructuras sintácticas que procesará el analizador sintáctico.\\
@@ -82,12 +103,12 @@ representan las unidades mínimas con significado léxico en nuestro lenguaje (p
 sobre el tipo de elemento reconocido y, cuando es relevante, su valor específico.
 
 \begin{quote}
-  Definimos una función $\texttt{lexer:} \sum^* \rightarrow \texttt{[}Token\texttt{]}$, que toma una cadena de caracteres y produce la lista de $tokens$ según las expresiones regulares que hayamos definido en nuestro lenguaje.
+  Definimos una función $\texttt{lexer:} \sum^* \rightarrow \texttt{[}Token\texttt{]}$, que toma una cadena de caracteres y produce la lista de $tokens$ según las expresiones regulares que hayamos definido en nuestro lenguaje.\cite{ref4}
 \end{quote}
 
 Anteriormente hicimos una breve mención de las expresiones que nuestro\minilisp va a manejar en la sintaxis
 léxica. Ya que el propósito de este proyecto es académico, basta con implementar los tipos de datos más simples,
-como lo son los números (\texttt{Num})y booleanos (\texttt{Boolean}), también implementamos cadenas
+como lo son los números (\texttt{Num}) y booleanos (\texttt{Boolean}), también implementamos cadenas
 (\texttt{String}) pero no tendremos ningún programa que opere con cadenas de caracteres, únicamente las usaremos
 como asignación de variables.
 
@@ -101,7 +122,7 @@ con dichos símbolos. Una vez tenemos encuenta todo lo anterior, definimos los s
 nuestro lenguaje\minilisp\hspace{-0.2cm}:
 
 \begin{itemize}
-  \item \textbf{Paréntesis:} \textbf{(} y \textbf{)}, con los que indicamos cuando comienzan y terminan nuestras expresion (por eso se llaman $delimitadores$).
+  \item \textbf{Paréntesis:} \textbf{(} y \textbf{)},con los que indicamos cuando comienzan y terminan nuestras expresion (por eso se llaman $delimitad6ores$).
   \item \textbf{Variables:} cualquier secuencia de caracteres de la forma $[a-z + A-Z][a-zA-Z0-9]^*$.
   \item \textbf{Números enteros:} $x \in \Z$.
   \item \textbf{Booleanos:} \texttt{\#t} (verdadero) y \texttt{\#f} (falso), junto con la negación \texttt{(not)}.
@@ -117,8 +138,34 @@ Como primera parte de nuestra implementación en Haskell del \textit{\textbf{an�
 palabra reservada \textcolor{mainkeywordcolor}{\texttt{data}} que nos permite definir nuevos tipos de datos y
 los constructores asociados a ellos.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Corrección 2 %%%%%
+\begin{tcolorbox}[title=\textbf{Corrección 2 - Tokens usando notación Regex}, colframe=red!75!black, colback=red!5!white]
 
+\begin{itemize}
+  \item \textbf{Paréntesis:} \verb+[\(|\)]+, son los delimitadores de expresiones.
+  \item \textbf{Variables:} \verb+[a-zA-Z][a-zA-Z0-9]*+.
+  \item \textbf{Números enteros:} \verb!-?[0-9]+!.
+  \item \textbf{Booleanos:} 
+    \begin{itemize}
+      \item \verb+\#t|\#f|not+
+    \end{itemize}
+  \item \textbf{Operadores aritméticos:} 
+    \begin{itemize}
+      \item \verb![+|-|*|\|add1|sub1|sqrt|**]!
+    \end{itemize}
+  \item \textbf{Predicados y comparaciones:} \verb+[=|!=|<=|>=|<|>]+.
+  \item \textbf{Asignaciones y funciones:} \verb+(let|let*|letrec|lambda)\b+
+  \item \textbf{Pares ordenados y proyecciones:} 
+    \begin{itemize}
+      \item \texttt{(first|second)} (proyecciones)
+      \item \texttt{,} (separador de pares)
+    \end{itemize}
+  \item \textbf{Condicionales:} \verb+(if|if0|cond)\b+.
+  \item \textbf{Listas:} \textbf{Corchetes:} \verb+[\[|\]|,|head|tail]+ que son los delimitadores de listas además sus elementos están separados por comas \texttt{,}, junto con operaciones básicas \texttt{head} y \texttt{tail}.
+\end{itemize}
+\end{tcolorbox}
+
+%%%%2.1.2 Tokens %%%%%%%%%%%%%%%%%%%%%%
 \subsection{Tokens}
 La estructura del tipo \textit{Token} son las piezas fundamentales que permiten construir la sintaxis del
 lenguaje de manera estructurada y libre de ambigüedades. Incluso, no solo nos permiten clasificar y representar
@@ -128,8 +175,15 @@ las unidades léxicas mínimas reconocibles por el lenguaje, sino que también f
 Para nuestro proyecto\minilisp definimos el tipo de dato \texttt{Token} en Haskell dentro del archivo
 \texttt{Tokens.hs}, con el cual representamos cada posible componente léxico del lenguaje.
 
+%%%%%%% Corrección 3 %%%%%%
+\begin{tcolorbox}[title=\textbf{Corrección 3: Corrección del parrafo sobre Tokens },colframe=red!75!black, colback=red!5!white]
+La estructura del tipo \textit{Token} son las piezas fundamentales del lenguaje, tales como paréntesis, números enteros, booleanos operadores aritméticos, palabras reservadas.Esto nos permite construir la sintaxis del
+lenguaje de manera estructurada y libre de ambigüedades. Además, los \textit{Token} facilitan el trabajo del parser, ya que convierten el texto en una secuencia de unidades léxicas claramente clasificadas, lo que permite aplicar las reglas sintácticas sin analizar caracteres individuales y reduce significativamente la complejidad del análisis.
+
+\end{tcolorbox}
 Queda definido como sigue:
 
+%%%% Tokens.hs %%%%%
 \begin{lstlisting}[style=haskellstyle, caption={Estructura de Tokens}]
   data Token
     = TokenVar String
@@ -174,7 +228,7 @@ Nótese que, los $Tokens$:\: \texttt{TokenVar}, \texttt{TokenNum}, \texttt{Token
 tipo de elemento reconocido, guardan su valor específico asociado a dichos $Tokens$ con los tipos de datos en el
 lenguaje anfitrión (\texttt{String}, \texttt{Int} y \texttt{Bool}).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%% Alex %%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Alex}
 Cada vez que el analizador léxico identifica un patrón en la entrada, genera el token correspondiente y al final,
@@ -183,7 +237,7 @@ Utilizamos la herramienta \texttt{Alex} que nos ayudará con la implementación 
     
 Alex es el generador de analizadores léxicos estándar para Haskell, toma una descripción de tokens basada en
 expresiones regulares y genera un Haskell \texttt{module} que contiene código para escanear texto de manera
-eficiente\cite{ref6}. Esta elección se fundamenta en varias ventajas significativas:
+eficiente. Esta elección se fundamenta en varias ventajas significativas \cite{ref6}:
 
 \begin{itemize}
 \item \textbf{Reducción de errores:} Alex automatiza la generación de código robusto, minimizando errores comunes en implementaciones manuales.
@@ -199,10 +253,8 @@ Implementamos Alex en el archivo \texttt{Lexer.x}, su estructura es la siguiente
 Lo primero que hacemos es importar los $Tokens$ definidos y construidos en el archivo \texttt{Tokens.hs} e
 importar \texttt{Data.Char} para usar la función \texttt{isSpace} con la que normalizaremos espacios Unicode.\\
 
-Después, definimos los patrones básicos que establecen los bloques fundamentales para construir patrones más
-complejos, promoviendo la reutilización y claridad. Estas líneas no son código Haskell, sino instrucciones para
-Alex, con ellos le indicamos a Alex: ``\textit{Cuando veas \$digit en las reglas, reemplázalo por 0-9}''. Lo
-mismo para $\$alpha$ con \texttt{[a-zA-Z]} y $\$alphnum$ \texttt{[a-zZ-Z0-9]}.\\
+Después, definimos los patrones básicos que establecen los bloques fundamentales para construir patrones más complejos, promoviendo la posibilidad de reutilizar el código y claridad. Estas líneas no son código Haskell, sino instrucciones para Alex, con ellos le indicamos a Alex: ``\textit{Cuando veas \$digit en las reglas, reemplázalo por 0-9}''. Lo
+mismo para $\$alpha$ con \texttt{[a-zA-Z]} y $alphnum$ \texttt{[a-zZ-Z0-9]}.\\
 
 Además de incluir con la definición de los espacios ($whitespaces$): espacio ASCII ($\backslash$ x20), tabulador
 ($\backslash$ x09), LF ($\backslash$ x0A), CR ($\backslash$ x0D), FF ($\backslash$ x0C), VT ($\backslash$ x0B).
@@ -247,8 +299,8 @@ estructura de los programas en\minilisp.\\
 Cada una de estas reglas dentro del analizador léxico de Alex consta de dos componentes principales:
 
 \begin{itemize}
-\item \textbf{Patrón o expresión regular:} Es la secuencia de caracteres que el lexer debe reconocer. En este
-  caso, se trata de los símbolos estructurales o palabras clave como \texttt{(}, \texttt{let}, \texttt{+}, etc.
+\item \textbf{Expresión regular:} Es la secuencia de caracteres que el lexer debe reconocer. En este
+  caso, se trata de los símbolos estructurales o palabras reservadas como \texttt{(}, \texttt{let}, \texttt{+}, etc.
   Cabe mencionar que estos caracteres pueden definirse de manera personalizada; sin embargo, para mantener la
   coherencia con la notación tradicional de los lenguajes de programación, utilizamos los símbolos comúnmente
   aceptados, como \texttt{+} para la suma y \texttt{-} para la resta.  
@@ -260,14 +312,13 @@ Cada una de estas reglas dentro del analizador léxico de Alex consta de dos com
   y \texttt{TokenPA} es el constructor del token que se devuelve al análisis sintáctico.
 \end{itemize}
 
-Es importante resaltar el caso de las \textbf{palabras reservadas}, como \texttt{let*}, \texttt{letrec},
+Es importante resaltar el caso de los \textbf{operadores} \texttt{let*}, \texttt{letrec},
 \texttt{!=}, \texttt{add1}, entre otros. En el diseño del lexer, estas reglas deben escribirse \textit{antes} que
 las reglas más generales o más cortas (por ejemplo, \texttt{let}, \texttt{<}, \texttt{!}, \texttt{+}).\\
 
 Esto se debe a que el generador de analizadores léxicos Alex aplica la estrategia conocida como \textit{longest
   match}, que selecciona la coincidencia más larga posible. En caso de empate entre dos patrones de igual
-longitud, prevalece la primera regla definida en el archivo.\\
-
+longitud, prevalece la primera regla definida en el archivo\cite{ref6 - ref2}.\\
 Por lo tanto, si definiéramos la regla de \texttt{let} antes que \texttt{let*}, la cadena \texttt{let*} nunca
 coincidiría correctamente, ya que la primera regla (más corta) interceptaría el patrón. Este ordenamiento de las
 reglas garantiza un análisis léxico preciso y evita ambigüedades en el reconocimiento de tokens.
@@ -352,7 +403,7 @@ Finalmente, definimos la firma del \texttt{lexer} como \texttt{lexer :: String -
 función esencial del \textit{análisis léxico}: recibir una cadena de entrada (el código fuente escrito por el
 usuario en nuestro lenguaje\minilisp\hspace{-0.2cm}) y transformarla en una secuencia de \texttt{Tokens} reconocibles.\\
 
-En el capítulo dedicado a los \textbf{Resultados}, se muestran distintos ejemplos de
+En el capítulo dedicado a los \textbf{resultados}, se muestran distintos ejemplos de
 ejecución de esta módulo, donde mostramos la $tokenización$ de expresiones dadas dentro del lenguaje\minilisp\hspace{-0.2cm}.
 
 \footnotetext{Para realizar el lexer tomamos como referencia lo visto en clase con el profesor y el material compartido en su GitHub, además de usar la documentación oficial de Alex\cite{ref4} para desarrollar nuestro lexer.}
@@ -360,14 +411,14 @@ ejecución de esta módulo, donde mostramos la $tokenización$ de expresiones da
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%%%%%% 2.2 Sintaxis Libre de Contexto %%%%%
 \section{Sintaxis Libre de Contexto}
 La \textit{\textbf{sintaxis libre de contexto}} se refiere a la estructura de un lenguaje de programación en la
 que las reglas de formación de sus sentencias se pueden describir mediante una gramática libre de contexto. En
 ella especificamos cómo se pueden combinar las secuencias de \textit{tokens} para formar expresiones y
 sentencias válidas para el lenguaje. Sin la gramática no podemos darle la estructura necesaria a para que, tanto el usuario como el interprete puedan hacer su trabajo.\\
 
-En otras palabras, la \textit{\textbf{sintaxis libre de contexto}} constituye el \textit{esqueleto sintáctico} del lenguaje. Si el \textbf{análisis léxico} segmenta la entrada en \textit{Tokens}, el \textbf{análisis sintáctico} (guiado por una \textit{gramática libre de contexto}) se encarga de verificar que dichos $Tokens$ se ensamblen de manera coherente conforme a las reglas del lenguaje. Sin una gramática bien definida, no sería posible darle forma ni estructura a los programas escritos en\minilisp\hspace{-0.2cm}, ni mucho menos permitir que el intérprete los procese correctamente. Necesitamos de la gramática para dar orden, decidir qué aceptamos y cómo lo aceptamos, de este modo damos más formalidad y menos ambigüedad al lenguaje.
+En otras palabras, la \textit{\textbf{sintaxis libre de contexto}} constituye el \textit{esqueleto sintáctico} del lenguaje. Si el \textbf{análisis léxico} segmenta la entrada en \textit{Tokens}, el \textbf{análisis sintáctico} (guiado por una \textit{gramática libre de contexto}) se encarga de verificar que dichos $Tokens$ se ensamblen de manera coherente conforme a las reglas del lenguaje. Sin una gramática bien definida, no sería posible darle forma ni estructura a los programas escritos en\minilisp\hspace{-0.2cm}, ni mucho menos permitir que el intérprete los procese correctamente. Necesitamos de la gramática para dar orden, decidir qué aceptamos y cómo lo aceptamos, de este modo damos más formalidad y menos ambigüedad al lenguaje \cite{ref3}.
 
 \subsection{La gramática de\minilisp}
 Según Hopcroft y Ullman es su libro \textit{\textbf{Introduction to Automata Theory, Languages, and Computation}}~\cite{HyU}, una \textit{\textbf{gramática libre de contexto}} se define formalmente como una tupla:
@@ -392,7 +443,7 @@ solución a la necesidad de definir de manera clara y precisa la sintaxis de los
 Sin embargo, aunque \textbf{BNF} es efectiva, tiene ciertas limitaciones en términos de expresividad,
 especialmente para describir repeticiones y agrupaciones de una manera más compacta.
 
-Con la notación \textbf{EBNF}:
+Con la notación \textbf{EBNF} \cite{iso14977} :
 \begin{itemize}
 \item Las \textbf{variables} o no terminales se denotan entre los símbolos \texttt{<}\texttt{>}.
 \item Las \textbf{reglas de producción} se escriben con el operador \texttt{::=}.
@@ -402,11 +453,22 @@ Con la notación \textbf{EBNF}:
 
 \bigskip
 
+\begin{tcolorbox}[title=\textbf{Corrección 4 - Notación EBNF y justificación de su uso}, colframe=red!75!black, colback=red!5!white]
+En este proyecto utilizamos la notación EBNF conforme al estándar \texttt{ISO/IEC 14977:1996(E)}, en el que se establece lo siguiente: 
+\begin{itemize}
+\item \texttt{::=} para las reglas de producción.
+\item \texttt{<...>} para los no terminales.
+\item \texttt{{...}} para indicar repetición de cero o mas elementos.
+\item \texttt{[...]} para indicar opcionalidad.
+\item \texttt{|} para alternativas.
+
+Elegimos este estándar porque es ampliamente utilizado en especificación formal de lenguajes de programación y coincide con la notación empleada en las notas de clase y en las herramientas académicas del curso (Alex, Happy y la gramática de MINILISP). Su expresividad permite describir la sintaxis de MINILISP de forma precisa, compacta y sin ambigüedades.
+\end{itemize}
+
+\end{tcolorbox}
+
 De esta manera, cada producción de la gramática define cómo los \textit{tokens} generados por el analizador
-léxico (como \texttt{TokenAdd}, \texttt{TokenIf}, \texttt{TokenLet}, etc.) se combinan para formar expresiones
-válidas en el lenguaje. Recordemos que en la sección de \textbf{Sintaxis Léxica} se estableció la correspondencia
-entre patrones de texto y sus respectivos tokens; ahora, en esta etapa, esos mismos tokens se convierten en los
-símbolos terminales de nuestra gramática.\\
+léxico (como \texttt{TokenAdd}, \texttt{TokenIf}, \texttt{TokenLet}, etc.) se combinan para formar expresiones válidas en el lenguaje. Recordemos que en la sección de \textbf{sintaxis léxica} se estableció la correspondencia entre patrones de texto y sus respectivos tokens; ahora, en esta etapa, esos mismos tokens se convierten en los símbolos terminales de nuestra gramática.\\
 
 Las reglas sintácticas que definen la forma de las expresiones en esta versión de\minilisp\ son las siguientes:
 \begin{itemize}
@@ -420,7 +482,6 @@ Las reglas sintácticas que definen la forma de las expresiones en esta versión
 \end{itemize}
 
 \newpage
-
 Con esto explicado, definimos la Gramática para\minilisp\hspace{-0.2cm} en notación \textbf{EBNF} como sigue:
 
 \begin{tcolorbox}[colback=azulin!5!white, colframe=azulin!80, title=Gramática\minilisp]
@@ -469,31 +530,39 @@ Con esto explicado, definimos la Gramática para\minilisp\hspace{-0.2cm} en nota
 
 \bigskip
 
+%%%%%%%
+\begin{tcolorbox} [title=\textbf{Corrección 5: Aclaración sobre los corchetes y su papel en la gramática}, colframe=red!75!black, colback=red!5!white]
+En esta producción, los símbolos \texttt{"["} y \texttt{"]"} \textbf{sí son terminales} del lenguaje MINILISP. Se escriben entre comillas para distinguirlos de los corchetes usados por la notación EBNF, donde \texttt{[\,]} indica opcionalidad. 
+
+Por tanto:
+\begin{itemize}
+    \item \texttt{"["} y \texttt{"]"} representan \emph{los corchetes literales} que el usuario escribe en la sintaxis concreta para formar listas.
+    \item Los corchetes sin comillas \texttt{[\,]} siguen siendo parte de la notación EBNF, e indican que el contenido es opcional.
+\end{itemize}
+
+Además vamos a definir de manera no ambigüa \texttt{<Var>} y \texttt{<Num>}:
+\begin{verbatim}
+\texttt{<Var>} ::= \texttt{[A-Za-z][A-Za-z0-9]*
+\texttt{<Num>} ::= \texttt{-?[0-9]+}
+\end{verbatim}
+
+\end{tcolorbox}
+
 Como se puede apreciar, definimos en las reglas para la gramática, que los operadores aritméticos(suma, resta,
-multiplicación y división) que son variádicos, efectivamente lo sean. Decidimos forzar que cada uno de ellos
-reciba al menos dos expresiones, ya que el uso de las llaves \texttt{{}} en la notación \textbf{EBNF} indica que
-puede haber cero o más repeticiones. Por ello, cualquier invocación de un operador aritmético con menos de dos
-operandos no será aceptada por el lenguaje.\\
+multiplicación y división) que son variádicos, efectivamente lo sean. Decidimos forzar que cada uno de ellos reciba al menos dos expresiones, ya que el uso de las llaves \texttt{{}} en la notación \textbf{EBNF} indica que puede haber cero o más repeticiones. Por ello, cualquier invocación de un operador aritmético con menos de dos operandos no será aceptada por el lenguaje.\\
 
 En contraste, los operadores de incremento y decremento se definieron para aceptar únicamente una expresión. Ya
 que así modelamos su comportamiento natural: ambos operan sobre un solo valor, aumentando o disminuyendo su
 contenido en una unidad. De forma similar, en el caso de la raíz cuadrada, solo se requiere una expresión, dado
-que su propósito es calcular la raíz cuadrada de un único número.
-Para el operador del exponente, decidimos mantener el mismo comportamiento, por lo que en nuestro lenguaje, este
-operador eleva al cuadrado el valor de la expresión proporcionada, así solo necesita de un argumento. El operador
-not, su regla también refleja ese uso unario, pues su función es negar el valor booleano de un único argumento.\\
+que su propósito es calcular la raíz cuadrada de un único número. Para el operador del exponente, decidimos mantener el mismo comportamiento, por lo que en nuestro lenguaje, este operador eleva al cuadrado el valor de la expresión proporcionada, así solo necesita de un argumento. El operador not, su regla también refleja ese uso unario, pues su función es negar el valor booleano de un único argumento.\\
 
-De manera análoga a los operadores aritméticos, las operaciones de comparación (=, <, >, <=, >=, !=), al también
-ser definidos como variádicos, exigimos que al menos se especifiquen dos expresiones y damos la posibilidad de
-que haya más, ya que una sola no permitiría realizar una comparación válida.\\
+De manera análoga a los operadores aritméticos, las operaciones de comparación (=, <, >, <=, >=, !=), al también ser definidos como variádicos, exigimos que al menos se especifiquen dos expresiones y damos la posibilidad de que haya más, ya que una sola no permitiría realizar una comparación válida.\\
 
 En cuanto a las expresiones de asignación y alcance como \texttt{let}, \texttt{letrec} y \texttt{let*},
-establecimos que debe haber al menos un par \texttt{(\nt{Var} \nt{Expr})}, permitiendo además la inclusión de
-múltiples pares adicionales. Así reflejamos la posibilidad de definir una o más asociaciones dentro de un mismo
-bloque, manteniendo la flexibilidad solicitada para el proyecto.
+establecimos que debe haber exactamente un par \texttt{(\nt{Var} \nt{Expr})} como mínimo, permitiendo además la inclusión de
+múltiples pares adicionales. Así reflejamos la posibilidad de definir una o más asociaciones dentro de un mismo bloque, manteniendo la flexibilidad solicitada para el proyecto.
 
-Smilarmente con la aplicación de funciones y las funciones $\lambda$, donde especificamos que debe haber almenos
-, una variable para la función lambda y  dos expresiones expresiones para la aplicación de función: donde la
+Similarmente con la aplicación de funciones y las funciones $\lambda$, donde especificamos que debe haber al menos una variable para la función lambda y  exactamente dos expresiones expresiones para la aplicación de función: donde la
 primera corresponde a la función a aplicar y la segunda a su primer argumento; seguidas opcionalmente de más
 variables para la función o más argumentos para la aplicación. Con esto aseguramos que la aplicación de
 funciones y las funciones lambda siempre sean válidas y tengan sentido semántico.\\
@@ -502,8 +571,7 @@ Por último, cabe resaltar que en nuestra gramática el uso de los corchetes \te
 propósitos: En \textbf{EBNF}, los corchetes se utilizan para denotar opcionalidad, sin embargo, en \minilisp
 decidimos emplear comillas dobles \texttt{""} alrededor de los corchetes literales (\texttt{"["} y \texttt{"]"})
 para distinguirlos de los usados por la notación formal. De esta manera, los corchetes con comillas representan
-la sintaxis concreta del lenguaje (las listas y condicionales \texttt{cond}), mientras que los corchetes sin
-comillas siguen indicando opcionalidad en la notación formal. Así, la regla:
+la sintaxis concreta del lenguaje (las listas y condicionales \texttt{cond}), mientras que los corchetes sin comillas siguen indicando opcionalidad en la notación formal. Así, la regla:
 
 \[
 \text{\texttt{"[" [ \nt{Expr} \{ "," \nt{Expr} \} ] "]"}}
@@ -512,6 +580,7 @@ comillas siguen indicando opcionalidad en la notación formal. Así, la regla:
 permite definir listas que pueden estar vacías o contener una o más expresiones separadas por comas,
 representando correctamente la flexibilidad del manejo de listas dentro del lenguaje.
 
+%%%%%%% 2.2.2 Análisis sintáctico %%%%%%
 \subsection{Análisis sintáctico}
 Una vez definida la \textbf{gramática libre de contexto} para \minilisp, podemos pasar a la etapa de \textbf{análisis sintáctico}, también conocida como \textit{parsing}.
 
@@ -519,41 +588,37 @@ Como bien mencionamos, mientras que el \textbf{análisis léxico} se encarga de 
 en una secuencia de \textit{Tokens}, el \textbf{análisis sintáctico} tiene la tarea de verificar que dicha
 secuencia respete las reglas estructurales del lenguaje, tal como fueron establecidas por la gramática.\\
 
-En otras palabras, el analizador sintáctico organiza los tokens generados por el \texttt{lexer} conforme a las
-producciones de la gramática, construyendo una representación jerárquica del programa. Esta representación se
-denomina \textbf{árbol de sintaxis abstracta} (\textit{ASA} o \textit{Abstract Syntax Tree}-\textbf{AST}), el
-cual captura la estructura lógica del programa, eliminando detalles superficiales como los paréntesis o
-separadores que solo sirven para dar forma a la sintaxis concreta.\\
+En otras palabras, el analizador sintáctico organiza los tokens generados por el \texttt{lexer} conforme a las producciones de la gramática, construyendo una representación jerárquica del programa. Esta representación se
+denomina \textbf{árbol de sintaxis abstracta} (\textit{ASA} o \textit{Abstract Syntax Tree}-\textbf{AST}), el cual captura la estructura lógica del programa, eliminando detalles superficiales como los paréntesis o separadores que solo sirven para dar forma a la sintaxis concreta \cite{ref4}.\\
 
 Formalmente, definimos una función sintáctica \texttt{parser}:
+
 \[
-\text{\texttt{parser: [Token]}} \rightarrow \text{\texttt{ASA}}
+\text{parser} : \text{Token}^{*} \rightarrow \text{ASA}
 \]
+
 
 Toma una secuencia de tokens y produce un \textbf{árbol de sintaxis abstracta} ($ASA$) según la gramática. Si el
 programa no respeta las reglas de sintaxis, este árbol no puede ser construido, lo que implica un \textbf{error
   sintáctico}.\\
 
-El análisis sintáctico representa entonces, una etapa intermedia y esencial dentro del proceso de interpretación:
-traduce la estructura lineal de los tokens en una forma jerárquica que puede ser fácilmente interpretada y
+El análisis sintáctico representa entonces, una etapa intermedia y esencial dentro del proceso de interpretación: traduce la estructura lineal de los tokens en una forma jerárquica que puede ser fácilmente interpretada y
 evaluada por etapas posteriores de\minilisp\hspace{-0.2cm}.
 
 \bigskip
 
 \noindent
-Con todo lo visto en este capítulo, podemos concebir la \textit{\textbf{Sintaxis Concreta}} de nuestro lenguaje
-como la composición funcional entre el \textbf{analizador léxico} y el \textbf{analizador sintáctico}, donde
+Con todo lo visto en este capítulo, podemos concebir la \textit{\textbf{Sintaxis Concreta}} de nuestro lenguaje como la composición funcional entre el \textbf{analizador léxico} y el \textbf{analizador sintáctico}, donde
 ambos trabajan en conjunto para transformar una cadena de caracteres en una estructura interna coherente:
+
+
 \[
-\text{\texttt{(parser}} \circ \text{\texttt{lexer):}}\;\; \Sigma^{*} \rightarrow \text{\texttt{ASA}}
+\text{lexer} : \Sigma^{*} \rightarrow \text{Token}^{*}
 \]
 
 donde $\Sigma^{*}$ representa todas las cadenas posibles de símbolos del alfabeto del lenguaje, y \textbf{ASA}
-(\textit{Árbol de Sintaxis Abstracta}) es la estructura resultante. Y con esto cubrimos las fases que onforman
-el puente entre la entrada textual del usuario y las representaciones internas que permiten la evaluación del
+(\textit{Árbol de Sintaxis Abstracta}) es la estructura resultante. Y con esto cubrimos las fases que onforman el puente entre la entrada textual del usuario y las representaciones internas que permiten la evaluación del
 lenguaje.\\
 
 \noindent
-A partir de este punto, continuaremos con las definiciones formales que dan estructura interna a nuestro lenguaje
-\minilisp\hspace{-0.2cm}, entramos en el tema de la construcción del \textbf{Árbol de Sintaxis Abstracta} y la
-implementación del \textbf{analizador sintáctico} (\textit{parser}) usando Happy.
+A partir de este punto, continuaremos con las definiciones formales que dan estructura interna a nuestro lenguaje \minilisp\hspace{-0.2cm}, entramos en el tema de la construcción del \textbf{árbol de sintaxis abstracta} y la implementación del \textbf{analizador sintáctico} (\textit{parser}) usando Happy.

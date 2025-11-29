@@ -18,6 +18,11 @@ Desarrollar e implementar una versión extendida del lenguaje \textbf{MiniLisp} 
     \item Definir formalmente la sintaxis léxica y libre de contexto del lenguaje, incluyendo operadores, estructuras de control y mecanismos de definición local.
     \item Implementar un analizador léxico y un analizador sintáctico utilizando las herramientas \textbf{Alex} y \textbf{Happy}, respectivamente.
     \item Diseñar la sintaxis abstracta usando dos niveles, un \textbf{ASA} con azúcar sintáctica y \textbf{AST} como núcleo del lenguaje.
+    \begin{tcolorbox}[title=Corrección 1: (Objetivos) (Módulo que corresponde), colframe=red!75!black, colback=red!5!white ]
+    \begin{enumerate}[start=3]
+    \item Diseñar la sintaxis abstracta del lenguaje utilizando dos representaciones: Un ASA con azúcar sintáctica y un AST que repesenta el núcleo sin azúcar en nuestra implementación.
+    \end{enumerate}
+    \end{tcolorbox}
     \item Desarrollar un módulo de eliminación de azúcar sintáctica (\textbf{Desugar}) que traduzca expresiones superficiales a su representación mínima.
     \item Implementar un intérprete funcional (\textbf{Interp}) basado en la semántica operacional, utilizando ambientes y \textbf{evaluación ansiosa} (eager evaluation).
     \item Proveer una interfaz interactiva que permita ejecutar programas escritos en la sintaxis concreta de \textbf{MINILISP}.
@@ -34,3 +39,12 @@ El proyecto se reduce al diseño e implementación de un subconjunto de \textbf{
     \item La semántica implementada se limita al \textbf{nivel estructural}, sin considerar aspectos de optimización, compilación ni concurrencia.
     \item El alcance del proyecto comprende la construcción del \textbf{intérprete}, no un compilador ni un entorno gráfico.
 \end{itemize}
+
+\begin{tcolorbox}[title=Corrección 2: Objetivos (Módulo ), colframe=red!75!black, colback=red!5!white]
+\begin{itemize}
+    \item La semántica implementada se restringe al nivel estructural (small-step),
+describiendo únicamente reglas de transición paso a paso, sin incluir análisis
+estático y optimizaciones.
+    \item El alcance del proyecto se restringe a la construcción del intérprete. Aunque los compiladores y los intérpretes comparten fases como el análisis léxico y sintáctico, este proyecto no aborda generación de código, optimización ni traducción a lenguaje maquina.  
+\end{itemize}
+\end{tcolorbox}
