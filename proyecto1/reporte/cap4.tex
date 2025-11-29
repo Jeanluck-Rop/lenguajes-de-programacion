@@ -1,4 +1,4 @@
-\chapter{Azúcar Sintáctica}
+6\chapter{Azúcar Sintáctica}
 El término \textit{azúcar sintáctica} \textit{(syntactic sugar)} fue introducido por Peter J.Landin en 1964. La azúcar sintáctica consiste en construcciones del lenguaje que pueden ser sistemáticamente traducidas a formas más básicas sin alterar la semántica del programa. Es decir, no añaden nuevas capacidades expresivas, sino que facilitan la escritura o lectura del código.
 
 Landin fue un pionero de la teoría de lenguajes de programación, utilizó el término para describir aquellas construcciones que, aunque convenientes para el programador, pueden eliminarse mediante una transformación mecánica sin modificar el significado del programa.
@@ -7,8 +7,8 @@ Landin fue un pionero de la teoría de lenguajes de programación, utilizó el t
   Landin uso este termino por primera vez en su trabajo sobre la correspondencia entre programación y cálculo lambda, específicamente en el artículo \textit{"The Next 700 Programming Languages"}~\cite{landin}, aunque la idea aparece en escritos de 1964.
 \end{quote}
 
-Continunado con nuestro proyecto. Una vez que hemos elimindo todos los elementos superficilaes y auxiliares de la sintaxis concreta y léxica para quedarnos únicamente con la represntación mínima y estructural del programa, es decir, el \textbf{Arbol de Sintaxis Abstracta} (ASA) logramos capturar la estructura esencial del programa. 
-Pasamos a la siguiente fase,reducir aún más estos \textbf{ASA} porque a pesar de ya haber eliminado los elementos superficiales de la Sintaxis Concreta, hay expresiones redundantes o que pueden representarse como otras,hacer esto nos reduce en mayor medida las reglas que debemos implementar al momento de la evaluación, en nuestra implementación pasamos de ASA (con azúcar sintáctica) a AST (sin azúcar sintáctica).
+Continunado con nuestro proyecto. Una vez que hemos elimindo todos los elementos superficilaes y auxiliares de la sintaxis concreta y léxica para quedarnos únicamente con la representación mínima y estructural del programa, es decir, el \textbf{Arbol de Sintaxis Abstracta} (ASA) logramos capturar la estructura esencial del programa. 
+Pasamos a la siguiente fase, reducir aún más estos \textbf{ASA} porque a pesar de ya haber eliminado los elementos superficiales de la Sintaxis Concreta, hay expresiones redundantes o que pueden representarse como otras, hacer esto nos reduce en mayor medida las reglas que debemos implementar al momento de la evaluación, en nuestra implementación pasamos de ASA (con azúcar sintáctica) a AST (sin azúcar sintáctica).
 
 Para explicar lo anterior con mas detalle tomaremos un ejemplo:
 \[
@@ -18,12 +18,27 @@ Para explicar lo anterior con mas detalle tomaremos un ejemplo:
 
 Estas expresiones \textbf{ASA} sin azúcar sintáctica pertenecen al conjunto que denominamos como \textit{núcleo}, o \textit{core}.
 
+\begin{tcolorbox} [title=\textbf{Corrección 11: Notación $\Rightarrow$}, colframe=red!75!black, colback=red!5!white]
 
+La notación $\Rightarrow$ utilizada en este capítulo no debe confundirse con la empleada en el 
+Capítulo 3. En la sección 3, la flecha $\Rightarrow$ la cual ya fue explicada en su respectiva corrección (9).
+
+En cambio, en el presente capítulo la notación $\Rightarrow$ sí representa una \textbf{transformación 
+sintáctica real}: la desugarización del ASA (con azúcar sintáctica) hacia un AST más básico 
+y uniforme. Aquí la flecha indica una operación semánticamente significativa y definida de 
+manera recursiva en nuestra implementación.
+
+Para evitar confusiones, aclaramos que ambos usos corresponden a procesos distintos: 
+(1) la construcción del ASA desde la sintaxis concreta, y (2) la eliminación de azúcar 
+sintáctica mediante reglas de desugarización.
+\end{tcolorbox}
+
+%%%%% 4.1 Sintaxis Abstracta sin azúcar %%%% 
 \section{Sintaxis Abstracta sin azúcar en\minilisp}
 
-Necesitamos definir una función que realice el prodecimientod e desazucarar los \textbf{ASA} en núcleos. Por lo que nombramos a esta función como \texttt{desugar} y queda definida como sigue:
+Necesitamos definir una función que realice el procedimiento e desazucarar los \textbf{ASA} en núcleos. Por lo que nombramos a esta función como \texttt{desugar} y queda definida como sigue:
 \[
-\texttt {desugar ::=} \Rightarrow \texttt{Sugared\_ASA} \rightarrow \texttt{Desugared\_ASA}
+\texttt {desugar :: =} \Rightarrow \texttt{Sugared\_ASA} \rightarrow \texttt{Desugared\_ASA}
 \]
   
 \begin{itemize}
@@ -34,30 +49,96 @@ Necesitamos definir una función que realice el prodecimientod e desazucarar los
   \texttt{desugar}(\texttt{SugarNum n}) $\Rightarrow$ \texttt{Num n}\\
   \texttt{desugar}(\texttt{SugarBool b}) $\Rightarrow$ \texttt{Bool b}
   \end{center}
+
+\begin{tcolorbox} [title=\textbf{Corrección 12: Corrección sobre SugarVar }, colframe=red!75!black, colback=red!5!white]
+Fue un error de notación en el texto. Intenté diferenciar visualmente el ASA del AST usando el prefijo Sugar.
+
+    \begin{center}
+    \texttt{desugar}(\texttt{Var } $i$) $\Rightarrow$ \texttt{VarC } $i$\\
+    \texttt{desugar}(\texttt{Num } $n$) $\Rightarrow$ \texttt{NumC } $n$\\
+    \texttt{desugar}(\texttt{Boolean } $b$) $\Rightarrow$ \texttt{BoolC } $b$
+    \end{center}
+\end{tcolorbox}
   
 \item \textbf{Operadores:}
   Nuestros operadores en su gran mayoría son variádicos, preservan la lista de ASA (los operandos), esto es azúcar sintáctica para el intérprete ya que nuestros operadores \texttt{+}, \texttt{-}, \texttt{*} y \texttt{/} son binarios. Por lo que podemos representar a los operadores variádicos como un encademiento del mismo. Por ejemplo:
   \begin{center}
   \texttt{desugar}(\texttt{SugarAdd[} $n_1,\:n_2,\ldots,\:n_k$\texttt{]}) $\Rightarrow$ \texttt{Add} $n_1$ (\texttt{Add} $n_2 \ldots$ (\texttt{Add} $n_{k-1}\; n_k$))
   \end{center}
+  
+\begin{tcolorbox} [title=\textbf{Corrección 13: Transformación composicional no entendida }, colframe=red!75!black, colback=red!5!white]
+\item \textbf{Operadores:}
+  Nuestros operadores en el ASA son variádicos (\texttt{Add}), preservan la lista de operandos. Esto es azúcar sintáctica para el intérprete, ya que en el núcleo (\texttt{AST}) nuestros operadores \texttt{AddC}, \texttt{SubC}, \texttt{MulC} y \texttt{DivC} son binarios.
+  Por lo que representamos la desazucarización como un plegado de la lista. Por ejemplo:
 
-  Para el caso de los operadores unarios, estos ya de por sí son azúcar sintáctica- a excepción de Sqrt el cuál es un operador único por lo que ya es \textit{núcleo} -. En el caso de \texttt{Add1} $n$ y \texttt{Sub1} $n$ podemos reexpreasarlos como  $n + 1$ y $n - 1$ respectivamente,y de manera similar con \texttt{Expt}, dado que en nuestro lenguaje representa elevar al cuadrado el número $n$, entonces \texttt{Expt} es azúcar sitáctica y lo reexpresamos como una multiplicación se $n \times n$:
+  \[
+  \texttt{desugar}(\texttt{Add }[e_1, e_2, \ldots, e_n]) \Rightarrow \texttt{AddC}(\texttt{desugar}(e_1), \texttt{desugar}(\texttt{Add}[e_2, \ldots, e_n]))
+  \]
+  
+\end{tcolorbox}
+  
+
+  Para el caso de los operadores unarios, estos ya de por sí son azúcar sintáctica a excepción de Sqrt el cuál es un operador único por lo que ya es \textit{núcleo}. En el caso de \texttt{Add1} $n$ y \texttt{Sub1} $n$ podemos reexpreasarlos como  $n + 1$ y $n - 1$ respectivamente, y de manera similar con \texttt{Expt}, dado que en nuestro lenguaje representa elevar al cuadrado el número $n$, entonces \texttt{Expt} es azúcar sitáctica y lo reexpresamos como una multiplicación se $n \times n$:
   \begin{center}
   \texttt{desugar}(\texttt{Add1 } $n$) $\Rightarrow$ \texttt{Add} $n$ $1$\\
   \texttt{desugar}(\texttt{SugarSqrt } $n$) $\Rightarrow$ \texttt{Sqrt} $n$\\
   \texttt{desugar}(\texttt{Expt} $n$) $\Rightarrow$ \texttt{Mul} $n$ $n$
   \end{center}
 
+
+\begin{tcolorbox} [title=\textbf{Corrección 14: Formalización de constructores con el prefijo Sugar}, colframe=red!75!black, colback=red!5!white]
+
+Para el caso de los operadores unarios, algunos son azúcar pura, a excepción de \texttt{Sqrt}, el cual se transforma directamente al constructor del núcleo \texttt{SqrtC}.
+  En el caso de \texttt{Add1} $n$ y \texttt{Sub1} $n$, podemos reexpresarlos como $n + 1$ y $n - 1$ utilizando los operadores binarios del núcleo y constantes numéricas. De manera similar con \texttt{Expt}, que representa elevar al cuadrado ($n \times n$):
+
+  \begin{center}
+  \texttt{desugar}(\texttt{Add1 } $n$) $\Rightarrow$ \texttt{AddC} (\texttt{desugar } $n$) (\texttt{NumC } 1)\\
+  \texttt{desugar}(\texttt{Sub1 } $n$) $\Rightarrow$ \texttt{SubC} (\texttt{desugar } $n$) (\texttt{NumC } 1)\\
+  \texttt{desugar}(\texttt{Sqrt } $n$) $\Rightarrow$ \texttt{SqrtC} (\texttt{desugar } $n$)\\
+  \texttt{desugar}(\texttt{Expt } $n$) $\Rightarrow$ \texttt{MulC} (\texttt{desugar } $n$) (\texttt{desugar } $n$)
+  \end{center}
+
+\end{tcolorbox}
+
 \item \textbf{Comparadores:}
-  En el caso de los comparadores, es muy similar su representación en \textbf{ASA} sin azúcar como lo fue para los operadores variádicos, ya que estos también lo son. El núcleo de cada comparadaor es el mismo pues forzosamente tenemos que definir uno  para cada uno de ellos, ya que necesitamos preservar el tipo de comparación. Sin embargo, a diferencia de los operadores, no es conveniente representarlos como un encademiento de comparadores, pues al evaluar la comparación entre dos números, el resultado es de tipo \texttt{Bool}Sino como un encademiento de condicionales if.
+  En el caso de los comparadores, es muy similar su representación en \textbf{ASA} sin azúcar como lo fue para los operadores variádicos, ya que estos también lo son. El núcleo de cada comparadaor es el mismo pues forzosamente tenemos que definir uno  para cada uno de ellos, ya que necesitamos preservar el tipo de comparación. Sin embargo, a diferencia de los operadores, no es conveniente representarlos como un encademiento de comparadores, pues al evaluar la comparación entre dos números, el resultado es de tipo \texttt{Bool}, sino como un encademiento de condicionales if.
   Donde la condición inicial es la comparación de los dos primeros argumentos y el consecuente son las comparaciones de la argumentos restantes, si alguna de las condiciones no se cumple entonces caemos en el else False y de otro modo las comparaciones son válidas y el resultado es \texttt{True}:
 
   \begin{center}
     \texttt{desugar}(\texttt{SugarEqual[} $n_1,\:n_2,\ldots,\:n_k$\texttt{]}) $\Rightarrow$ \texttt{If} (\texttt{Equal} $n_1$ $n_2$) (\texttt{Equal} $n_2$ $n_3$) $\ldots$ (\texttt{Equal} $n_{k-1}$ $n_k$) (\texttt{Bool False})
   \end{center}
 
+\begin{tcolorbox} [title=\textbf{Corrección 15: Transformación correcta del SugarEqual}, colframe=red!75!black, colback=red!5!white]
+
+La transformación correcta es un \textbf{encadenamiento de condicionales anidados} (\texttt{IfC}). La lógica es: comparamos los dos primeros elementos; si son iguales, procedemos a comparar el segundo con el tercero (en la rama \textit{then}), y así sucesivamente. Si alguna comparación falla, caemos inmediatamente en la rama \textit{else} con \texttt{BoolC False}.
+
+  \begin{center}
+    \texttt{desugar}(\texttt{Equal [} $n_1, n_2, \ldots, n_k$ \texttt{]}) $\Rightarrow$ \\
+    \texttt{IfC} (\texttt{EqualC} $n_1$ $n_2$)
+      (\texttt{IfC} (\texttt{EqualC} $n_2$ $n_3$) (\ldots \texttt{BoolC True}) (\texttt{BoolC False}))
+      (\texttt{BoolC False})
+  \end{center}
+
+  De este modo, respetamos que el constructo \texttt{IfC} del núcleo es ternario y no variádico.
+
+\end{tcolorbox}
+
 \item \textbf{Not y Pares:}
 \texttt{Not} y las \textbf{ASA} sobre pares \texttt{Pair}, \texttt{Fst} y \texttt{Snd} ya son núcleos, no hace falta definir una desazucarización específica.
+
+\begin{tcolorbox} [title=\textbf{Corrección 16: Pares y Not}, colframe=red!75!black, colback=red!5!white]
+\item \textbf{Not y Pares:}
+  Aunque los constructos \texttt{Not}, \texttt{Pair}, \texttt{Fst} y \texttt{Snd} tienen una correspondencia directa en el núcleo, en la implementación \textbf{sí} es necesario definir una regla de transformación explícita.
+  Esto se debe a que primero, debemos traducir del tipo de dato de la superficie (\texttt{ASA}) al tipo del núcleo (\texttt{AST}) cambiando los constructores (por ejemplo, de \texttt{Pair} a \texttt{PairC}) y ademas es indispensable propagar la desazucarización a sus sub-expresiones recursivamente.
+
+  \begin{center}
+    \texttt{desugar}(\texttt{Not } $e$) $\Rightarrow$ \texttt{NotC} (\texttt{desugar } $e$)\\
+    \texttt{desugar}(\texttt{Pair } $e_1$ $e_2$) $\Rightarrow$ \texttt{PairC} (\texttt{desugar } $e_1$) (\texttt{desugar } $e_2$)\\
+    \texttt{desugar}(\texttt{Fst } $e$) $\Rightarrow$ \texttt{FstC} (\texttt{desugar } $e$)\\
+    \texttt{desugar}(\texttt{Snd } $e$) $\Rightarrow$ \texttt{SndC} (\texttt{desugar } $e$)
+  \end{center}
+  
+\end{tcolorbox}
 
 \item \textbf{Condicionales:}
   \texttt{If0} y \texttt{Cond} solo son azúcar sintáctica de \texttt{If}. \texttt{If0} como mencionamos es comprobar que el resultado al terminar de evaluarse sea igual a cero. Mientras que \texttt{Cond} es igualmente un encadenamiento de \texttt{If}. Por ello estas tres expresiones las representamos como un único núcleo If:
@@ -66,6 +147,24 @@ Necesitamos definir una función que realice el prodecimientod e desazucarar los
     \texttt{desugar}(\texttt{If0 c t e}) $\Rightarrow$ \texttt{If} (\texttt{Equal c 0}) t e\\
     \texttt{desugar}(\texttt{Cond [$x_1$ $e_1$] [$x_2$ $e_2$] $\ldots$ [$x_n$ $e_n$] [else $e_k$]}) $\Rightarrow$ \texttt{If} ($x_1$) $e_1$ (If ($x_2$) $n_2$) $\ldots$ (If ($x_n$) $e_n$ ($e_k$))
   \end{center}
+
+\begin{tcolorbox} [title=\textbf{Corrección 17: Desugar IfO falta de desarrollo}, colframe=red!75!black, colback=red!5!white]
+
+  Para \texttt{If0}, la transformación consiste en crear un \texttt{IfC} donde la condición es una comparación explícita con cero. Es crucial notar que debemos aplicar \texttt{desugar} recursivamente a las sub-expresiones ($c, t, e$) para asegurar que todo el árbol resultante pertenezca al núcleo.
+
+  \begin{center}
+    \texttt{desugar}(\texttt{If0 } $c\ t\ e$) $\Rightarrow$ \\
+    \texttt{IfC} (\texttt{EqualC} (\texttt{desugar } $c$) (\texttt{NumC } 0)) (\texttt{desugar } $t$) (\texttt{desugar } $e$)
+  \end{center}
+
+  Por otro lado, \texttt{Cond} se desazucara como un encadenamiento de \texttt{IfC} anidados. Cada condición se transforma en un nivel del anidamiento, y el caso \texttt{else} final se convierte en la última rama alternativa.
+
+  \begin{center}
+    \texttt{desugar}(\texttt{Cond } [($c_1, e_1$), ($c_2, e_2$), $\dots$] \texttt{else } $e_{final}$) $\Rightarrow$ \\
+    \texttt{IfC} (\texttt{desugar } $c_1$) (\texttt{desugar } $e_1$) \\
+      (\texttt{IfC} (\texttt{desugar } $c_2$) (\texttt{desugar } $e_2$) (\dots (\texttt{desugar } $e_{final}$)\dots))
+  \end{center}
+\end{tcolorbox}
   
 \item \textbf{Lets:}
   Los \texttt{Let} son solo la azúcar de la aplicación de funciones donde la sustitucion del valor con el identificador, el par (\textit{id, value}) es el argumento, y el cuerpo del \texttt{let} es la función que se va a aplicar. Por otro lado, \texttt{LetStar} es azúcar sintácica de \texttt{Let}, de modo que \texttt{LetStar} se reexpresa como \texttt{lets} anidados.
@@ -76,14 +175,44 @@ Necesitamos definir una función que realice el prodecimientod e desazucarar los
     \texttt{desugar}(\texttt{Let}($id$, $value$) $body$)  $\Rightarrow$ \texttt{App} ($body$) ($id$, $value$)\\
     \texttt{desugar}(\texttt{LetStar}($id_1$, $value_1$) ($id_2$, $value_2$) $\ldots$ ($id_n$, $value_n$) $body$) $\Rightarrow$ \texttt{Let} (($id_1$, $value_1$) (\texttt{Let} ($id_2$, $value_2$) $\ldots$ (\texttt{Let}($id_n$, $value_n$) $body$)))
   \end{center}
+
+\begin{tcolorbox} [title=\textbf{Corrección 18: Lets y LetStar desglosado}, colframe=red!75!black, colback=red!5!white]
+\item \textbf{Lets:}
+  Los \texttt{Let} son azúcar sintáctica para la aplicación de funciones. Semánticamente, \texttt{let x = v in body} es equivalente a definir una función anónima $(\lambda x. body)$ y aplicarla al valor $v$.
+  Por lo tanto, la desazucarización transforma el constructo en una aplicación (\texttt{AppC}) de una función (\texttt{FunC}), asegurando aplicar \texttt{desugar} recursivamente tanto al cuerpo como al valor ligado.
+
+  \begin{center}
+    \texttt{desugar}(\texttt{Let } [($i, v$)] $b$) $\Rightarrow$ \texttt{AppC} (\texttt{FunC } $i$ (\texttt{desugar } $b$)) (\texttt{desugar } $v$)
+  \end{center}
+
+  Por otro lado, \texttt{LetStar} es azúcar sintáctica de \texttt{Let} anidados (evaluación secuencial). Su transformación no genera directamente un AST final, sino que se reescribe como un \texttt{Let} que contiene otro \texttt{LetStar} (o el cuerpo final), y se vuelve a invocar \texttt{desugar} sobre el resultado de esta expansión.
+
+  \begin{center}
+    \texttt{desugar}(\texttt{LetStar } [($i_1, v_1$), ($i_2, v_2$), \dots] $b$) $\Rightarrow$ \\
+    \texttt{desugar}(\texttt{Let } [($i_1, v_1$)] (\texttt{LetStar } [($i_2, v_2$), \dots] $b$))
+  \end{center}
+
+\end{tcolorbox}
   
-  
-Pasando al caso específico de \texttt{letrec}, este nos permite definir funciones recursivas locales. Formalmente, la recursión puede desazucararse utilizando un operador de punto fijo. Para lenguajes de evaluación ansiosa se utiliza el operador Z, que implementa recursión sin necesidad de auto-referencia explícita.
+Pasando al caso específico de \texttt{letrec}, este nos permite definir funciones recursivas locales. Formalmente, la recursión puede desazucararse utilizando un operador de punto fijo. Para lenguajes de evaluación ansiosa se utiliza el operador Z, que implementa recursión sin necesidad de auto-referencia explícita\cite{Baren-Lambda}.
 
 \begin{center}
 \texttt{desugar}(\texttt{LetRec}($id$, $value$)$body$) $\Rightarrow$ \texttt{Let} (($id$, App (Lambda ($id$) $value$)(Lambda ($id$) $value$)))
 $body$
 \end{center}
+
+\begin{tcolorbox} [title=\textbf{Corrección 19: Corrigiendo al LetRec}, colframe=red!75!black, colback=red!5!white]
+
+Pasando al caso específico de \texttt{LetRec}, este nos permite definir funciones recursivas locales. Dado que nuestro núcleo no soporta recursión directa (referencias circulares en el entorno), utilizamos el combinador de punto fijo $Z$ para desazucararlo.
+
+En nuestra implementación, asumimos la existencia de un combinador $Z$ definido en el entorno global. La regla de transformación reescribe el \texttt{LetRec} como un \texttt{Let} estándar donde aplicamos $Z$ a la función lambda generada. Es fundamental notar que el resultado de esta reescritura es una expresión en sintaxis concreta (ASA) que debe ser procesada nuevamente por \texttt{desugar}.
+
+\[
+\texttt{desugar}(\texttt{LetRec } i\ v\ b) \Rightarrow \texttt{desugar}(\texttt{Let } [(i, \texttt{App } (\texttt{Var } "Z")\ [\texttt{Lambda } [i]\ v])]\ b)
+\]
+
+De esta manera, transformamos la recursión implícita en una aplicación explícita del operador de punto fijo, delegando la resolución de la recursión a la semántica del combinador $Z$ durante la evaluación.
+\end{tcolorbox}
 
 \begin{quote}
 En el trabajo \textit{The Formal of Programming Languages}, el concepto de punto fijo es la herramienta matemática fundamental para dar un significado preciso a las construcciones recurisivas de un lenguaje, como los bucles y las funciones que se llaman a sí mismas~\cite{winskel} 
@@ -97,11 +226,11 @@ Z = \lambda f. (\lambda x. f \, (\lambda y. x \, x \, y)) \, (\lambda x. f \, (\
 que satisface la propiedad:
 \[
 Z \, F = F \, (Z \, F) \quad \text{para cualquier término } F
-\]
+\] \cite{Baren-Lambda}
 \end{center}
 
 \textit{¿Por qué es necesario el combinador Z de punto fijo?}
-En la implementación de nuestro miniLisp, hemos definido las funciones anónimas ($\lambda$) como un núcleo fundamental del lenguaje. Esta decisión se tomo con el fin de poder desazucarar  muchas construcciones del lenguaje.Por ejemplo, let y letstar pueden ser traducidos de forma directa a simples aplicaciones de lambda.
+En la implementación de nuestro MiniLisp, hemos definido las funciones anónimas ($\lambda$) como un núcleo fundamental del lenguaje. Esta decisión se tomo con el fin de poder desazucarar  muchas construcciones del lenguaje.Por ejemplo, let y letstar pueden ser traducidos de forma directa a simples aplicaciones de lambda.
 
 Sin embargo, letrec (la construcción que permite definir funciones recursivas) presenta un desafío.
 
@@ -114,6 +243,12 @@ En lugar de intentar que la función se llame a sí misma (lo cual es imposible 
 Para solucionar esto es necesario el uso de una "maquina"
 que haga esto automáticamente. Esa máquina es un combinador de punto fijo (como el Combinador Y visto en clase).
 
+\begin{tcolorbox} [title=\textbf{Corrección 20: Corrigiendo al LetRec}, colframe=red!75!black, colback=red!5!white]
+En lugar de definir una función que se llame a sí misma por nombre, definimos un funcional (una función de orden superior), al que llamaremos $G$. Este funcional $G$ no es recursivo por sí mismo; en su lugar, recibe un argumento extra, digamos $f$, que servirá como el mecanismo para realizar las llamadas futuras. Es decir, $f$ actúa como un placeholder o sustituto de la propia función recursiva.
+
+Sin embargo, $G$ por sí sola no puede ejecutarse indefinidamente. Necesitamos un mecanismo que, en tiempo de ejecución, se encargue de suministrar a $G$ una referencia a sí misma cada vez que sea necesario. Este mecanismo es el Combinador de Punto Fijo (en nuestro caso, el combinador $Z$, adecuado para evaluación estricta). Matemáticamente, el combinador calcula el punto fijo de $G$, construyendo efectivamente la función recursiva al 'pasar' la función como argumento a sí misma de manera automática \cite{Friedman1996}
+\end{tcolorbox}
+
 \item \textbf{Expresiones lambda:}
   Nuestras expresiones lambda son variádicas, por lo que para representarlas en núcleo necesitamos currificarlas., es decir, necesitamos convertiralas en funciones de un solo argumento:
   
@@ -121,7 +256,7 @@ que haga esto automáticamente. Esa máquina es un combinador de punto fijo (com
     \texttt{desugar}(\texttt{Lambda [$x_1$, $x_2$, $\ldots$ $x_n$]} $b$) $\Rightarrow$ (\texttt{Fun $x_1$ (Fun $x_2$ $\ldots$ (Fun $x_n$} $b$)))
   \end{center}
   
-  De igual forma para la Aplicación de funciones, ya que \texttt{App} en \textbf{ASA} maneja una lista de argumentos, necesitamos currificar estos argumentos ya que las funciones ya están en forma de un argumento a la vez:
+  De igual forma para la aplicación de funciones, ya que \texttt{App} en \textbf{ASA} maneja una lista de argumentos, necesitamos currificar estos argumentos ya que las funciones ya están en forma de un argumento a la vez:
   
   \begin{center}
     \texttt{desugar}(\texttt{App $e$ [$x_1$, $x_2$, $\ldots$ $x_n$]}) $\Rightarrow$ (\texttt{App} (\texttt{App} (\texttt{App} $\ldots$ (\texttt{App} $e$ $x_1$) $x_2$) $\ldots$) $x_n$))
@@ -133,6 +268,32 @@ que haga esto automáticamente. Esa máquina es un combinador de punto fijo (com
   \begin{center}
     \texttt{desugar}(\texttt{List [$x_1$, $x_2$, $\ldots$ $x_n$]}) $\Rightarrow$ (\texttt{Cons $x_1$ (Cons $x_2$ $\ldots$ (Con $x_{n-1}$ $x_n$}))
   \end{center}
+
+\begin{tcolorbox}[title=\textbf{Corrección 21: Lambda y Listas }, colframe=red!75!black, colback=red!5!white]
+
+\item \textbf{Expresiones Lambda:}
+  Nuestras expresiones lambda en ASA son variádicas. Para representarlas en el núcleo (AST), necesitamos currificarlas, transformándolas en una serie de funciones unarias anidadas (\texttt{FunC}).
+  
+  \[
+  \texttt{desugar}(\texttt{Lambda } [x_1, x_2, \ldots, x_n]\ b) \Rightarrow \texttt{FunC } x_1 (\texttt{FunC } x_2 \ldots (\texttt{FunC } x_n (\texttt{desugar } b))\ldots)
+  \]
+  
+  De igual forma para la \textbf{aplicación de funciones}, ya que \texttt{App} en \textbf{ASA} maneja una lista de argumentos, necesitamos currificar la aplicación utilizando \texttt{AppC} (que es binaria), respetando la asociatividad por la izquierda y desazucarando tanto la función como cada argumento:
+  
+  \[
+  \texttt{desugar}(\texttt{App } e\ [x_1, \ldots, x_n]) \Rightarrow \texttt{AppC } (\ldots (\texttt{AppC } (\texttt{desugar } e) (\texttt{desugar } x_1)) \ldots) (\texttt{desugar } x_n)
+  \]
+  
+\item \textbf{Listas:}
+  Para las listas, definimos su desazucarización utilizando el constructor \texttt{ConS}. Es importante notar que, según nuestra implementación en Haskell (donde el caso base para un solo elemento devuelve el elemento procesado), la estructura resultante es un encadenamiento donde el último elemento es el final de la estructura, sin utilizar \texttt{NiL} como terminador explícito para listas no vacías.
+  
+  \[
+  \texttt{desugar}(\texttt{List } [x_1, \ldots, x_n]) \Rightarrow \texttt{ConS } (\texttt{desugar } x_1) (\texttt{ConS } \ldots (\texttt{ConS } (\texttt{desugar } x_{n-1}) (\texttt{desugar } x_n))\ldots)
+  \]
+
+\end{tcolorbox}
+
+
 
 De esta manera, la estructura superficial de las listas en la sintaxis concreta, que aparenta ser n-aria se reexpresa en términos de una estructura binaria en el núcleo del lenguaje. En otras palabras, una lista como \texttt{[a,b,c]} no es realmente un nodo con tres hijos, sino una secuencia anidada de constructores
 \texttt{Cons},cada uno tomando dos argumentos: el elemento y la referencia al resto de la lista. 
