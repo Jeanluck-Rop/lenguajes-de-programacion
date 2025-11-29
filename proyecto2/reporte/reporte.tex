@@ -1,0 +1,140 @@
+\documentclass[12pt]{book}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage[normalem]{ulem}
+\usepackage[hidelinks]{hyperref}
+
+\usepackage{listings, tcolorbox, xcolor, float}
+\usepackage{algorithm, algpseudocode, chngcntr}
+\usepackage{graphicx, enumitem, geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{forest}
+\usepackage{fancyhdr}
+
+% ----- Custom Page -----
+\geometry{margin=2.5cm}
+\pagestyle{fancy}
+\fancyhf{}
+%------------------------
+
+% ----- Custom Commands -----
+\newcommand{\nt}[1]{\texttt{<#1>}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\B}{\mathbb{B}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\minilisp}{
+  {M\footnotesize INI\normalsize L\footnotesize ISP \normalsize}
+}
+\renewcommand{\lstlistingname}{Código}
+\renewcommand{\bibname}{Bibliografía}
+%----------------------------
+
+% ----- Book Document -----
+% ----- Quitar mayúsculas automáticas -----
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{#1}}
+
+% ----- Encabezados -----
+\lhead{\minilisp}
+\rhead{\leftmark{}.}
+\cfoot{\thepage} % número centrado abajo
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ----- Cambiar el título del índice -----
+\addto\captionsspanish{%
+  \renewcommand{\contentsname}{Índice} % cambia "Índice general" a "Índice"
+}
+
+% ----- Evitar mayúsculas en el encabezado del índice -----
+\makeatletter
+\renewcommand{\tableofcontents}{%
+  \chapter*{\contentsname}% título "Índice"
+  \markboth{\contentsname}{}% encabezado sin mayúsculas
+  \@starttoc{toc}% genera el contenido real
+}
+\makeatother
+%--------------------------
+
+% ----- Custom Colors -----
+\definecolor{azulin}{HTML}{130F87}
+\definecolor{grisin}{HTML}{6D6C91}
+\definecolor{links}{HTML}{0D1894}
+\definecolor{mainkeywordcolor}{HTML}{610E61}
+\definecolor{commentcolor}{HTML}{087008}
+\definecolor{stringcolor}{HTML}{AD8318}
+\definecolor{ops}{HTML}{3374A1}
+\definecolor{tok}{HTML}{B39309}
+\definecolor{tkns}{HTML}{560769}
+\definecolor{asa}{HTML}{A81666}
+\definecolor{corchets}{HTML}{A82E16}
+
+\definecolor{secondkeywordcolor}{HTML}{0D1894}
+\definecolor{thirdkeywordcolor}{HTML}{0D1894}
+
+\definecolor{backgroundcolor}{rgb}{0.95, 0.95, 0.95}
+%--------------------------
+
+% ----- Haskell Code Style -----
+\lstdefinestyle{haskellstyle}{
+  language=Haskell,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=[1]\color{mainkeywordcolor}\bfseries,
+  commentstyle=\color{commentcolor}\itshape,
+  stringstyle=\color{stringcolor},
+  numbers=left,
+  numberstyle=\tiny,
+  stepnumber=1,
+  numbersep=8pt,
+  backgroundcolor=\color{backgroundcolor},
+  tabsize=4,
+  showspaces=false,
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  captionpos=b,
+  morekeywords=[1]{if,then,else,let,in,case,of,Show,Eq,
+    data,type,class,instance,where, do,deriving,newtype,module,import}
+}
+%-------------------------------
+
+%-------------------------------
+\begin{document}
+
+% ----- Importamos la portada -----
+\input{portada}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ----- Ajustes para el pdf -----
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ----- Iniciamos el indice -----
+\tableofcontents
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ----- Introducción -----
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\include{cap1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Pregunta: ¿Por qué algunos lenguajes modernos (como Lisp, Python o JavaScript) adoptan reglas mixtas de alcance y cómo afecta eso al razonamiento sobre el código? Búsqueda: lexical scope vs dynamic scope in Lisp, Python scope chain, closures in JavaScript Programa: Implementar un mini-lenguaje con dos modos de alcance seleccionables,
+ejecutando un mismo programa bajo ambos y comparando los resultados.
+
+
+% ----- Bibliografía -----
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\addcontentsline{toc}{chapter}{Bibliografía}
+\begin{thebibliography}{99}
+\bibitem{ref1} \textcolor{links}
+Bibliografia
+\end{thebibliography}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+%-------------------------------
