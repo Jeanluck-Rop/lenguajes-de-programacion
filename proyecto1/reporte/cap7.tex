@@ -16,7 +16,7 @@ En conjunto, buscamos que este capítulo tenga como propósito mostrar de forma 
 
 \section{\minilisp}
 
-Primero mostramos los resultados individuales de cada fase del código implementado que le da vida a nuestro lenguaje\minilisp{-0.2cm}.
+Primero mostramos los resultados individuales de cada fase del código implementado que le da vida a nuestro lenguaje\minilisp\hspace{-0.2cm}.
 
 \noindent
 Utilizamos el intérprete interactivo de Haskell \texttt{GHCi} para compilar, cargar módulos y ejecutar las pruebas de de nuestra implementación. En el archivo \texttt{README.md} mostramos más a detalle como inicializar y compilar nuestro proyecto.
@@ -552,10 +552,10 @@ errors :: SomeException -> IO ()
 errors e = putStrLn $ "[Error]: " ++ show e
 \end{lstlisting}
 
-Importamos todos los módulos a usar en el proyecto. Definimos el combinador \textbf{Z} y aplicamos us evaluación como es requerido para la recursión en\minilisp{-0.2cm}.
+Importamos todos los módulos a usar en el proyecto. Definimos el combinador \textbf{Z} y aplicamos us evaluación como es requerido para la recursión en\minilisp\hspace{-0.2cm}.
 
 \noindent
-El punto de entrada pincipal del lenguaje es la función \texttt{main}, donde damos la bienvenida al usuario y comnzamos el intérprete interactivo de\minilisp{-0.2cm}. De este modo hacemos lo siguiente para correr el proyecto:
+El punto de entrada pincipal del lenguaje es la función \texttt{main}, donde damos la bienvenida al usuario y comnzamos el intérprete interactivo de\minilisp\hspace{-0.2cm}. De este modo hacemos lo siguiente para correr el proyecto:
 
 \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
   $ ghci
@@ -621,7 +621,7 @@ Nos apoyamos de \textit{pattern matching} para proceder con los casos correspond
 \item Si el valor canónico \texttt{ASV} recibido no es ninguno de los anteriores, entonces este no es válido, cosa que no debería ni puede suceder pero lo ponemos por completitud.
 \end{itemize}
 
-Ya con esto, veamos los resultados finales del lenguaje\minilisp{-0.2cm}:
+Ya con esto, veamos los resultados finales del lenguaje\minilisp\hspace{-0.2cm}:
 
 \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
 [MiniLisp]> (+ (* 2 3 -1) (- 10 4 9 -22) (sqrt 16) (expt 36) (/ 1 2))
@@ -713,7 +713,7 @@ En el archivo \texttt{README.md} se incluyen ejemplos más detallados para cada 
 \section{Funciones de prueba}
 
 En esta sección implementamos tres funciones especiales: la suma de los primeros $n$ números naturales, el factorial de un número y el n-ésimo número de Fibonacci.
-Estas funciones nos sirven como ejemplos prácticos para probar las capacidades del lenguaje\minilisp{-0.2cm} y en especial, de su capacidades recursivas.
+Estas funciones nos sirven como ejemplos prácticos para probar las capacidades del lenguaje\minilisp\hspace{-0.2cm} y en especial, de su capacidades recursivas.
 
 \noindent
 Debido a que cada una de estas funciones se define naturalmente mediante recursión, nos auxiliamos de la expresión \texttt{letrec}, con la cual definimos funciones recursivas dentro del lenguaje.\\
@@ -851,7 +851,7 @@ La sucesión de Fibonacci se define recursivamente como:
 
 \bigskip
 
-Su implementación en Haskell genera el código\minilisp{-0.2cm} correspondiente con \texttt{letrec}:
+Su implementación en Haskell genera el código\minilisp\hspace{-0.2cm} correspondiente con \texttt{letrec}:
 
 \begin{lstlisting}[style=haskellstyle, caption={Función para obtener el n-ésimo número de la suceción de Fibonacci con con \texttt{letrec}}]
 --Generamos el n-esimo numero de Fibonacci con letrec
@@ -879,4 +879,4 @@ El intérprete genera internamente la siguiente definición:
 \quad \quad \texttt{(if0 n 0 (if0 (- n 1) 1 (+ (fibo (- n 1)) (fibo (- n 2))))))) (fibo 7))}
 \]
 
-Estas funciones de prueba no sólo demuestran la expresividad del lenguaje donde el sistema de evaluación de\minilisp{-0.2cm} maneja correctamente la recursión, sino también que la implementación del combinador \textbf{Z} y las expresiones \texttt{letrec} permiten definir y evaluar funciones complejas sin necesidad de estructuras externas. Además, muestran cómo el menú interactivo puede extenderse para admitir comandos personalizados que simplifican la interacción del usuario con el intérprete.
+Estas funciones de prueba no sólo demuestran la expresividad del lenguaje donde el sistema de evaluación de\minilisp\hspace{-0.2cm} maneja correctamente la recursión, sino también que la implementación del combinador \textbf{Z} y las expresiones \texttt{letrec} permiten definir y evaluar funciones complejas sin necesidad de estructuras externas. Además, muestran cómo el menú interactivo puede extenderse para admitir comandos personalizados que simplifican la interacción del usuario con el intérprete.
