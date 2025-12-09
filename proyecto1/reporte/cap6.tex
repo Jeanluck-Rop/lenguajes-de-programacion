@@ -6,10 +6,6 @@ Para evitar el problema de las variables no definidas al utilizar recursion y co
 Al usar evaluación perezosa, existen ciertos puntos dentro de la implementación en los que no puede
 postergarse la evaluación.
 
-\begin{quote}
-  \textit{Explicar que es el alcance perezoso y lo que son puntos estrictos.}
-\end{quote}
-
 Para ello tenemos que definir un forma que nos permitia aplicar los \textit{puntos estrictos} de nuestro lenguaje. Este forma la modelaremos mediante una función \textbf{strict}, que reduce la expresión hasta llegar a un \textbf{valor canónico} del lenguaje.
 
 \[
@@ -45,7 +41,7 @@ $$
 \frac{
   \text{strict}(i, \varepsilon) = \text{NumV}(n) \qquad \text{strict}(d, \varepsilon) = \text{NumV}(m)
 }{
-  \langle \text{SubV}(i, d), \varepsilon \rangle \to \langle \text{NumV}(n + m), \varepsilon \rangle
+  \langle \text{SubV}(i, d), \varepsilon \rangle \to \langle \text{NumV}(n - m), \varepsilon \rangle
 }
 $$
 
@@ -54,7 +50,7 @@ $$
 \frac{
   \text{strict}(i, \varepsilon) = \text{NumV}(n) \qquad \text{strict}(d, \varepsilon) = \text{NumV}(m)
 }{
-  \langle \text{MulV}(i, d), \varepsilon \rangle \to \langle \text{NumV}(n + m), \varepsilon \rangle
+  \langle \text{MulV}(i, d), \varepsilon \rangle \to \langle \text{NumV}(n * m), \varepsilon \rangle
 }
 $$
 
@@ -63,7 +59,7 @@ $$
 \frac{
   \text{strict}(i, \varepsilon) = \text{NumV}(n) \qquad \text{strict}(d, \varepsilon) = \text{NumV}(m)
 }{
-  \langle \text{DiV}(i, d), \varepsilon \rangle \to \langle \text{NumV}(n + m), \varepsilon \rangle
+  \langle \text{DiV}(i, d), \varepsilon \rangle \to \langle \text{NumV}(n / m), \varepsilon \rangle
 }
 $$
 
@@ -216,6 +212,241 @@ $$
   
 \end{itemize}
 
+\begin{tcolorbox}[
+    title=\textbf{Corrección},
+    colframe=red!75!black,
+    colback=red!5!white,
+    fonttitle=\bfseries
+]
+
+\begin{itemize}
+
+\item \textbf{Valores (NumV, BoolV):}
+Se evalúan a sí mismos.
+$$ \langle \text{NumV}(n), \varepsilon \rangle \Downarrow \text{NumV}(n) $$
+$$ \langle \text{BoolV}(b), \varepsilon \rangle \Downarrow \text{BoolV}(b) $$
+
+\item \textbf{AddV(i,d):}
+$$
+\frac{
+  \langle i, \varepsilon \rangle \Downarrow v_i \quad \text{strict}(v_i) = \text{NumV}(n) \quad
+  \langle d, \varepsilon \rangle \Downarrow v_d \quad \text{strict}(v_d) = \text{NumV}(m)
+}{
+  \langle \text{AddV}(i, d), \varepsilon \rangle \Downarrow \text{NumV}(n + m)
+}
+$$
+
+\item \textbf{SubV(i,d):}
+$$
+\frac{
+  \langle i, \varepsilon \rangle \Downarrow v_i \quad \text{strict}(v_i) = \text{NumV}(n) \quad
+  \langle d, \varepsilon \rangle \Downarrow v_d \quad \text{strict}(v_d) = \text{NumV}(m)
+}{
+  \langle \text{SubV}(i, d), \varepsilon \rangle \Downarrow \text{NumV}(n - m)
+}
+$$
+
+\item \textbf{MulV(i,d):}
+$$
+\frac{
+  \langle i, \varepsilon \rangle \Downarrow v_i \quad \text{strict}(v_i) = \text{NumV}(n) \quad
+  \langle d, \varepsilon \rangle \Downarrow v_d \quad \text{strict}(v_d) = \text{NumV}(m)
+}{
+  \langle \text{MulV}(i, d), \varepsilon \rangle \Downarrow \text{NumV}(n * m)
+}
+$$
+
+\item \textbf{DiV(i,d):}
+$$
+\frac{
+  \langle i, \varepsilon \rangle \Downarrow v_i \quad \text{strict}(v_i) = \text{NumV}(n) \quad
+  \langle d, \varepsilon \rangle \Downarrow v_d \quad \text{strict}(v_d) = \text{NumV}(m) \quad m \neq 0
+}{
+  \langle \text{DiV}(i, d), \varepsilon \rangle \Downarrow \text{NumV}(n / m)
+}
+$$
+
+$$
+\frac{
+  \langle d, \varepsilon \rangle \Downarrow v_d \quad \text{strict}(v_d) = \text{NumV}(0)
+}{
+  \langle \text{DivV}(i, d), \varepsilon \rangle \Downarrow \textbf{Error}
+}
+$$
+
+\item \textbf{SqrtV(e):}
+$$
+\frac{
+  \langle e, \varepsilon \rangle \Downarrow v_e \quad \text{strict}(v_e) = \text{NumV}(n) \quad n \geq 0
+}{
+  \langle \text{SqrtV}(e), \varepsilon \rangle \Downarrow \text{NumV}(\sqrt{n})
+}
+$$
+
+$$
+\frac{
+  \langle e, \varepsilon \rangle \Downarrow v_e \quad \text{strict}(v_e) = \text{NumV}(n) \quad n < 0
+}{
+  \langle \text{SqrtV}(e), \varepsilon \rangle \Downarrow \textbf{Error}
+}
+$$
+
+\item \textbf{NotV(e):}
+$$
+\frac{
+  \langle e, \varepsilon \rangle \Downarrow v_e \quad \text{strict}(v_e) = \text{BoolV}(b)
+}{
+  \langle \text{NotV}(e), \varepsilon \rangle \Downarrow \text{BoolV}(\neg b)
+}
+$$
+
+\item \textbf{EqualV(i,d):}
+$$
+\frac{
+  \langle i, \varepsilon \rangle \Downarrow v_i \quad \text{strict}(v_i) = \text{NumV}(n) \quad
+  \langle d, \varepsilon \rangle \Downarrow v_d \quad \text{strict}(v_d) = \text{NumV}(m)
+}{
+  \langle \text{EqualV}(i, d), \varepsilon \rangle \Downarrow \text{BoolV}(n = m)
+}
+$$
+
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[
+    title=\textbf{Corrección},
+    colframe=red!75!black,
+    colback=red!5!white,
+    fonttitle=\bfseries
+]
+\begin{itemize}
+\item \textbf{LessV(i,d):}
+$$
+\frac{
+  \langle i, \varepsilon \rangle \Downarrow v_i \quad \text{strict}(v_i) = \text{NumV}(n) \quad
+  \langle d, \varepsilon \rangle \Downarrow v_d \quad \text{strict}(v_d) = \text{NumV}(m)
+}{
+  \langle \text{LessV}(i, d), \varepsilon \rangle \Downarrow \text{BoolV}(n < m)
+}
+$$
+
+\item \textbf{DiffV(i,d):}
+$$
+\frac{
+  \langle i, \varepsilon \rangle \Downarrow v_i \quad \text{strict}(v_i) = \text{NumV}(n) \quad
+  \langle d, \varepsilon \rangle \Downarrow v_d \quad \text{strict}(v_d) = \text{NumV}(m)
+}{
+  \langle \text{DiffV}(i, d), \varepsilon \rangle \Downarrow \text{BoolV}(n \neq m)
+}
+$$
+
+\item \textbf{LeqV(i,d):}
+$$
+\frac{
+  \langle i, \varepsilon \rangle \Downarrow v_i \quad \text{strict}(v_i) = \text{NumV}(n) \quad
+  \langle d, \varepsilon \rangle \Downarrow v_d \quad \text{strict}(v_d) = \text{NumV}(m)
+}{
+  \langle \text{LeqV}(i, d), \varepsilon \rangle \Downarrow \text{BoolV}(n \le m)
+}
+$$
+
+\item \textbf{GeqV(i,d):}
+$$
+\frac{
+  \langle i, \varepsilon \rangle \Downarrow v_i \quad \text{strict}(v_i) = \text{NumV}(n) \quad
+  \langle d, \varepsilon \rangle \Downarrow v_d \quad \text{strict}(v_d) = \text{NumV}(m)
+}{
+  \langle \text{GeqV}(i, d), \varepsilon \rangle \Downarrow \text{BoolV}(n \ge m)
+}
+$$
+
+\item \textbf{PairV(f,s):}
+En la implementación estricta, se evalúan los componentes al construir el par:
+$$
+\frac{
+  \langle f, \varepsilon \rangle \Downarrow v_f \quad \text{strict}(v_f) = v'_f \quad
+  \langle s, \varepsilon \rangle \Downarrow v_s \quad \text{strict}(v_s) = v'_s
+}{
+  \langle \text{PairV}(f, s), \varepsilon \rangle \Downarrow \text{PairV}(v'_f, v'_s)
+}
+$$
+
+\item \textbf{FstV(p):}
+$$
+\frac{
+  \langle p, \varepsilon \rangle \Downarrow v_p \quad \text{strict}(v_p) = \text{PairV}(f, s)
+}{
+  \langle \text{FstV}(p), \varepsilon \rangle \Downarrow f
+}
+$$
+
+\item \textbf{SndV(p):}
+$$
+\frac{
+  \langle p, \varepsilon \rangle \Downarrow v_p \quad \text{strict}(v_p) = \text{PairV}(f, s)
+}{
+  \langle \text{SndV}(p), \varepsilon \rangle \Downarrow s
+}
+$$
+
+\item \textbf{ConV(i,d):}
+Similar a PairV, se fuerzan los componentes al construir la lista:
+$$
+\frac{
+  \langle i, \varepsilon \rangle \Downarrow v_i \quad \text{strict}(v_i) = v'_i \quad
+  \langle d, \varepsilon \rangle \Downarrow v_d \quad \text{strict}(v_d) = v'_d
+}{
+  \langle \text{ConV}(i, d), \varepsilon \rangle \Downarrow \text{ConV}(v'_i, v'_d)
+}
+$$
+
+\item \textbf{HeadV(l):}
+$$
+\frac{
+  \langle l, \varepsilon \rangle \Downarrow v_l \quad \text{strict}(v_l) = \text{ConV}(h, t)
+}{
+  \langle \text{HeadV}(l), \varepsilon \rangle \Downarrow h
+}
+$$
+
+\item \textbf{TailV(l):}
+$$
+\frac{
+  \langle l, \varepsilon \rangle \Downarrow v_l \quad \text{strict}(v_l) = \text{ConV}(h, t)
+}{
+  \langle \text{TailV}(l), \varepsilon \rangle \Downarrow t
+}
+$$
+
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[
+    title=\textbf{Corrección:},
+    colframe=red!75!black,
+    colback=red!5!white,
+    fonttitle=\bfseries
+]
+\begin{itemize}
+\item \textbf{FunV(p,c):}
+Las funciones capturan el ambiente actual y se convierten en Closure.
+$$
+\langle \text{FunV}(p, c), \varepsilon \rangle \Downarrow \text{Closure}(p, c, \varepsilon)
+$$
+
+\item \textbf{AppV(f,a):}
+Aquí radica la pereza. El argumento $a$ \textbf{no se evalúa}, sino que se guarda como un Thunk (\texttt{ExprV}) en el ambiente.
+$$
+\frac{
+  \langle f, \varepsilon \rangle \Downarrow v_f \quad \text{strict}(v_f) = \text{Closure}(p, c, \varepsilon_{cl}) \quad
+  \langle c, \varepsilon_{cl}[p \mapsto \text{ExprV}(a, \varepsilon)] \rangle \Downarrow v_{res}
+}{
+  \langle \text{AppV}(f, a), \varepsilon \rangle \Downarrow v_{res}
+}
+$$
+\end{itemize}
+\end{tcolorbox}
+
 \begin{quote}
   \textit{Consultar la pagina 13-14 del ultimo pdf del profesor para ver contexto}
 \end{quote}
@@ -251,17 +482,11 @@ data ASV
   deriving (Show, Eq)
 \end{lstlisting}
 
-%https://lambdasspace.github.io/LDP/notas/ldp_n06.pdf
-%https://lambdasspace.github.io/LDP/notas/ldp_n07.pdf
-%https://lambdasspace.github.io/LDP/notas/ldp_n12.pdf
-%https://lambdasspace.github.io/LDP/notas/ldp_n13.pdf
-%https://lambdasspace.github.io/LDP/notas/ldp_n14.pdf
-
-A diferencia de la implementación anterior, en este nuevo interprete ya no tenemos que usar la función \texttt{toFinalState} para convertir los \textbf{ASA} en estados finales, ya que los únicos estados finales son los valores canónicos ({Ambas definiciones significan lo mismo pero recordemos que en la primer implementación hicimos el abuso de notación para marcar la diferencia entre ambos}, de eso se ecargará el nuevo intérprete, de convertir las expresion \texttt{AST} a estados finales (valores canónicos).\\
+A diferencia de la implementación anterior, en este nuevo interprete ya no tenemos que usar la función \texttt{toFinalState} para convertir los \textbf{ASA} en estados finales, ya que los únicos estados finales son los valores canónicos ({Ambas definiciones significan lo mismo pero recordemos que en la primer implementación hicimos el abuso de notación para marcar la diferencia entre ambos}, de eso se encargará el nuevo intérprete, de convertir las expresion \texttt{AST} a estados finales (valores canónicos).\\
 
 Definimos la función de evaluación perezosa con puntos estrictos como sigue:
 
-\begin{lstlisting}[style=haskellstyle, caption={Evaluación perezosa con \textbf{strict} para\minilisp{-0.2cm}}]
+\begin{lstlisting}[style=haskellstyle, caption={Evaluación perezosa con \textbf{strict} para\minilisp\hspace{-0.2cm}}]
 module EvalStrict where
 
 import AST
@@ -439,7 +664,7 @@ Para el caso de \texttt{AppC}:
 \item Evalúa el cuerpo de la función (\texttt{closureC funV}) en ese nuevo ambiente extendido.
 \end{enumerate}
 
-De este modo tenemos una evaluación adecuada para introducir recursión con \texttt{LetRec} en nuestro lenguaje\minilisp{-0.2cm}, pues como mencionamos, necesitamos meter al ambiente inicial la evaluación de nuestro combinador \textbf{Z}, el cuál se mostró que presentaba errores con la evaluación glotona.
+De este modo tenemos una evaluación adecuada para introducir recursión con \texttt{LetRec} en nuestro lenguaje\minilisp\hspace{-0.2cm}, pues como mencionamos, necesitamos meter al ambiente inicial la evaluación de nuestro combinador Z, el cuál se mostró que presentaba errores con la evaluación glotona.
 
 \section{Cierre: intérprete, recursión y evaluación glotona}
 
@@ -462,13 +687,13 @@ En un intérprete real (implementación), un closure típicamente contiene:
 \subsection{Recursión y combinadores}
 La recursión puede introducirse de varias maneras:
 \begin{enumerate}
-  \item \textbf{Ligada (letrec / definiciones recursivas)}: extiende el ambiente con una entrada que referencia una celda que puede actualizarse o auto-referenciarse.
-  \item \textbf{Combinadores de punto fijo (por ejemplo \(Y\))}: expresan la recursión sin nombres mediante un combinador que produce un punto fijo de funciones.
+  \item \textbf{Ligada (letrec / definiciones recursivas)}: extiende el ambiente con una entrada que referencia una celda que puede actualizarse o auto-referenciarse\cite{landsman}.
+  \item \textbf{Combinadores de punto fijo (por ejemplo \(Y\))}: expresan la recursión sin nombres mediante un combinador que produce un punto fijo de funciones\cite{Baren-Lambda}.
 \end{enumerate}
 
 Es importante destacar la diferencia de comportamiento del combinador \(Y\) según la estrategia de evaluación:
 
-\paragraph{Estrategia perezosa.} Con evaluación perezosa, el combinador \(Y\) puede ser útil porque el desempaquetado del punto fijo se hace cuando el cuerpo lo requiere, permitiendo definiciones recursivas sin evaluación inmediata que provoque bucles infinitos. Por eso, muchas construcciones recursivas clásicas basadas en \(Y\) funcionan en lenguajes perezosos.
+\paragraph{Estrategia perezosa.} Con evaluación perezosa, el combinador \(Y\) puede ser útil porque el desempaquetado del punto fijo se hace cuando el cuerpo lo requiere, permitiendo definiciones recursivas sin evaluación inmediata que provoque bucles infinitos. Por eso, muchas construcciones recursivas clásicas basadas en \(Y\) funcionan en lenguajes perezosos\cite{Baren-Lambda}.
 
 \paragraph{Estrategia glotona (estricta).} En evaluación estricta, el uso directo del combinador \(Y\) clásico provoca normalmente no-terminación: la autoinvocación se expande inmediatamente y nunca alcanza un punto en que se pueda seguir computando. Para obtener recursión en un lenguaje estricto se suele necesitar:
 \begin{itemize}

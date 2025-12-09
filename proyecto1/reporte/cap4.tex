@@ -1,4 +1,4 @@
-6\chapter{Azúcar Sintáctica}
+\chapter{Azúcar Sintáctica}
 El término \textit{azúcar sintáctica} \textit{(syntactic sugar)} fue introducido por Peter J.Landin en 1964. La azúcar sintáctica consiste en construcciones del lenguaje que pueden ser sistemáticamente traducidas a formas más básicas sin alterar la semántica del programa. Es decir, no añaden nuevas capacidades expresivas, sino que facilitan la escritura o lectura del código.
 
 Landin fue un pionero de la teoría de lenguajes de programación, utilizó el término para describir aquellas construcciones que, aunque convenientes para el programador, pueden eliminarse mediante una transformación mecánica sin modificar el significado del programa.
@@ -246,7 +246,7 @@ que haga esto automáticamente. Esa máquina es un combinador de punto fijo (com
 \begin{tcolorbox} [title=\textbf{Corrección 20: Corrigiendo al LetRec}, colframe=red!75!black, colback=red!5!white]
 En lugar de definir una función que se llame a sí misma por nombre, definimos un funcional (una función de orden superior), al que llamaremos $G$. Este funcional $G$ no es recursivo por sí mismo; en su lugar, recibe un argumento extra, digamos $f$, que servirá como el mecanismo para realizar las llamadas futuras. Es decir, $f$ actúa como un placeholder o sustituto de la propia función recursiva.
 
-Sin embargo, $G$ por sí sola no puede ejecutarse indefinidamente. Necesitamos un mecanismo que, en tiempo de ejecución, se encargue de suministrar a $G$ una referencia a sí misma cada vez que sea necesario. Este mecanismo es el Combinador de Punto Fijo (en nuestro caso, el combinador $Z$, adecuado para evaluación estricta). Matemáticamente, el combinador calcula el punto fijo de $G$, construyendo efectivamente la función recursiva al 'pasar' la función como argumento a sí misma de manera automática \cite{Friedman1996}
+Sin embargo, $G$ por sí sola no puede ejecutarse indefinidamente. Necesitamos un mecanismo que, en tiempo de ejecución, se encargue de suministrar a $G$ una referencia a sí misma cada vez que sea necesario. Este mecanismo es el Combinador de Punto Fijo (en nuestro caso, el combinador $Z$, adecuado para evaluación estricta). Matemáticamente, el combinador calcula el punto fijo de $G$, construyendo efectivamente la función recursiva al "pasar" la función como argumento a sí misma de manera automática \cite{Friedman1996}
 \end{tcolorbox}
 
 \item \textbf{Expresiones lambda:}
@@ -293,12 +293,16 @@ Sin embargo, $G$ por sí sola no puede ejecutarse indefinidamente. Necesitamos u
 
 \end{tcolorbox}
 
-
-
 De esta manera, la estructura superficial de las listas en la sintaxis concreta, que aparenta ser n-aria se reexpresa en términos de una estructura binaria en el núcleo del lenguaje. En otras palabras, una lista como \texttt{[a,b,c]} no es realmente un nodo con tres hijos, sino una secuencia anidada de constructores
-\texttt{Cons},cada uno tomando dos argumentos: el elemento y la referencia al resto de la lista. 
+\texttt{Cons}, cada uno tomando dos argumentos: el elemento y la referencia al resto de la lista. 
 
 Esto implica que algunas construcciones que originalmente se representan como árboles n-arios en el \textbf{ASA}, después de ser desazucarizadas corresponden a árboles binarios en el \textbf{AST}. \texttt{Head}, \texttt{Tail} ya no operan sobre listas \textbf{ASA}, sino directamente sobre la estructura \texttt{Nil} y \texttt{Cons}, que constituye el núcleo semántico para listas.
+
+\begin{tcolorbox}[title=\textbf{Corrección 22: Corrección del texto}, colframe=red!75!black, colback=red!5!white]
+Esto implica que algunas construcciones que originalmente se representan como árboles n-arios en el ASA, después de ser desazucarizadas corresponden a árboles binarios en el AST. 
+\texttt{Head} y \texttt{Tail} ya no operan sobre listas ASA, sino directamente sobre la estructura \texttt{ConS}, que constituye el núcleo semántico principal para las listas en nuestra implementación (donde el final de la lista es el propio elemento y no un terminador explícito).
+\end{tcolorbox}
+
 \end{itemize}
   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -341,11 +345,21 @@ data AST
 
 \end{lstlisting}
 
-\textbf{AST} (\textit{Abstract Sintaxis Tree}) es nuestro tipo de dato \textbf{ASA} sin azúcar, no hay un razón especial por la que la hayamos nombrado \textbf{AST}, nos pareció práctico y nada más. En esta seccón nos referiremos como \textbf{AST} a nuestra sintaxis abstracta sin azúcar en\minilisp{-0.2cm}. Notemos que, los tipos de dato que trabajaban sobre listas\\
+\begin{tcolorbox}[title=\textbf{Corrección 23: Nota sobre notación}, colframe=red!75!black, colback=red!5!white]
+En las cajas anteriores se corrige los nombres de los constructores.
+\end{tcolorbox}
+
+\textbf{AST} (\textit{Abstract Sintaxis Tree}) es nuestro tipo de dato \textbf{ASA} sin azúcar, no hay un razón especial por la que la hayamos nombrado \textbf{AST}, nos pareció práctico y nada más. En esta seccón nos referiremos como \textbf{AST} a nuestra sintaxis abstracta sin azúcar en\minilisp\hspace{-0.2cm}. Notemos que, los tipos de dato que trabajaban sobre listas\\
+
+\begin{tcolorbox}[title=\textbf{Corrección 24: Redacción formal}, colframe=red!75!black, colback=red!5!white]
+
+El \textbf{AST} \textit{Abstract Syntax Tree} constituye nuestro tipo de dato para la representación de \textbf{ASA} (\textit {Árbol de Sintaxis Abstracta}) sin azúcar sintáctico. La elección de la denominación \textbf{AST} responde principalmente a consideraciones prácticas de implementación, sin implicaciones semánticas adicionales. 
+
+\end{tcolorbox}
 
 Anteriormente hicimos una breve mención, casi de manera superficial, de cómo se re-expresan nuestro \textbf{ASA} a \textbf{AST} a través de un función especial conocida como \texttt{desugar}, de tal modo que nos quedamos con las estructuras núcleo y no ahorramos futuras reglas para el intérprete.\\
 
-En nuestro proyecto de\minilisp{-0.2cm}, definimos la función \texttt{desugar} en el arhcivo \texttt{Desugar.hs} como sigue:
+En nuestro proyecto de\minilisp\hspace{-0.2cm}, definimos la función \texttt{desugar} en el arhcivo \texttt{Desugar.hs} como sigue:
 
 \begin{lstlisting}[style=haskellstyle, caption={Firma y casos base de la función desugar}]
   module Desugar where
@@ -362,7 +376,7 @@ En nuestro proyecto de\minilisp{-0.2cm}, definimos la función \texttt{desugar} 
   desugar (Boolean b) = BoolC b
 \end{lstlisting}
 
-La firma de la función refleja nuestro objetivo, dado una estructura \texttt{ASA}, \texttt{desugar} lo proecesa hasta obtener un \texttt{AST}. Nótese además que las expresiones atómicas no cambian su estructura, únicamente las renombramos de tipo \texttt{ASA} a \texttt{AST}.
+La firma de la función refleja nuestro objetivo, dado una estructura \texttt{ASA}, \texttt{desugar} lo procesa hasta obtener un \texttt{AST}. Nótese además que las expresiones atómicas no cambian su estructura, únicamente las renombramos de tipo \texttt{ASA} a \texttt{AST}.
 
 \begin{lstlisting}[style=haskellstyle, caption={Sección de la función \texttt{desugar} para operadores aritméticos}]
   desugar :: ASA -> AST
@@ -378,6 +392,10 @@ La firma de la función refleja nuestro objetivo, dado una estructura \texttt{AS
 \end{lstlisting}
 
 Previamente, al hacer mención de la función \texttt{desugar} omitimos explicar que los argumentos de las expresiones deben pasar también por el proceso de desazucarización, sin embargo es necesario definir la desazucarización recursivamente ya que como sabemos, un \textbf{AST} es \textbf{AST} si todos sus hijos lo son.
+
+\begin{tcolorbox}[title=\textbf{Corrección 25: Redacción formal}, colframe=red!75!black, colback=red!5!white]
+Previamente, presentamos la función \texttt{desugar} enfocándonos en la transformación del nodo raíz. Sin embargo, para garantizar la correctitud del programa, la definición debe ser recursiva. Dado que el \textbf{AST} es una estructura de árbol, la propiedad de "estar desazucarado" debe cumplirse en cada uno de sus nodos. Por lo tanto, la función se aplica no solo a la expresión principal, sino que se distribuye a través de todos los argumentos de las expresiones compuestas.
+\end{tcolorbox}
 
 \noindent
 Para ello definimos una función auxiliar \texttt{desugarOps} que generaliza el trabajo de desazucarar las operaciones aritméticas pues estas pasan por el mismo procedimiento solo que cambian la etiqueta de su estructura. Mientras que \texttt{Add1} y \texttt{Sub1} como mencionamos, son azúcar para $n$ \texttt{+} 1 / $n$ \texttt{-} 1 respectivamente, además de que \texttt{Expt} es azúcar de $n \times n$. Por otro lado, \texttt{Sqrt} solo pasa a ser \texttt{SqrtC} además que aplica \texttt{desugar} a su único hijo.
@@ -398,6 +416,10 @@ Para ello definimos una función auxiliar \texttt{desugarOps} que generaliza el 
 \end{lstlisting}
 
 La función \texttt{desugarOps} recibe una tupla de \texttt{AST} (\texttt{AST -> AST -> AST}) y una lista de \texttt{ASA} y devuelve un \texttt{AST} donde en la tupla, el primero es la etiqueta asociada al operador que vamos a desazucarar y los otros dos son los hijos del operador, que recordemos, en \texttt{AST} ya son árboles binarios. Y la lista de \texttt{ASA} es la lista de los operandos que vamos a separar.
+
+\begin{tcolorbox}[title=\textbf{Corrección 26: Auxiliar desugarOps}, colframe=red!75!black, colback=red!5!white]
+La función \texttt{desugarOps} recibe como primer argumento una función constructora binaria del núcleo \texttt{AST -> AST -> AST} por ejemplo \texttt{AddC o MulC} y como segundo argumento las lista de términos \texttt{ASA} que se deben procesar.
+\end{tcolorbox}
 
 \noindent
 De esta forma no perdemos la referencia de qué tipo de operador \texttt{AST} estamos desazucarando mientras mantemos una única función \texttt{desugarOps} y así no tenemos que definir una función para cada operador.
@@ -431,6 +453,18 @@ Por ello cambiamos su implementación a encadenamiento de condicionales \texttt{
                             (desugarComp op (d:is))
                             (BoolC False)
 \end{lstlisting}
+
+\begin{tcolorbox}[title=\textbf{Corrección 27: Nota sobre el caso base de la recursión desugarComp}, colframe=red!75!black, colback=red!5!white]
+Se podría pensar que el caso base \texttt{desugarComp \_ [\_] = BoolC True} ignora el último elemento de la lista al no aplicar \texttt{desugar} explícitamente sobre él.
+  Sin embargo, dada la naturaleza recursiva de nuestra función, este último elemento \textbf{ya ha sido procesado y desazucarado} en el paso anterior de la recursión, donde actuó como el operando derecho de la comparación (el elemento \texttt{d} en el patrón \texttt{i:d:is}).
+  Por lo tanto, volver a procesarlo en el caso base sería redundante. Para el caso borde de una comparación con un único argumento (ej. \texttt{(= 5)}), asumimos la verdad vacua sin efectos secundarios, consistente con la simplificación del núcleo.
+
+\textbf{Nota sobre la separación de casos:}
+  Aclarando la distinción entre el patrón \texttt{[i, d]} y el caso recursivo general \texttt{(i:d:is)}.
+  Aunque teóricamente el patrón general podría capturar listas de dos elementos (donde la cola \texttt{is} sería vacía), esto resultaría en la generación de una estructura condicional redundante de la forma \texttt{IfC (op i d) True False}.
+  
+  Por esta razón, hemos optado por \textbf{aislar el caso base de dos elementos}. Esta decisión constituye una optimización sintáctica que permite generar directamente el nodo de comparación (\texttt{op i d}) sin envoltorios innecesarios, produciendo un AST más limpio y reduciendo la sobrecarga computacional durante la evaluación.
+\end{tcolorbox}
 
 De manera similar como fue con los operadores, definimos una función \texttt{desugarComp} que recibe una tupla de \texttt{AST} para preservar la etiqueta a desazucarar y la lista de elementos a separar que se van a comparar. Los primeros dos casos, son los casos base, donde igualmente, no podemos tener una lista de uno o ningún elemento, pues. La siguiente instrucción sería nuestro caso base real, donde establece que al tener solo dos elementos en la lista, simplemente se devuela la comparación de ambos elementos, mientras que si todavía quedan elementos en la lista, iniciemos la cadena de \texttt{IfC}, donde los primeros dos elementos se comparan en la condición y en caso de cumplirse continuamos en el entonces con la llamada recursiva de \texttt{desugarComp} del segundo elemento con el resto de la lista, y en caso de no cumplirse, el else es \texttt{BoolC False}.
 
@@ -475,7 +509,7 @@ Como se puede ver, la función \texttt{desugarCond} recibe una lista de pares (\
 \noindent
 De esta manera, la estructura \texttt{Cond} se traduce en una sucesión de evaluaciones \texttt{IfC} anidadas, logrando así preservar el mismo comportamiento semántico que tendría en su forma azucarada. Y así garantizamos que sólo se ejecute el cuerpo correspondiente a la primera condición verdadera, respetando la naturaleza secuencial del condicional múltiple.\\
 
-Como se mencionó, los \texttt{Let} en nuestro lenguaje no son construcciones primitivas, sino azúcar sintáctica que se puede expresar completamente a partir de funciones y aplicaciones. Intuitivamente, un \texttt{Let} introduce una variable local asociada a un valor dentro de un cuerpo de expresión. Sin embargo, esta noción de “sustitución” puede modelarse directamente mediante la aplicación de una función anónima a un argumento.
+Como se mencionó, los \texttt{Let} en nuestro lenguaje no son construcciones primitivas, sino azúcar sintáctica que se puede expresar completamente a partir de funciones y aplicaciones. Intuitivamente, un \texttt{Let} introduce una variable local asociada a un valor dentro de un cuerpo de expresión. Sin embargo, esta noción de “sustitución” puede modelarse directamente mediante la aplicación de una función anónima a un argumento\cite{Dybving}.
 
 \noindent
 Esta equivalencia se refleja directamente en nuestra función auxiliar \texttt{desugarLet}, encargada de traducir cualquier \texttt{Let} del \textbf{ASA} a su correspondiente expresión \textbf{AST} basada en aplicaciones de funciones:
@@ -493,8 +527,21 @@ Esta equivalencia se refleja directamente en nuestra función auxiliar \texttt{d
   desugarLet ((p, v):ps) b = AppC (FunC p (desugarLet ps b)) (desugar v)
 \end{lstlisting}
 
+\begin{tcolorbox}[title=\textbf{Corrección 28: Nota sobre la semántica de Let y Let*}, colframe=red!75!black, colback=red!5!white]
+  \textbf{Nota sobre la semántica de Let y Let*:}
+  Es importante señalar que, debido a la naturaleza recursiva de nuestra función auxiliar \texttt{desugarLet}, las vinculaciones en el constructo \texttt{Let} se generan creando ámbitos anidados para cada variable.
+  
+  Esto implica que, en nuestra implementación actual, \texttt{Let} adopta una \textbf{semántica secuencial}, comportándose de manera idéntica a \texttt{Let*}. Aunque en Lisp estándar el \texttt{Let} realiza asignaciones paralelas (donde una variable no puede referenciar a otra definida en el mismo bloque), hemos optado por unificar ambos comportamientos. Esta decisión de diseño simplifica considerablemente la lógica de desazucarado, permitiendo utilizar un único mecanismo de abstracción recursiva para ambas estructuras sin perder capacidad expresiva.
+\end{tcolorbox}
+
 La función \texttt{desugarLet} recibe una lista de pares \texttt{(id, valor)} y el cuerpo del \texttt{Let}. En el caso base, cuando no hay más pares, simplemente se desazucara el cuerpo, ya que no hay variables locales restantes por introducir. En el caso general, se construye una función anónima con el primer identificador \texttt{p} y cuerpo el resultado de seguir desazucarando los pares restantes junto con el cuerpo \texttt{b}.
 A continuación, esta función se aplica (\texttt{AppC}) al valor \texttt{v} correspondiente, el cual también se desazucara antes de la aplicación.\\
+
+\begin{tcolorbox}[title=\textbf{Corrección 29: Sobre los Lets sin bindings}, colframe=red!75!black, colback=red!5!white]
+La función \texttt{desugarLet} recibe una lista de pares $(id, valor)$ y el cuerpo del \texttt{Let}.
+El caso base de la recursión ocurre cuando la lista de pares es vacía (lo cual corresponde sintácticamente a un \texttt{Let} sin vinculaciones, ej. \texttt{(let () body)}).
+En esta situación, dado que no hay nuevas variables que introducir en el entorno, la expresión es semánticamente equivalente al cuerpo mismo, por lo que simplemente se devuelve el resultado de desazucarar dicho cuerpo (\texttt{desugar b}).
+\end{tcolorbox}
 
 Además, \texttt{LetStar} -como también se  mencionó en la sección anterior- es simplemente azúcar sintáctica de \texttt{Let}. El \texttt{LetStar} permite escribir múltiples asignaciones secuenciales en un mismo bloque, pero semánticamente equivale a una serie de \texttt{Let} anidados. Su desazucarización se implementa recursivamente, construyendo un \texttt{Let} por cada par \texttt{(id, valor)} y utilizando como cuerpo el siguiente \texttt{LetStar}, hasta llegar al cuerpo final.\\
 
@@ -509,18 +556,16 @@ Por otro lado tenemos el caso del \texttt{LetRec}:
 La construcción \texttt{letrec} permite la definición de funciones recursivas locales.
 Dado que el núcleo del lenguaje no incluye recursión como mecanismo primitivo, esta
 debe expresarse mediante azúcar sintáctica utilizando construcciones ya presentes,
-como funciones anónimas y \texttt{let*}.
+como funciones anónimas y \texttt{let}.
 
 La desazucarización transforma la expresión:
 \[
-\text{letrec }\, i = v \;\text{ in }\; b
+\texttt{desugar}(\texttt{LetRec } i\ v\ b)
 \]
 en la siguiente forma equivalente:
-
 \[
-\text{let* } \left[ \left(i,\, (\lambda i.\, v)\,(\lambda i.\, v)\right) \right]\, b
+\texttt{desugar}(\texttt{Let } [(i, \texttt{App } (\texttt{Var } "Z")\ [\texttt{Lambda } [i]\ v])]\ b)
 \]
-
 Este patrón corresponde a la expansión operacional del combinador de punto fijo para
 lenguajes con evaluación estricta (combinador \(Z\) mencionado anteriormente). La función \(\lambda i.\, v\) se
 aplica a sí misma, permitiendo que \(i\) haga referencia a su propia definición dentro
@@ -582,6 +627,12 @@ Finalmente tenemos \texttt{desugar} para listas. En un principio, la idea fue im
   desugarList (x:xs) = ConS (desugar x) (desugarList xs)
 \end{lstlisting}
 
+\begin{tcolorbox}[title=\textbf{Corrección 30: Lista de un elemento}, colframe=red!75!black, colback=red!5!white]
+Nuestro caso base \texttt{desugarList [x] = desugar x} implica que una lista que contiene un único elemento en el \textbf{ASA} se transforma directamente en dicho elemento atómico en el \textbf{AST}, perdiendo su estructura de lista.
+  
+Esto es consistente con nuestra implementación de listas impropias. En este esquema, la lista no termina con un marcador vacío explícito (\texttt{NiL}), sino que el último nodo \texttt{ConS} contiene el dato final directamente en su segunda posición. Por lo tanto, una lista de un solo elemento se reduce semánticamente al elemento mismo dentro de esta estructura simplificada, eliminando la necesidad de un nodo terminador adicional.
+\end{tcolorbox}
+
 De manera muy similar a como fuimos creando el encadenamiento de operadores o de condicionales \texttt{IfC} para los comparadores, en este caso, vamos elemento por elemento de la lista creando un encadenamiento de únicamente \texttt{ConS}, mas no utilizamos \texttt{NiL}. Este \texttt{AST} lo utilizamos de manera reservada para representar las listas vacías, mientras que \texttt{HeadC} y \texttt{TailC} son similares a \texttt{FstC} y \texttt{SndC} pero sobre listas.\\
 
 De este modo terminamos con el algoritmo de la función \texttt{desugar} para desazucarar nuestros \textbf{ASA} y convertilos a \texttt{AST}:
@@ -623,9 +674,8 @@ De este modo terminamos con el algoritmo de la función \texttt{desugar} para de
   desugar (Let iv b) = desugarLet iv b
   desugar (LetStar [] body) = desugar body
   desugar (LetStar (iv:ivs) b) = desugar (Let [iv] (LetStar ivs b))
-  ---
-  ---desugar (LetRec i v b) = desugar (LetStar [(i, App (Lambda [i] v) [Lambda [i] v])] b)
-  ---
+  --Let recursivo
+  desugar (LetRec i v b) = desugar (Let [(i, App (Var "Z") [Lambda [i] v])] b)
   --Expresiones lambda
   desugar (Lambda ps b) = desugarLmb ps b
   desugar (App f as) = desugarApp (desugar f) as

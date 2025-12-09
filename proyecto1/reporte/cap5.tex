@@ -3,12 +3,22 @@ Una vez que hemos establecido la sintaxis del lenguaje en sus formas núcleo, el
 especificar cómo deben ejecutarse y cuál es el resultado de cada construcción del lenguaje. Para ello recurrimos a la \emph{semántica operacional}, un enfoque formal que describe el comportamiento de los programas mediante reglas que modelan su ejecución paso a paso o de manera global.
 
 
-La formalización de la semántica permite razonar rigurosamente sobre programas, verificar propiedades (por ejemplo corrección y seguridad), y relacionar la especificación formal con una implementación (intérprete o compilador). Existen distintos enfoques para dar semántica a un lenguaje (operacional, denotacional y axiomática). En este trabajo nos centraremos en la semántica operacional y, concretamente, en el estilo \emph{small-step} (semántica estructural), que es el más conveniente para \minilisp por su claridad al exponer transformaciones intermedias.
+La formalización de la semántica permite razonar rigurosamente sobre programas, verificar propiedades (por ejemplo corrección y seguridad), y relacionar la especificación formal con una implementación (intérprete o compilador). Existen distintos enfoques para dar semántica a un lenguaje (operacional, denotacional y axiomática)\cite{M06}. En este trabajo nos centraremos en la semántica operacional y, concretamente, en el estilo \emph{small-step} (semántica estructural), que es el más conveniente para \minilisp por su claridad al exponer transformaciones intermedias.
 
 
 \section{¿Qué es la semántica operacional?}
 La semántica operacional especifica el significado de los programas describiendo cómo estos evolucionan durante su ejecución. En lugar de asignar directamente un valor matemático al programa, se define un sistema de reglas de inferencia que muestran cómo un programa avanza desde un estado inicial hasta un estado final (o intermedio). Cada regla representa un paso válido de evaluación en el lenguaje.
 Este enfoque permite expresar la dinámica del programa de manera clara, estructural y verificable, lo que resulta especialmente útil para lenguajes funcionales como \minilisp.
+
+\begin{tcolorbox}[title=\textbf{Corrección 31: }, colframe=red!75!black, colback=red!5!white]
+La semántica operacional especifica el significado de los programas describiendo la computación como una secuencia de pasos en una máquina abstracta. A diferencia de la semántica denotacional, que asigna directamente un objeto matemático estático al programa, el enfoque operacional estructural (Small-step) define un sistema de reglas de inferencia que formalizan las transiciones de estado individuales. Cada regla describe cómo una expresión se transforma (o reduce) en una más simple, avanzando desde un estado inicial hasta un valor canónico o error\cite{PierceBC}.
+
+Este enfoque resulta especialmente adecuado para lenguajes funcionales como MiniLisp por dos razones fundamentales:
+\begin{itemize}
+\item Modelado de la reducción: Al basarse en el paradigma funcional, la ejecución en MiniLisp es esencialmente un proceso de reescritura de términos (reducciones $\beta$ y sustituciones). La semántica de paso pequeño captura explícitamente estas transformaciones intermedias, lo que permite visualizar la dinámica de las funciones recursivas y la aplicación de clausuras.
+\item Correspondencia con la implementación: Al definir la evaluación como una serie de pasos discretos, las reglas semánticas se traducen casi directamente en la función de transición del intérprete (en nuestro caso, la función pasito), facilitando la verificación de que el código implementado es fiel a la especificación formal.
+\end{itemize}
+\end{tcolorbox}
 
 Dos estilos comunes son:
 \begin{itemize}
@@ -20,6 +30,10 @@ La \textit{semántica natural}, también llamada \textit{big-step}, evalúa expr
   Fue introducida por Gordon Plotkin en 1981 como parte de su trabajo fundacional en semántica estructural.
  Describe la evaluación completa de los programas.~\cite{Plotkin}
 \end{quote}
+
+\begin{tcolorbox}[title=\textbf{Corrección 32: Confusión en la atribución histórica de los autores y los estilos semánticos $Gran error pido disculpas$}, colframe=red!75!black, colback=red!5!white]
+Este estilo fue introducido por Gilles Kahn en 1987 bajo el nombre de Semántica Natural. A diferencia del enfoque estructural de Plotkin, la semántica natural relaciona directamente un término con su valor final, ignorando los estados intermedios\cite{kahn1987N}.
+\end{tcolorbox}
 
 \begin{itemize}
 \item\textbf{Semántica Estructural (Small-step)}
@@ -48,6 +62,12 @@ donde \(v\) es un valor.
 
 Este enfoque fue sistematizado por Gordon Plotkin como parte del marco \textbf{Structural Operational Semantics (SOS)}~\cite{Plotkin}, el cual enfatiza la correspondencia directa entre la estructura sintáctica del lenguaje y sus reglas de evaluación. La semántica de paso pequeño resulta especialmente útil en el estudio de lenguajes funcionales como \minilisp, donde el orden de evaluación, la sustitución y la estructura de funciones juegan un papel esencial en la ejecución.
 
+\begin{tcolorbox}[title=\textbf{Corrección 33:  }, colframe=red!75!black, colback=red!5!white]
+Este enfoque fue sistematizado por Gordon Plotkin como parte del marco \textit{Structural Operational Semantics} (SOS)~\cite{Plotkin}. 
+Si bien este marco es aplicable a diversos paradigmas de programación, su adopción para \minilisp se justifica porque permite formalizar explícitamente la \textbf{estrategia de reducción}. 
+Al definir la evaluación mediante pasos discretos de reescritura, podemos especificar con precisión el orden de evaluación (en nuestro caso, estricto de izquierda a derecha) y distinguir claramente entre estados intermedios, errores de ejecución y no-terminación, detalles que una semántica de paso grande (\textit{Big-step}) tiende a abstraer.
+\end{tcolorbox}
+
 \subsection*{Motivos para emplear la semántica de paso pequeño}
 Optar por este estilo semántico ofrece varias ventajas:
 \begin{itemize}
@@ -57,7 +77,7 @@ Optar por este estilo semántico ofrece varias ventajas:
   \item \textbf{Adecuada para depuración y evaluación interactiva}: permite observar el flujo de ejecución e inspeccionar expresiones intermedias, lo cual es crucial para sistemas educativos e intérpretes interactivos.
 \end{itemize}
 
-En el contexto de \minilisp, la semántica de paso pequeño nos permite capturar explícitamente cómo las expresiones se reducen, aplicando reglas como la reducción \(\beta\), la evaluación de condicionales, y la expansión de funciones recursivas. Esta formalización establece la base teórica para la implementación del intérprete desarrollado en este proyecto.
+En el contexto de \minilisp, la semántica de paso pequeño nos permite capturar explícitamente cómo las expresiones se reducen, aplicando reglas como la reducción \(\beta\), la evaluación de condicionales, y la expansión de funciones recursivas. Esta formalización establece la base teórica para la implementación del intérprete desarrollado en este proyecto\cite{M06 - PierceBC}.
 
 
 \subsection{Sistema de transición}
@@ -79,7 +99,7 @@ La ejecución de un programa se modela entonces como una secuencia de transicion
 e_0 \;\rightarrow\; e_1 \;\rightarrow\; e_2 \;\rightarrow\; \cdots \;\rightarrow\; e_n
 \]
 
-donde \(e_0 \in I\), cada transición \(e_i \rightarrow e_{i+1}\) está justificada por una regla de evaluación, y \(e_n \in F\) representa un estado final.
+donde \(e_0 \in I\), cada transición \(e_i \rightarrow e_{i+1}\) está justificada por una regla de evaluación, y \(e_n \in F\) representa un estado final\cite{Plotkin}.
 
 En el contexto de \minilisp, usaremos este formalismo para describir cómo las expresiones del lenguaje se transforman gradualmente hasta producir un valor o alcanzar una condición de término. Los \textbf{estados finales} corresponderán a valores que ya no pueden seguir reduciéndose, tales como números, valores booleanos, funciones evaluadas y otras construcciones que definiremos formalmente más adelante.
 
@@ -99,12 +119,12 @@ donde:
   \item \(\rho\) es un \textbf{ambiente léxico} que mapea variables a valores.
 \end{itemize}
 
-Las closures permiten implementar correctamente \textit{scoping léxico}, asegurando que las funciones mantengan acceso a las variables del contexto donde fueron creadas, aun cuando se utilicen fuera de dicho contexto. Aunque mencionamos este concepto aquí, su definición formal y su rol dentro de los estados finales se precisará en secciones posteriores.
+Las closures permiten implementar correctamente \textit{scoping léxico}, asegurando que las funciones mantengan acceso a las variables del contexto donde fueron creadas, aun cuando se utilicen fuera de dicho contexto\cite{PierceBC - abelson1996}. Aunque mencionamos este concepto aquí, su definición formal y su rol dentro de los estados finales se precisará en secciones posteriores.
 
 
 \subsection{Estados Finales en\minilisp}
 
-Definimos los estados finales para el lenguaje\minilisp{-0.2cm}:
+Definimos los estados finales para el lenguaje\minilisp\hspace{-0.2cm}:
 \begin{align*}
   F = &\{\, Num_{V}(n) \mid n \in \Z\,\}\: \cup \:\{\, Boolean_{V}(b) \mid b \in \{True,False\}\,\}\: \cup \:\{\, Pair_{V}(f,s) \mid f,s\in F\,\}\: \cup \\
   &\{\, Cons_{V}(h,t) \mid h,t\in C\,\}\: \cup \:\{\, Nil_{V} \mid \text{ es la lista vacía}\}\: \cup \\
@@ -128,7 +148,7 @@ data ASV
   deriving (Show, Eq)
 \end{lstlisting}
 
-El tipo de dato \texttt{ASV} serán con el que modelaremos los estados finales del lenguaje. Sin embargo, en nuestra implementación, es necesario agregar las demás estructuras que trabajan con estos estados finales -como lo son los operadores aritméticos o las operaciones sobre pares o listas- ya que \texttt{ASV} sigue modelando una estructura de tipo árbol la cual sigue el mismo principio que las estructuras \texttt{ASA}:
+El tipo de dato \texttt{ASV} serán con el que modelaremos los estados finales del lenguaje. Sin embargo, en nuestra implementación, es necesario agregar las demás estructuras que trabajan con estos estados finales como lo son los operadores aritméticos o las operaciones sobre pares o listas ya que \texttt{ASV} sigue modelando una estructura de tipo árbol la cual sigue el mismo principio que las estructuras \texttt{ASA}:
 
 \begin{center}
   \textit{Una expresión es \texttt{ASV} si y solo si sus hijos también son \texttt{ASV}.}
@@ -203,6 +223,14 @@ Ya que hemos definido el tipo de dato \texttt{ASV} veamos como convertimos nuest
 
 La función \texttt{toFinalState} transforma cada estructura del núcleo AST en su equivalente ASV. Aunque a primera vista parezca una simple correspondencia entre constructores, su propósito es fundamental: garantizar que todas las expresiones que se evalúan dentro del intérprete sean expresadas en términos de ASV, permitiendo así que la semántica del lenguaje opere únicamente sobre estructuras homogéneas y compatibles con los valores finales del lenguaje.
 
+\begin{tcolorbox}[title=\textbf{Corrección 34:  }, colframe=red!75!black, colback=red!5!white]
+La función \texttt{toFinalState} realiza la inyección del dominio sintáctico al dominio semántico. Aunque existe una correspondencia estructral entre la mayoría de los constructores del AST y del ASV, esta transformación es indispensable por dos razones teóricas:
+\begin{enumerate}
+\item \textbf{Uniformidad en la Transición:} La semántica de paso pequeño se define como una relación $e \to e'$ sobre un mismo conjunto. Al elevar la sintaxis a ASV, garantizamos que tanto las expresiones no evaluadas como los valores parcialmente reducidos pertenezcan al mismo tipo de dato, permitiendo que la función de transición pasito sea endomórfica ($\text{ASV} \to \text{ASV}$).
+\item \textbf{Valores no denotables en la sintaxis:} El tipo ASV es estrictamente mejor que el AST, pues incluye constructores como Closure que representan valores en tiempo de ejecución (funciones junto a su entorno) y que no tienen representación textual directa en el código fuente original.\end{enumerate}
+
+\end{tcolorbox}
+
 \subsection{Reglas de evaluación}
 
 Las reglas de evaluación constituyen el núcleo de la semántica operacional estructural. Su propósito es describir formalmente cómo una expresión del lenguaje progresa paso a paso hasta convertirse en un valor. Cada regla establece una relación de transición entre estados del programa, donde un estado suele estar compuesto por una expresión y un ambiente (o entorno) de ejecución.
@@ -210,6 +238,10 @@ Las reglas de evaluación constituyen el núcleo de la semántica operacional es
 Estas reglas son necesarias porque proporcionan una base rigurosa para entender, implementar y razonar formalmente sobre el comportamiento de un lenguaje de programación. Al definir el significado de un programa mediante reglas inductivas, aseguramos que cada paso de cómputo esté claramente especificado y sea verificable. Además, permiten demostrar propiedades importantes como corrección, determinismo, o progresión de los programas.
 
 Un componente fundamental en esta formalización es el ambiente ($\varepsilon$), que modela el contexto donde se evalúan las expresiones. El ambiente es una estructura que asocia identificadores del lenguaje con valores, y se actualiza o consulta durante la evaluación. En esencia, actúa como una memoria que mantiene las asignaciones vigentes en cada punto del cómputo. Las reglas operan entonces sobre pares $\langle \text{expresión}, \varepsilon \rangle$, indicando cómo se transforma la expresión manteniendo o modificando dicho ambiente.
+
+\begin{tcolorbox}[title=\textbf{Corrección 35: Definición de conjunto de total de estados  }, colframe=red!75!black, colback=red!5!white]
+Sea $E$ el conjunto de todos los estados posibles, definido como $E = \text{ASV} \times \text{Env} \cup \{\textbf{Error}\}$.
+\end{tcolorbox}
 
 \begin{itemize}
 \item Expresiones atómicas:
@@ -219,12 +251,30 @@ Un componente fundamental en esta formalización es el ambiente ($\varepsilon$),
     \frac{lookup\ i\ \varepsilon = v}{\langle VarV(i), \varepsilon \rangle \to \langle v, \varepsilon \rangle}
     \]
     \[
-    \frac{lookup\ i\ \varepsilon \ \text{no está definido}}{\langle Varv(i), \varepsilon \rangle \to \text{Error en la ejecución de la evaluación}}
+    \frac{lookup\ i\ \varepsilon \ \text{no está definido}}{\langle Varv(i), \varepsilon \rangle \to \text{Error}}
     \]
+
+\begin{tcolorbox}[title=\textbf{Corrección 36: VarV(i)S }, colframe=red!75!black, colback=red!5!white]
+\item VarV(i):
+    \[
+    \frac{lookup(i, \varepsilon) = v}{\langle VarV(i), \varepsilon \rangle \to \langle v, \varepsilon \rangle} \quad (\text{E-Var})
+    \]
+    \[
+    \frac{lookup(i, \varepsilon) = \bot}{\langle VarV(i), \varepsilon \rangle \to \textbf{Error}} \quad (\text{E-VarErr})
+    \]
+\end{tcolorbox}
 
 El operador \texttt{lookup} busca el valor asociado a un identificador dentro del ambiente \(\varepsilon\). Si el identificador se encuentra definido, \texttt{lookup} devuelve su valor; en caso contrario, la evaluación produce un error, ya que se intenta acceder a una variable no declarada o fuera de su alcance. De esta manera, \texttt{lookup} garantiza que toda referencia a variables se resuelva correctamente según el entorno léxico vigente.
 
-    
+\begin{tcolorbox}[
+    title=\textbf{Corrección: Reglas Definición de conjunto de total de estados},
+    colframe=red!75!black,
+    colback=red!5!white,
+    fonttitle=\bfseries
+]
+Las correcciones de las reglas se hicieron directamente en el texto sin agregar cajita.
+\end{tcolorbox}
+
   \item NumV(n):
     \[
     \frac{}{\langle NumV(n), \varepsilon \rangle \to \langle NumV(n), \varepsilon \rangle}
@@ -236,19 +286,22 @@ El operador \texttt{lookup} busca el valor asociado a un identificador dentro de
     \]
   \item NiV:
     \[
-    \frac{}{\langle NivV, \varepsilon \rangle \to \langle NiV, \varepsilon \rangle}
+    \frac{}{\langle NiV, \varepsilon \rangle \to \langle NiV, \varepsilon \rangle}
     \]
   \end{itemize}
   
 \item AddV(i,d):
+    \textit{Caso 1: Evaluar lado izquierdo (Left)}
   \[
   \frac{\langle i, \varepsilon \rangle \to \langle i', \varepsilon \rangle}{\langle AddV(i,d), \varepsilon \rangle \to \langle AddV(i',d), \varepsilon \rangle}
   \]
+  \textit{Caso 2: Evaluar lado derecho (Right)}
   \[
   \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle AddV(NumV(n),d), \varepsilon \rangle \to \langle Add(NumV(n),d'), \varepsilon \rangle}
   \]
+  \textit{Caso 3: Realizar la operación (Operation)}
   \[
-  \frac{}{\langle AddV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n +_{\Z} m), \varepsilon \rangle}
+  \frac{}{\langle AddV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n +m), \varepsilon \rangle}
   \]
   
 \item SubV(i,d):
@@ -259,7 +312,7 @@ El operador \texttt{lookup} busca el valor asociado a un identificador dentro de
   \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle SubV(NumV(n),d), \varepsilon \rangle \to \langle SubV(NumV(n),d'), \varepsilon \rangle}
   \]
   \[
-  \frac{}{\langle SubV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n -_{\Z} m), \varepsilon \rangle}
+  \frac{}{\langle SubV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n - m), \varepsilon \rangle}
   \]
  
 \item MulV(i,d):
@@ -270,7 +323,7 @@ El operador \texttt{lookup} busca el valor asociado a un identificador dentro de
   \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle MulV(NumV(n),d), \varepsilon \rangle \to \langle MulV(NumV(n),d'), \varepsilon \rangle}
   \]
   \[
-  \frac{}{\langle MulV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n *_{\Z} m), \varepsilon \rangle}
+  \frac{}{\langle MulV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n *m), \varepsilon \rangle}
   \]
   
 \item DiV(i,d):
@@ -281,10 +334,10 @@ El operador \texttt{lookup} busca el valor asociado a un identificador dentro de
   \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle DiV(NumV(n),d), \varepsilon \rangle \to \langle DiV(NumV(n),d'), \varepsilon \rangle}
   \]
   \[
-  \frac{}{\langle DiV(NumV(n),NumV(0)), \varepsilon \to \text{Error en la ejecución de la evaluación}}
+  \frac{}{\langle DiV(NumV(n),NumV(0)), \varepsilon \to \text{Error}}
   \]
   \[
-  \frac{}{ \langle DiV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n\ /_{\Z}\ m), \varepsilon \rangle} \quad (m \neq 0)
+  \frac{}{ \langle DiV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle NumV(n / m), \varepsilon \rangle} \quad (m \neq 0)
   \]
   
 \item SqrtV(n):
@@ -292,10 +345,10 @@ El operador \texttt{lookup} busca el valor asociado a un identificador dentro de
   \frac{\langle n, \varepsilon \rangle \to \langle n', \varepsilon \rangle}{\langle SqrtV(n), \varepsilon \rangle \to \langle SqrtV(n'), \varepsilon \rangle}
   \]
   \[
-  \frac{n < 0}{\langle SqrtV(NumV(n)), \varepsilon \to \text{Error en la ejecución de la evaluación}}
+  \frac{n < 0}{\langle SqrtV(NumV(n)), \varepsilon \to \text{Error}}
   \]
   \[
-  \frac{}{\langle SqrtV(NumV(n)), \varepsilon \rangle \to \langle NumV(\sqrt{n}_{\N}), \varepsilon \rangle}  \quad (n \geq 0)
+  \frac{}{\langle SqrtV(NumV(n)), \varepsilon \rangle \to \langle NumV(\sqrt{n}), \varepsilon \rangle}  \quad (n \geq 0)
   \]
   
 \item NotV(b):
@@ -303,7 +356,7 @@ El operador \texttt{lookup} busca el valor asociado a un identificador dentro de
   \frac{\langle b, \varepsilon \rangle \to \langle n', \varepsilon \rangle}{\langle NotV(b), \varepsilon \rangle \to \langle NotV(b'), \varepsilon \rangle}
   \]
   \[
-  \frac{}{\langle NotV(BoolV(b)), \varepsilon \rangle \to \langle BoolV(\neg_{\P}b) \varepsilon \rangle}
+  \frac{}{\langle NotV(BoolV(b)), \varepsilon \rangle \to \langle BoolV(\neg b) \varepsilon \rangle}
   \]
   
 \item EqualV(i,d):
@@ -314,7 +367,7 @@ El operador \texttt{lookup} busca el valor asociado a un identificador dentro de
   \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle EqualV(NumV(n),d), \varepsilon \rangle \to \langle EqualV(NumV(n),d'), \varepsilon \rangle}
   \]
   \[
-  \frac{}{\langle EqualV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n =_{\Z} m), \varepsilon \rangle}
+  \frac{}{\langle EqualV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n = m), \varepsilon \rangle}
   \]
 
 \item LessV(i,d)
@@ -325,7 +378,7 @@ El operador \texttt{lookup} busca el valor asociado a un identificador dentro de
   \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle LessV(NumV(n),d), \varepsilon \rangle \to \langle LessV(NumV(n),d'), \varepsilon \rangle}
   \]
   \[
-  \frac{}{\langle LessV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n <_{\Z} m), \varepsilon \rangle}
+  \frac{}{\langle LessV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n < m), \varepsilon \rangle}
   \]
   
 \item GreaterV(i,d)
@@ -336,7 +389,7 @@ El operador \texttt{lookup} busca el valor asociado a un identificador dentro de
   \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle GreaterV(NumV(n),d), \varepsilon \rangle \to \langle GreaterV(NumV(n),d'), \varepsilon \rangle}
   \]
   \[
-  \frac{}{\langle GreaterV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n >_{\Z} m), \varepsilon \rangle}
+  \frac{}{\langle GreaterV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n > m), \varepsilon \rangle}
   \]
   
 \item DiffV(i,d)
@@ -347,7 +400,7 @@ El operador \texttt{lookup} busca el valor asociado a un identificador dentro de
   \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle DiffV(NumV(n),d), \varepsilon \rangle \to \langle DiffV(NumV(n),d'), \varepsilon \rangle}
   \]
   \[
-  \frac{}{\langle DiffV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n \neq_{\Z} m), \varepsilon \rangle}
+  \frac{}{\langle DiffV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n \neq m), \varepsilon \rangle}
   \]
   
 \item LeqV(i,d)
@@ -358,7 +411,7 @@ El operador \texttt{lookup} busca el valor asociado a un identificador dentro de
   \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle LeqV(NumV(n),d), \varepsilon \rangle \to \langle LeqV(NumV(n),d'), \varepsilon \rangle}
   \]
   \[
-  \frac{}{\langle LeqV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n \leq_{\Z} m), \varepsilon \rangle}
+  \frac{}{\langle LeqV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n \leq m), \varepsilon \rangle}
   \]
   
 \item GeqV(i,d)
@@ -369,11 +422,11 @@ El operador \texttt{lookup} busca el valor asociado a un identificador dentro de
   \frac{\langle d, \varepsilon \rangle \to \langle d', \varepsilon \rangle}{\langle GeqV(NumV(n),d), \varepsilon \rangle \to \langle GeqV(NumV(n),d'), \varepsilon \rangle}
   \]
   \[
-  \frac{}{\langle GeqV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n \geq_{\Z} m), \varepsilon \rangle}
+  \frac{}{\langle GeqV(NumV(n),NumV(m)), \varepsilon \rangle \to \langle BoolV(n \geq m), \varepsilon \rangle}
   \]
 \end{itemize}
 
-Como se puede ver en las reglas para los comparadores, la regla final cuando ambas expresiones del comparador son el resultado deriva en
+Como se puede ver en las reglas para los comparadores, la regla final cuando ambas expresiones del comparador son el resultado deriva en un estado final \texttt{BoolV}, el cual captura el resultado lógico de la comparación (verdadero o falso) entre los dos enteros evaluados.
 
 \begin{itemize}  
 \item PairV(f,s):
@@ -408,10 +461,10 @@ Como se puede ver en las reglas para los comparadores, la regla final cuando amb
   \frac{\langle c, \varepsilon \rangle \to \langle c', \varepsilon \rangle}{\langle IfV(c,t,e), \varepsilon \rangle \to \langle IfV(c',t,e), \varepsilon \rangle}
   \]
   \[
-  \frac{}{\langle IfV(BoolV(\#t),t,e), \varepsilon \rangle \to \langle t, \varepsilon \rangle}
+  \frac{}{\langle IfV(BoolV(True),t,e), \varepsilon \rangle \to \langle t, \varepsilon \rangle}
   \]
   \[
-  \frac{}{\langle IfV(BoolV(\#f),t,e), \varepsilon \rangle \to \langle e, \varepsilon \rangle}
+  \frac{}{\langle IfV(BoolV(False),t,e), \varepsilon \rangle \to \langle e, \varepsilon \rangle}
   \]
   
 \item ConV(i,d):
@@ -427,7 +480,7 @@ Como se puede ver en las reglas para los comparadores, la regla final cuando amb
   
 \item HeadV(l):
   \[
-  \frac{\langle p, \varepsilon \rangle \to \langle p', \varepsilon \rangle}{\langle HeadV(l), \varepsilon \rangle \to \langle HeadV(l'), \varepsilon \rangle}
+  \frac{\langle l, \varepsilon \rangle \to \langle l', \varepsilon \rangle}{\langle HeadV(l), \varepsilon \rangle \to \langle HeadV(l'), \varepsilon \rangle}
   \]
   \[
   \frac{}{\langle HeadV(ConV(v_i,v_d)), \varepsilon \rangle \to \langle v_i, \varepsilon \rangle}
@@ -435,13 +488,18 @@ Como se puede ver en las reglas para los comparadores, la regla final cuando amb
   
 \item TailV(l);
   \[
-  \frac{\langle l, \varepsilon \rangle \to \langle l', \varepsilon \rangle}{\langle TailV(l), \varepsilon \rangle \to \langle TailV(l'), \varepsilon \rangle}
+  \frac{\langle l, \varepsilon \rangle \to \langle l', \varepsilon \rangle}
+       {\langle TailV(l), \varepsilon \rangle \to \langle TailV(l'), \varepsilon \rangle}
   \]
+
   \[
-  \frac{v_d \text{ es valor pero } v_d = ConV(i,d) \;\; v_d \to v_d'}{\langle TailV(ConV(v_i,v_d)), \varepsilon \rangle \to \langle TailV(v_i,v_d'), \varepsilon \rangle}
+  \frac{isCons(v_t) \quad \langle v_t, \varepsilon \rangle \to \langle v_t', \varepsilon \rangle}
+       {\langle TailV(ConV(v_h, v_t)), \varepsilon \rangle \to \langle TailV(ConV(v_h, v_t')), \varepsilon \rangle}
   \]
+
   \[
-  \frac{v_d \text{ es valor pero} v_d \neq ConV(i,d)}{\langle TailV(ConV(v_i,v_d)), \varepsilon \rangle \to \langle v_d, \varepsilon \rangle}
+  \frac{\neg isCons(v_t)}
+       {\langle TailV(ConV(v_h, v_t)), \varepsilon \rangle \to \langle v_t, \varepsilon \rangle}
   \]
   
 \item FunV(p,c):
@@ -451,20 +509,38 @@ Como se puede ver en las reglas para los comparadores, la regla final cuando amb
   
 \item AppV(f,a):
   \[
-  \frac{\langle f, \varepsilon \rangle \to \langle f', \varepsilon \rangle}{\langle AppV(f,a), \varepsilon \rangle \to \langle AppV(f',a), \varepsilon \rangle}
+  \frac{\langle f, \varepsilon \rangle \to \langle f', \varepsilon \rangle}
+       {\langle AppV(f,a), \varepsilon \rangle \to \langle AppV(f',a), \varepsilon \rangle}
   \]
+
   \[
-  \frac{\langle a, \varepsilon \rangle \to \langle a', \varepsilon \rangle}{\langle AppV(Closure(FunV(p,c), \varepsilon'),a), \varepsilon \rangle \to \langle AppV(Closure(FunV(p,c), \varepsilon'),a'), \varepsilon \rangle}
+  \frac{\langle a, \varepsilon \rangle \to \langle a', \varepsilon \rangle}
+       {\langle AppV(Closure(p, c, \varepsilon'), a), \varepsilon \rangle \to \langle AppV(Closure(p, c, \varepsilon'), a'), \varepsilon \rangle}
   \]
+
   \[
-  \frac{\^{a} \text{ es un valor canónico}}{\langle AppV(Closure(FunV(p,c), \varepsilon'), \^{a}), \varepsilon \rangle \to \langle c, \varepsilon'[p \leftarrow \^{a}] \rangle}
+  \frac{v_a \text{ es valor}}
+       {\langle AppV(Closure(p, c, \varepsilon'), v_a), \varepsilon \rangle \to \langle c, \varepsilon'[p \mapsto v_a] \rangle}
   \]
+
 \end{itemize}
 
 \subsubsection*{Conclusión}
   En resumen, las reglas de evaluación proporcionan el marco formal necesario para describir con precisión el proceso de ejecución de los programas dentro de un lenguaje. A través de estas reglas se establece, de manera inductiva, cómo las expresiones evolucionan paso a paso bajo un ambiente de evaluación, garantizando así un comportamiento bien definido y verificable. Este enfoque no solo facilita la implementación y el razonamiento formal del lenguaje, sino que también permite identificar errores semánticos de forma rigurosa, asegurando que cada etapa del cómputo sea consistente con la semántica especificada.
 
+\begin{tcolorbox}[
+    title=\textbf{Corrección 38: Conclusión},
+    colframe=red!75!black,
+    colback=red!5!white,
+    fonttitle=\bfseries
+]
+En resumen, las reglas de evaluación proporcionan el marco formal necesario para describir con precisión el proceso de ejecución de los programas dentro de un lenguaje. 
+A través de estas reglas se establece, de manera inductiva, cómo las expresiones evolucionan paso a paso bajo un ambiente de evaluación, garantizando un comportamiento bien definido y verificable. 
+Esto es posible gracias al \textbf{determinismo} del sistema de transición, el cual asegura que para cualquier configuración válida existe, una única transición posible o un valor final, permitiendo trazar la ejecución mediante árboles de derivación únicos.
 
+Este enfoque no solo facilita la implementación y el razonamiento formal del lenguaje, sino que también provee el mecanismo para distinguir entre estados válidos y fallos en tiempo de ejecución.
+Aunque en esta especificación nos hemos centrado en formalizar explícitamente errores críticos como la \textbf{división por cero} y el acceso a \textbf{variables libres}, el marco semántico es extensible para capturar otros comportamientos anómalos (como errores de tipo dinámicos) mediante la definición de nuevos estados de error o estados bloqueados.
+\end{tcolorbox}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Intérprete para\minilisp}
@@ -480,7 +556,7 @@ De manera general, nuestro intérprete debe:
 \begin{itemize}
   \item Recibir una expresión en sintaxis concreta y traducirla a su representación en el ASA y posteriormente ASV.
   \item Inicializar un ambiente de ejecución vacío o con valores predefinidos.
-  \item Aplicar las reglas de evaluación de manera iterativa (paso a paso), hasta alcanzar un valor final (estado final), una expresión bloqueada, o un error.
+  \item Aplicar las reglas de evaluación de manera iterativa (paso a paso), hasta alcanzar un valor final (estado final), una expresión bloqueada (configuración para la cual no existe ninguna regla de transición definida), o un error (estado al que el sitema va cuando detecta una operación inválida).
   \item Gestionar ambientes y cierres (\textit{closures}) para implementar alcance léxico y funciones como valores de primera clase.
   \item Reportar resultados o errores de evaluación al usuario de forma clara.
 \end{itemize}
@@ -572,7 +648,7 @@ isValue (NiV) = True
 isValue _ = False
 \end{lstlisting}
 
-La función \texttt{eval} recibe un estado final con el ambiente de inicio el cuál es vacío al comienzo de la evaluación y devuelve un \texttt{ASV} que se al terminar será un valor canónico.
+La función \texttt{eval} recibe un estado final con el ambiente de inicio el cuál es vacío al comienzo de la evaluación y devuelve un \texttt{ASV} que se avalúa recursivamente y al terminar será un valor canónico.
 
 \noindent
 Utilizamos guardas con los que describimos que hacer. Si la expresión ya es un valor canónico (según \texttt{isValue}), no hay nada que evaluar y devolvemos el valor tal cual. En otro caso procedemos a evaluar la expresión paso a paso.
@@ -580,7 +656,7 @@ Utilizamos guardas con los que describimos que hacer. Si la expresión ya es un 
 \noindent
 Con la función auxiliar \texttt{isValue} utilizando la casa de patrones definimos cuales estados son valores canónicos que ya establecimos y, en caso de serlo, devolvemos \texttt{True}, en otro caso no es canónico y devolvemos \texttt{False}.\\
 
-Modelamos las reglas de evaluación con paso pequeño de\minilisp{-0.2cm} con la función \texttt{pasito}. Esta función \texttt{pasito} recibe el estado final con su ambiente a evaluar y regresa la configuración resultante:
+Modelamos las reglas de evaluación con paso pequeño de\minilisp\hspace{-0.2cm} con la función \texttt{pasito}. Esta función \texttt{pasito} recibe el estado final con su ambiente a evaluar y regresa la configuración resultante:
 
 \begin{lstlisting}[style=haskellstyle, caption={Función \texttt{pasito} para valores, casos base}]
 {--  Funcion pasito que implementa la semantica operacional estructural del lenguaje --}
@@ -605,7 +681,7 @@ mirarriba i ((j, v):e)
 
 Como se puede ver, \texttt{pasito} utiliza la casa de patrones de acuerdo con las reglas que establecimos previamente. \texttt{NumV n}, \texttt{BoolV b} y \texttt{NiV} solo devuelven la misma expresión con el mismo ambiente recibido.\\
 
-Tenemos la mención especial de que para las variables \texttt{VarV} utilizamos \texttt{lookup}, que en nuestra implementación, con un arrebato increíble de originalidad lo nombramos como \texttt{mirarriba}; para buscar las varibales en el ambiente dado. La función implementa la búsqueda de una variable en el ambiente, toma el nombre de una variable y un ambiente \texttt{Env} y devuelve el \texttt{ASV} asociado.
+Tenemos la mención especial de que para las variables \texttt{VarV} utilizamos \texttt{lookup}, que en nuestra implementación, con un arrebato increíble de originalidad lo nombramos como \texttt{mirarriba}; para buscar las variables en el ambiente dado. La función implementa la búsqueda de una variable en el ambiente, toma el nombre de una variable y un ambiente \texttt{Env} y devuelve el \texttt{ASV} asociado.
 
 \noindent
 Si el ambiente es vacío o llegamos al final de este y no encontramos la variable, lanzamos un error con un mensaje indicando que la variable no está definida, deteniedno la ejecución de todo el intérprete. En el caso recursivo, comprobamos que el identificador en el ambiente sea el mismo que el ambiente que se está buscando, en caso de que coincidan devolvemos el valor v asociado ya que hemos encontrado la variable. En otro caso, si no coinciden, continuamos la búsqueda recursivamente en la cola. Recorremos el ambiente hasta encontrar la variable o agotar la "$pila$".
@@ -692,7 +768,7 @@ pasito (GeqV i d) env                   = let (i', env') = pasito i env
                                           in (GeqV i' d, env')
 \end{lstlisting}
 
-En el caso de \texttt{Not}, una vez que el argumento es \texttt{BoolV} retornamos la negación en Haskell de este \texttt{BoolV} como un nuevo \texttt{BoolV}. De la misma manera como fue con los operadores aritméticos, cuando ambos argumentos ya son números con los cuales comparar, regresamos la comparación como valor booleano\texttt{BoolV} con el resultado evaluado con los operadores de comparación en Haskell.
+En el caso de \texttt{Not}, una vez que el argumento es \texttt{BoolV} retornamos la negación en Haskell de este \texttt{BoolV} como un nuevo \texttt{BoolV}. De la misma manera como fue con los operadores aritméticos, cuando ambos argumentos ya son números con los cuales comparar, regresamos la comparación como valor booleano \texttt{BoolV} con el resultado evaluado con los operadores de comparación en Haskell.
 
 \begin{lstlisting}[style=haskellstyle, caption={Función \texttt{pasito} para comparadores}]
 pasito :: ASV -> Env -> (ASV, Env)
@@ -743,7 +819,7 @@ Para el caso de \texttt{PairV} y \texttt{ConV}, en ambos, comprobamos que sean v
 \noindent
 Para la evaluación de los operadores sobre pares, con \texttt{FstV}, como utilizamos evaluación glotona, debemos llegar a que el par recibido tenga ambas expresiones como valor, para así devolver el primer argumento del par. Lo mismo con \texttt{SndV} que, hasta tener los argumentso $f$ y $s$ como valores, devolvemos $s$, el segundo.\\
 
-Para el caso de \texttt{HeadV} con \texttt{ConV} es análogo a \texttt{FstV} con los pares. Sin embargo, \texttt{TailV} no solo necesita que ambos argumentos ya seal valores, sino que el segundo valor no sea de tipo \texttt{ConV}, pues esto significa que hay más expresiones en el encadenamiento de \texttt{ConV}, por lo que necesitamos seguir con este segundo argumento hasta llegar a un valor canónico dinstinto de \texttt{ConV} -justo como en las reglas de evaluación para esta expresión-.
+Para el caso de \texttt{HeadV} con \texttt{ConV} es análogo a \texttt{FstV} con los pares. Sin embargo, \texttt{TailV} no solo necesita que ambos argumentos ya sea los valores, sino que el segundo valor no sea de tipo \texttt{ConV}, pues esto significa que hay más expresiones en el encadenamiento de \texttt{ConV}, por lo que necesitamos seguir con este segundo argumento hasta llegar a un valor canónico dinstinto de \texttt{ConV} (justo como en las reglas de evaluación para esta expresión).
 
 \noindent
 Para lograr esto, no apoyamos en la función \texttt{isConV}, que nos ayuda a determinar que la expresión dada sea otro \texttt{ConV} o si es otro valor canónico.\\
@@ -796,10 +872,6 @@ Y es debido a que, como se menciono en en el capítulo de \textbf{Azúcar Sintá
 (\lambda f.((\lambda x.(f (\lambda v.((x x) v)))) (\lambda x.(f (\lambda v.((x x) v))))))
 \]
 
-\begin{quote}
-  \textit{creo se puede mejorar la explicacion anterior}
-\end{quote}
-
 Y este combinador debemos agregarlo al ambiente de evaluación para que en el interpretre lo utilice, y asu vez, el ambiente debe estar evaluado:
 
 \[
@@ -810,7 +882,7 @@ No obstante, esto también presenta un error a la hora de ser evaluado:
 
 \begin{minted}[fontsize=\small, bgcolor=black!5, frame=single]{text}
 [MiniLisp]> (letrec (sum (lambda (n) (if0 n 0 (+ n (sum (- n 1)))))) (sum 3))
-[Error]: Var 'v' no definida
+[Error]: Var "v" no definida
 CallStack (from HasCallStack):
   error, called at ./Interprete.hs:154:18 in main:Interprete
 \end{minted}
@@ -820,7 +892,7 @@ Este error ocurre porque el combinador \textbf{Z}, bajo un esquema de evaluació
 En otras palabras, la raíz del problema es que:
 
 \begin{itemize}
-  \item el combinador \textbf{Z} está diseñado para lenguajes con evaluación perezosa,
+  \item el combinador \textbf{Z} está diseñado para lenguajes con evaluación perezosa\cite{N15},
   \item nuestro intérprete aplica evaluación glotona,
   \item y como consecuencia, la expansión recursiva ocurre antes de que el ambiente esté correctamente extendido.
 \end{itemize}
