@@ -1,0 +1,129 @@
+Para probar el programa, se deben escribir los comandos de la siguiente manera:
+Para ver los resultados con alcance estatico unicamente:
+[MiniLisp]> staticScope <expr>
+
+Para solo ver los resultados con alcance dinamico:
+[MiniLisp]> dynamicScope <expr>
+
+Para ver ambos resultados y comparar:
+[MiniLisp]> compareScopes <expr>
+
+
+
+
+Como sabemos, una cerradura es una funcion que retiene el acceso a las variables fuera de la funcion, incluso si las funciones externas terminaron su ejecucion. Es cmo si 'recordara' el ambiente en el cual fue creado, permitiendole acceder a las varibales fuera de alcance. Veamos por ejemplo una implementacion en Javascript/1/
+
+   function foo() {
+       let var = "Holaaa!";
+       function hoo() {
+           console.log(var); 
+           var = "Adiós..."
+       }
+       return hoo;  
+   }
+   const closure = foo(); 
+   closure();
+   closure();
+
+
+  Salida:
+     Holaaa!
+     Adiós..
+
+En este ejemplo:
+En la primer llamada closure();, foo() se ejecuta creando un nuevo ambiente para este. En ese ambiente se mete: [var -> "Holaa!"]. Como JavaScript implementa alcance estáticos, cuando hoo es definida, captura el ambiente donde fue creada, incluyendo var pues ya estaba en el ambiente, obviamente. Este ambiente es de la forma: closure_i = { [var -> "Holaaa!"] }.
+Cuando foo() termina y devuelve la función inner y aunque la pila de ejecución de outer termina su ambiente no se elimina, porque hoo() lo sigue guardan por su cerradura. Por ello decimos que una cerradura “recuerda” su ambiente donde fue declarada. De este modo en la primer llamada, usamos la cerradura y se imprime "Holaaa!", y después de imprimir se modifica el ambiente capturado con [var -> "Adiós..."]. Así es como se imprime en la segunda llamada "Adiós..." pues ahora var ya fue modificado en el ambiente guardado dentro de la cerradura.
+
+Si lo pensamos bien, las cerraduras estan fuertemente ligadas al tema de varibales locales y globales pues con estas logramos que una función mantenga variables ocultas y que solo sean accesibles dentro de esa función.
+
+
+
+Como contraparte, tenemos el alcance dinamico, el cual, como hemos explicado en este reporte las variables se resuelven basándose en el ambiente en el momento de la ejecución, no donde fue declarada. Para esto usaremos Bash pues se caracteriza por ser de los pocos lenguajes que preservan el uso del alcance dinámico/2/.
+Veamos el siguiente ejemplo/3/:
+
+   #!/bin/bash
+
+   var="es global"
+
+   function foo() {
+     echo "var: $var"
+   }
+   
+   function hoo() {
+     local var="es local"
+     foo
+   }
+
+   hoo
+
+     Salida:
+         var: variable
+En este ejemplo: foo busca var en su donde fue declarada (en hoo), no donde se definió. Antes de que se llame a hoo el ambiente tiene: [ var -> "es global" ], al llamarse a hoo, metemos al ambiente [ var -> "es local" ], por lo que este es nuestro var mas reciente. De este modo, al evaluarse foo, $var es la cadena "es local" ya que es la que se encuentra primero. Por ello se imprime "var: es local".
+
+
+*****El ambiente de la función es simplemente la cadena de activaciones en tiempo de ejecución, como una pila. Por lo que no hay un ambiente estático que conservar, por ello no hay closures.
+
+
+
+
+
+Para ver esto en nuestro programa, utilicemos los siguientes ejemplos de alcance estatico y alcance dinamico:
+JavaScript (Alcance Estatico):
+let x = 21;
+function foo() {
+  console.log(x);
+}
+function goo() {
+  let x = 73;
+  foo();
+}
+goo(); // Salida: 21
+
+Bash (Alcance Dinamico)
+y = 21
+foo() {
+  echo $y;
+}
+goo() {
+  local y = 73;
+  foo;
+}
+bar  #Se imprime 73 esta vez
+
+
+Los ejemplos anteriores los podemos modelar en nuestro programa como sigue:
+
+(let (x 21)
+     (let (foo (lambda (u) x))
+          (let (hoo (lambda (v) (let (x 73) (foo 0))))
+               (hoo 0))))
+
+Al pasar esto por nuestro interprete podemos ver que la salida corresponde a cada evaluacion:
+[MiniLisp]> compareScopes (let (x 21) (let (foo (lambda (u) x)) (let (hoo (lambda (v) (let (x 73) (foo 0)))) (hoo 0))))
+
+[Alcance Estático]: 21
+
+[Alcance Dinámico]: 73
+
+Elegimos parametros distintos (u y v) para evitar colisiones de nombres con la variable libre x. Hacemos (foo 0) y (hoo 0) porque necesitamos forzar una aplicación de función para que:
+En el alcance estático, se use el ambiente guardado en la cerradura.
+Y en el alcance dinámico, se busque en el ambiente de llamada.
+Por ello, el valor pasado com argumento en la aplicación de funciones no importa.
+
+
+
+
+
+
+
+Notas:
+/1/ Esta funcion fue obtenida del siguiente /1/, unicamente como referencia y ejemplo de las cerraduras en Javascript.
+/2/ Como bien se explica en su documentación/2/, citando: "Las variables en la terminal (Shell) implementan el alcance estatico para controlar la visibilidad de una variable dentro de las funciones."
+
+
+
+
+Bibliografia:
+/1/ - https://www.geeksforgeeks.org/javascript/closure-in-javascript/
+/2/ - https://www.gnu.org/software/bash/manual/bash.html
+/3/ - https://dev-aditya.medium.com/lexical-vs-dynamic-scoping-1ee3c50f26ea

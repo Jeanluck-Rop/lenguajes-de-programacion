@@ -53,13 +53,13 @@ validate input
                                        in evalMode True False expr
   | "dynamicScope" `isPrefixOf` input = let expr = quitPrefix "dynamicScope" input
                                         in evalMode False True expr
-  | "bothScope" `isPrefixOf` input = let expr = quitPrefix "bothScope" input
-                                     in evalMode True True expr
+  | "compareScopes" `isPrefixOf` input = let expr = quitPrefix "compareScopes" input
+                                         in evalMode True True expr
   | otherwise = do
       putStrLn "Por favor indique el tipo de alcance:"
       putStrLn "staticScope <expr>"
       putStrLn "dynamicScope <expr>"
-      putStrLn "bothScope <expr>"
+      putStrLn "compareScopes <expr>"
 
 -- Evaluamos la expresion usando alcance estatico/dinamico Bool1 para static Bool2 para dynamic
 evalMode :: Bool -> Bool -> String -> IO ()
