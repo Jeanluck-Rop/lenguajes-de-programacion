@@ -30,7 +30,6 @@ import ASA
   "if"            { TokenIf }
   "let"           { TokenLet }
   "lambda"        { TokenLambda }
-  "else"          { TokenElse }
     
 %%
   

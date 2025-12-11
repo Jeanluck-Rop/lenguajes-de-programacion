@@ -1,3 +1,42 @@
+REPORTE CODIGO.
+Para nuestro programa, reutilizaremos la base de nuesto proyecto1 MiniLisp. Pero agregando la evaluacion con ambos alcances para ver los diferentes resultados de aplicarlos. A su vez que mostramos paso por paso lo que internamente se va procesando: como las cerraduras que se crean con los ambientes que se caputaran y las asignaciones que se van agregando al ambiente.
+
+Tenemos los modulos \texttt{StaticScope} y \texttt{DynamicScope} para realizar la evaluacion con sus respectivos alcances. La principal diferencia entre ellos es el como evaluan las funciones lambda (FunV) y las aplicaciones de funciones (AppV).
+
+Como sabemos, al utilizar el alcance estatico necesitamos implementar el concepto de cerraduras para caputar el ambiente y preservar el valor de una variable en el momento en el cual fue invocada.
+Nuestra funcion pasitoLex (pasito porque utilizamos evaluación de paso pequeño y Lex por LexicalScope, el término en inglés para alcance estático) hace lo justo cuando cae en el patrón FunV:
+
+pasitoLex (FunV p c) env =
+  let msg = "[Closure]: λ " ++ p ++ " ambiente capturado: { " 
+            ++ showEnv env ++ " }"
+  in trace msg (Closure p c env, env)
+
+Al caer en FunV, simplemente creamos la cerradura capturando el ambiente actual: (Closure p c env, env) <explicar mejor esta parte de Closure p c env, env>. A su vez que nos apoyamos de trace de Haskell para indicar que hemos creado la cerradura con el ambiente actual. Nos apoyamos de la función showEnv para mostrar en texto el ambiente que capturamos con la cerradura.
+
+Hacemos un breve parentesis para explicar que hemos extendido el propósito de la función saca, pues anteriormente su funcionalidad era representar los valores canónicos como una representación comprensible para el usuario. Sin embargo como hemos implementado la función de mostrar nuestro proceso de evaluación con alcances, necesitábamos extender esta función; ya que no podemos asegurar que el ambiente tenga valores ya evaluados.
+
+Continuando con las reglas de pasitoLex, tenemos ahora la regla para la aplicación de funciones. Recordando que tenemos dos casos para evaluar en paso pequeño la aplicación de funciones, en la primer regla no hay mucho que explicar que no hayamos ya comentado en el primer proyecto:
+
+pasitoLex (AppV f a) env = let (f', env') = pasitoLex f env
+                           in (AppV f' a, env')
+
+Simplemente evaluamos continuamos con la aplicación de la función f aplciada al arguemnto a, pero evaluando esta función a su vez que extendemos el ambiente.
+Para el siguiente caso, en donde ya tenemos una cerradura la cuál aplicar, comprobamos que sea un valor canónico. De ser este el caso, realizamos la aplicación del cuerpo con el valor a en base al parámetro que se tiene bajo el ambiente de la cerradura, no de la aplicación de función. Aclaramos además, que también mostramos la sustitución que se hace al parámetro al momento de la aplicación. En otro caso, seguimos evaluando el argumento a hasta llegar a un valor.
+
+
+Continuamos ahora con nuestra implementación para la evaluación con alcance dinámico.
+Para el alcance dinámico en nuestro programa, implementamos la función pasitoDyn, el cuál se diferencia de pasitoLex en las evaluaciones a Funciones y Aplicaciones de funciones. Al evaluar FunV no hacemos gran cosa, simplemente regresamos la misma función, pues como hemos mencionado, con el alcance estático no generamos cerraduras; resolvemos las variables en base al ambiente en el momento de la ejecución.
+Para la aplicación de funciones, evaluamos la función a aplicar hasta llegar al tipo FunV. En este caso, una vez el argumento es un valor realzimos la sustitución del parámetro p con ese valor y lo asignamos al ambiente.
+
+Como extra, agregamos la caracteristica de mostrar al usuario cuando lookupEnv tiene exito y encuentra una variable i en el ambiente, mostramos esa variable con el valor asignado.
+
+lookupEnv :: String -> Env -> ASV
+lookupEnv i [] = error ("Variable 'Var " ++ i ++ "' no definida")
+lookupEnv i ((j, v):e)
+  | i == j =
+      trace ("[Lookup]: " ++ j ++ " -> " ++ saca v) v
+  | otherwise = lookupEnv i e
+
 Para probar el programa, se deben escribir los comandos de la siguiente manera:
 Para ver los resultados con alcance estatico unicamente:
 [MiniLisp]> staticScope <expr>
@@ -9,7 +48,7 @@ Para ver ambos resultados y comparar:
 [MiniLisp]> compareScopes <expr>
 
 
-
+NUEVO TEMA.
 
 Como sabemos, una cerradura es una funcion que retiene el acceso a las variables fuera de la funcion, incluso si las funciones externas terminaron su ejecucion. Es cmo si 'recordara' el ambiente en el cual fue creado, permitiendole acceder a las varibales fuera de alcance. Veamos por ejemplo una implementacion en Javascript/1/
 
@@ -98,21 +137,72 @@ Los ejemplos anteriores los podemos modelar en nuestro programa como sigue:
           (let (hoo (lambda (v) (let (x 73) (foo 0))))
                (hoo 0))))
 
-Al pasar esto por nuestro interprete podemos ver que la salida corresponde a cada evaluacion:
-[MiniLisp]> compareScopes (let (x 21) (let (foo (lambda (u) x)) (let (hoo (lambda (v) (let (x 73) (foo 0)))) (hoo 0))))
-
-[Alcance Estático]: 21
-
-[Alcance Dinámico]: 73
-
 Elegimos parametros distintos (u y v) para evitar colisiones de nombres con la variable libre x. Hacemos (foo 0) y (hoo 0) porque necesitamos forzar una aplicación de función para que:
 En el alcance estático, se use el ambiente guardado en la cerradura.
 Y en el alcance dinámico, se busque en el ambiente de llamada.
-Por ello, el valor pasado com argumento en la aplicación de funciones no importa.
+Notese que, por el mismo motivo, el valor del argumento en la aplicacion no importa, ponemos 0 por omisión.
+
+
+Al pasar esto por nuestro interprete podemos ver que la salida corresponde a cada evaluacion:
+
+[MiniLisp]> staticScope (let (x 21) (let (foo (lambda (u) x)) (let (hoo (lambda (v) (let (x 73) (foo 0)))) (hoo 0))))
+
+===== Alcance Estático =====
+[Closure]: λx. captura el ambiente: {  }
+[Aplicación]: Asignando x = 21 en el ambiente capturado
+[Closure]: λfoo. captura el ambiente: { x -> 21 }
+[Closure]: λu. captura el ambiente: { x -> 21 }
+[Aplicación]: Asignando foo = <λu. x, env = {x -> 21}> en el ambiente capturado
+[Closure]: λhoo. captura el ambiente: { foo -> <λu. x, env = {x -> 21}>, x -> 21 }
+[Closure]: λv. captura el ambiente: { foo -> <λu. x, env = {x -> 21}>, x -> 21 }
+[Aplicación]: Asignando hoo = <λv. (λx. (foo 0) 73), env = {foo -> <λu. x, env = {x -> 21}>, x -> 21}> en el ambiente capturado
+[Lookup]: hoo -> <λv. (λx. (foo 0) 73), env = {foo -> <λu. x, env = {x -> 21}>, x -> 21}>
+[Aplicación]: Asignando v = 0 en el ambiente capturado
+[Closure]: λx. captura el ambiente: { v -> 0, foo -> <λu. x, env = {x -> 21}>, x -> 21 }
+[Aplicación]: Asignando x = 73 en el ambiente capturado
+[Lookup]: foo -> <λu. x, env = {x -> 21}>
+[Aplicación]: Asignando u = 0 en el ambiente capturado
+[Lookup]: x -> 21
+21
+
+En nuestro resultado con alcance estático:
+1. Se define x en un ambiente vacío, luego lo asginamos como x = 21 en el ambiente.
+2. Se define foo como (lambda (u) x), con [Closure]: λu. captura el ambiente: { x -> 21 }, foo hace lo propio de foo capturar la versión de x que había en ese momento, es decir: x = 21.
+Esta es la esencia del alcance estático, la función recuerda el ambiente del momento de su definición.
+3. Luego definimos hoo, que internamente hace un let (x 73) antes de llamar a foo.
+4. Finalmente hacemos (hoo 0). Dentro de hoo, aparece una nueva x = 73, pero como en lexicografía la variable libre x de foo ya estaba capturada con x → 21, la nueva x no afecta a la que usa foo. Por ello aparece: [Lookup]: x -> 21, y ese es el resultado final: 21. Coincidiendo correctamente con el ejemplo propuesto en JavaScript.
+
+
+Al intentarlo con alcance dinamico:
+
+[MiniLisp]> dynamicScope (let (x 21) (let (foo (lambda (u) x)) (let (hoo (lambda (v) (let (x 73) (foo 0)))) (hoo 0))))
+
+===== Alcance Dinámico =====
+[Aplicación]: Asignando x = 21 en el ambiente
+[Aplicación]: Asignando foo = λu. x en el ambiente
+[Aplicación]: Asignando hoo = λv. (λx. (foo 0) 73) en el ambiente
+[Lookup]: hoo -> λv. (λx. (foo 0) 73)
+[Aplicación]: Asignando v = 0 en el ambiente
+[Aplicación]: Asignando x = 73 en el ambiente
+[Lookup]: foo -> λu. x
+[Aplicación]: Asignando u = 0 en el ambiente
+[Lookup]: x -> 73
+73
+
+1. Al definir foo en modo dinámico, no se captura ambiente, a diferencia del caso estático, sino que podemos ver que se imprime:
+[Aplicación]: Asignando foo = λu. x en el ambiente
+Pero nunca aparece la creación de una closure con ambiente capturado
+
+2. Después, dentro de hoo, redefinimos x = 73.
+3. Cuando foo es llamada, ahora la búsqueda de la variable x ocurre en el ambiente de la llamada, no en el ambiente de definición. Lo podemos ver claramente en:
+[Lookup]: x -> 73
+Por lo tanto el resultado es 73
 
 
 
 
+FALTA AGREGAR ESTO DE PYTHON Python:
+Lexical scoping: nonlocal y global permiten modificar bindings en ámbitos externos — esto explica la razón de herramientas especiales para reasignar closures en Python.
 
 
 

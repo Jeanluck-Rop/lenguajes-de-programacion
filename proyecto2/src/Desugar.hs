@@ -40,7 +40,7 @@ desugarComp op (i:d:is) = IfV (op (desugar i) (desugar d))
                           (desugarComp op (d:is))
                           (BoolV False)
                           
---Funcion auxiliar para desazucarar as funcioneslambda
+--Funcion auxiliar para desazucarar as funciones lambda
 desugarLmb :: [String] -> ASA -> ASV
 desugarLmb [] b = desugar b
 desugarLmb (p:ps) b = FunV p (desugarLmb ps b)

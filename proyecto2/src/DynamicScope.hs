@@ -2,6 +2,8 @@ module DynamicScope where
 
 import ASV
 import InterpAux
+import Saca
+import Debug.Trace (trace)
 
 evalDynamic :: ASV -> Env -> ASV
 evalDynamic asv env
@@ -75,7 +77,8 @@ pasitoDyn (IfV c t e) env             = let (c', env') = pasitoDyn c env
                                      in (IfV c' t e, env')
 pasitoDyn (FunV p c) env = (FunV p c, env)
 pasitoDyn (AppV (FunV p c) a) env
-  | isValue a || isFunV a = (c, (p, a) : env)
+  | isValue a || isFunV a =
+      trace ("[Aplicación]: Asignando " ++ p ++ " = " ++ saca a ++ " en el ambiente") (c, (p, a) : env)
   | otherwise =
     let (a', env') = pasitoDyn a env
     in (AppV (FunV p c) a', env')

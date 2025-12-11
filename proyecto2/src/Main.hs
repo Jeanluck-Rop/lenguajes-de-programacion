@@ -9,17 +9,10 @@ import Desugar
 import StaticScope
 import DynamicScope
 import InterpAux
+import Saca
 import Control.Exception (catch, SomeException)
 import Data.List (isPrefixOf)
 
--- Obtenemos el resultado como cadena para mostrarlo al usuario
-saca :: ASV -> String
-saca (NumV n) = show n
-saca (BoolV b)
-  | b == True = "#t"
-  | otherwise = "#f"
-saca (FunV p c) = "#<procedure>"
-saca (Closure p c e) = "#<procedure>"
 
 -- Punto de entrada principal
 main :: IO ()
@@ -70,13 +63,13 @@ evalMode static dynamic expr = do
   if static
     then do
     let res = evalStatic asv []
-    putStr "\n[Alcance Estático]: "
+    putStrLn "\n===== Alcance Estático ====="
     putStrLn (saca res)
     else return ()
   if dynamic
     then do
     let res = evalDynamic asv []
-    putStr "\n[Alcance Dinámico]: "
+    putStrLn "\n===== Alcance Dinámico ====="
     putStrLn (saca res)
     else return ()
   putStrLn ""

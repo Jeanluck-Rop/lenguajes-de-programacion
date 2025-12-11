@@ -7,7 +7,16 @@ data Token
   | TokenBool Bool
   | TokenAdd
   | TokenSub
+  | TokenMul
+  | TokenDiv
   | TokenNot
+  | TokenEq
+  | TokenLt
+  | TokenGt
+  | TokenNeq
+  | TokenLeq
+  | TokenGeq
+  | TokenIf
   | TokenLet
   | TokenLambda
   | TokenPA

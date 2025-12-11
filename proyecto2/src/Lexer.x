@@ -39,7 +39,6 @@ $white+                       ;
 "if"                          { \_ -> TokenIf }
 "let"                         { \_ -> TokenLet }
 "lambda"                      { \_ -> TokenLambda }
-"else"                        { \_ -> TokenElse }
 "#t"                          { \_ -> TokenBool True }
 "#f"                          { \_ -> TokenBool False }
 "-"?$digit+                   { \s -> TokenNum (read s) }

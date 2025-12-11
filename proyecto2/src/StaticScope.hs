@@ -2,6 +2,8 @@ module StaticScope where
 
 import ASV
 import InterpAux
+import Saca
+import Debug.Trace (trace)
 
 evalStatic :: ASV -> Env -> ASV
 evalStatic asv env
@@ -73,9 +75,15 @@ pasitoLex (IfV (BoolV True) t e) env  = (t, env)
 pasitoLex (IfV (BoolV False) t e) env = (e, env)
 pasitoLex (IfV c t e) env             = let (c', env') = pasitoLex c env
                                      in (IfV c' t e, env')
-pasitoLex (FunV p c) env = (Closure p c env, env)
+pasitoLex (FunV p c) env =
+  let msg = "[Closure]: λ" ++ p ++ ". captura el ambiente: { " 
+            ++ showEnv env ++ " }"
+  in trace msg (Closure p c env, env)
 pasitoLex (AppV (Closure p c e) a) env
-  | isValue a || isClosure a = (c, (p, a) : e)
+  | isValue a || isClosure a =
+      let msg = "[Aplicación]: Asignando " ++ p ++ " = " ++ saca a
+                ++ " en el ambiente capturado"
+      in trace msg (c, (p, a) : e)
   | otherwise =
     let (a', env') = pasitoLex a env
     in (AppV (Closure p c e) a', env')
