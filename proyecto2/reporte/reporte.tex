@@ -125,13 +125,130 @@
 Pregunta: ¿Por qué algunos lenguajes modernos (como Lisp, Python o JavaScript) adoptan reglas mixtas de alcance y cómo afecta eso al razonamiento sobre el código? Búsqueda: lexical scope vs dynamic scope in Lisp, Python scope chain, closures in JavaScript Programa: Implementar un mini-lenguaje con dos modos de alcance seleccionables,
 ejecutando un mismo programa bajo ambos y comparando los resultados.
 
+\section*{Introducción}
+En el diseño de lenguajes de programación existe una distinción conceptual entre
+\textbf{alcance léxico} y \textbf{alcance dinámico},el cual determina cómo se resuelven las referencias a variables y, por ende, cómo se razona sobre el comportamiento de un programa. Aunque el alcance
+léxico se ha consolidado como el modelo dominante, diversos lenguajes de programación
+(Lisp en algunas de sus variantes, Python en la organización de sus namespaces y JavaScript en su manejo de closures) incorporan \textbf{reglas mixtas} que combinan aspectos de ambos modelos. Esto complica razonar sobre el comportamiento del programa, especialmente en presencia de funciones anónimas, anidamiento o resolución diferida.
 
+La importancia de este tema radica en que las reglas de alcance no son simplemente un detalle técnico, sino un pilar fundamental en la semántica de los lenguajes. Scott señala que las decisiones sobre alcance influyen directamente en la claridad del modelo mental que
+ofrece un lenguaje y en la facilidad con la que un programador puede predecir la evolución de un programa \cite{ML-Scoot}. Asimismo, desde la perspectiva de la expresividad, el tipo de alcance determina qué construcciones pueden representarse de manera directa y cuáles requieren transformaciones adicionales, como argumenta Felleisen en su estudio sobre el poder expresivo de los lenguajes \cite{M-Felleisen}. Por lo tanto, comprender por qué ciertos lenguajes adoptan reglas mixtas permite analizar de forma más crítica sus capacidades, limitaciones y la clase de razonamiento que fomentan.
+
+El objetivo de este trabajo es examinar las razones por las que lenguajes modernos emplean esquemas mixtos de alcance y evaluar cómo estas elecciones influyen en la
+legibilidad y razonamiento del código, particularmente en contexto de \textit{cadenas de ambientes, clousures y resolución diferida}. La metodología combina una revisión teórica de la literatura clásica sobre semántica de lenguajes con la implementación práctica de
+\underline{agregar que vamos hacer de implementación} , con el fin de observar de manera concreta el comportamiento derivado de sus reglas de alcance. Esta doble aproximación permite relacionar los fundamentos conceptuales con las consecuencias prácticas para el
+desarrollo de software y la comprensión de programas.
+
+\section*{Fundamentos teóricos}
+El concepto de \textbf{alcance} es uno de los pilares de la semántica de los lenguajes de programación, pues determina el contexto en el que un identificador puede ser utilizado y cómo se vincula con su valor. Las distintas estrategias de alcance han sido estudiadas y
+formalizadas extensamente en la literatura, dada su influencia directa en el razonamiento sobre programas, la implementación de ambientes y la expresividad del lenguaje.
+\subsection*{Alcance léxico (estático)}
+El alcance léxico establece que la asociación entre un nombre y su valor se determina según la estructura textual del programa. Es decir, para que un identificador se resuelva se busca en el bloque o función donde se definió, independientemente desde donde se invoque. Scott formaliza este modelo como un sistema donde las regiones textuales del código inducen un conjunto de ambientes anidados que el compilador puede
+determinar en tiempo de análisis \cite{ML-Scoot}.
+
+Sus características principales son:
+\begin{itemize}
+  \item \textbf{Razonamiento local}: La visibilidad de las variables depende de la estructura del programa, un programador puede identificar cuales variables son visibles sin la necesidad de rastrear toda la ruta de ejecución.
+  
+  \item \textbf{Soporte para closures}: Un closure captura el ambiente léxico en el que fue definido. Esto permite que las funciones sigan accediendo a variables externas aunque su bloque original haya terminado. Este es el mecanismo fundamental que vuelve posible la programación funcional basada en funciones de orden superior \cite{DP-Friedman}.
+  \item \textbf{Optimizaciones}: Como el compilador conoce la estructura de los ambientes de antemano, puede mejorar el rendimiento (usando el stack eficientemente o eliminando variables inútiles) antes de correr el programa.
+\end{itemize}
+
+\subsection*{Alcance dinámico}
+El \textbf{alcance dinámico} busca el valor de un identificador basándose en la cadena de llamadas activa durante la ejecución. Lo que significa que un mismo nombre puede referirse a cosas distintas según quién llamó a la función. Scott señala que este modelo fue común en las primeras versiones de Lisp debido a su simplicidad de implementación y a que facilitaba ciertas formas de extensibilidad \cite{ML-Scoot}.
+
+Sus características principales son:
+\begin{itemize}
+  \item \textbf{Dependencia de la ejecución}: El valor de una variable cambia según quién llame a la función. Esto da mucha flexibilidad, pero hace difícil predecir qué hará el programa sin ejecutarlo.
+  \item \textbf{Uso histórico y actual}: El alcance dinámico fue ideal para los primeros lenguajes interpretados porque era muy fácil de implementar donde la simplicidad del intérprete tenía prioridad sobre la robustez del análisis estático. Hoy en día se mantiene en contextos específicos (como sistemas de macros o configuraciones), donde es útil modificar el comportamiento global sin tener que pasar parámetros explícitamente a cada función.
+\end{itemize}
+
+\subsection*{Modelos mixtos}
+Ante las limitaciones de ambos enfoques, algunos lenguajes usan un enfoque mixto, combinando estructuras léxicas claras con mecanismos dinámicos que permiten . Abadi señalan que los sistemas mixtos pueden surgir incluso en lenguajes estáticos cuando adoptan características flexibles (como la carga tardía), obligando a unir lo que se sabe al compilar con lo que sucede en tiempo de ejecución \cite{M-Abadi}.
+
+Python basa su alcance en la estructura léxica, pero mantiene reglas dinámicas para lo global y lo predefinido. JavaScript sigue un patrón parecido al mezclar closures con el ámbito global. De igual forma, ciertos Lisp permiten usar variables especiales dinámicas junto a las variables léxicas.
+
+\subsection*{Conceptos clave}
+\begin{itemize}
+  \item \textbf{Closures}: Son funciones que capturan su ambiente léxico en el momento de su definición. Friedman y Wand describen los closures como pares que combinan código y ambiente, permitiendo diferir la ejecución sin perder contexto \cite{DP-Friedman}.
+  \item \textbf{Ambientes}: Estructuras de mapeo entre identificadores y valores. La implementación eficiente de ambientes, especialmente en presencia de funciones recursivas y llamadas en cola, ha sido estudiada por Clinger, quien analiza la relación entre recursión adecuada (proper tail recursion) y uso constante de espacio \cite{WD-Clinger}.
+  \item \textbf{Cadenas de alcance}: Secuencias de ambientes que representan los posibles lugares donde se puede resolver una variable. En los lenguajes con alcance léxico, esta cadena se determina estáticamente, en los lenguajes dinámicos, se reconstruye a partir de la pila de llamadas.
+  \item \textbf{Contextos de ejecución}: Son marcos creados al invocar funciones o bloques, que almacenan variables locales, parámetros y referencias a ambientes externos.
+\end{itemize}
+
+\section*{Análisis de lenguajes modernos}
+Cada lenguaje mezcla los alcances según sus propios objetivos. En la historia de Lisp y Scheme, esto se ve claramente en la diferencia entre \textbf{let} (que crea un ambiente léxico fijo) y \textbf{let-dynamic} (que sigue el flujo de ejecución). Common Lisp estandarizó esto con las llamadas "variables especiales", que actúan de forma dinámica dentro de un sistema que es mayormente léxico \cite{GL-Steele}. Según Kiczales, estas variables son muy fuertes ya que permiten cambiar el comportamiento global sin tener que pasar parámetros extra, lo cual es la base de sistemas avanzados como los metaobjetos \cite{G-Kiczales}.
+
+Python organiza su alcance con la regla \textbf{LEGB}: Local, Enclosing, Global y Built-in.Este esquema es fundamentalmente léxico, pero incorpora mecanismos que permiten ajustar la resolución de nombres desde funciones anidadas: \textbf{nonlocal} permite modificar variables en un ambiente externo no global, mientras que \textbf{global} habilita cambios sobre nombres del módulo, introduciendo así flexibilidad dinámica en la manipulación de ámbitos \cite{Python-Software}. Estas reglas proporcionan un equilibrio entre claridad léxica y flexibilidad, siempre y cuando se preste atención al modificar variables dentro de funciones anidadas.
+
+Por su parte, \textbf{JavaScript} combina closures léxicos con un sistema de contextos de ejecución bien definidos. La introducción de \textbf{let} y \textbf{const} sustituyó gradualmente a var para evitar la confusión que causaba su hoisting (elevación de variables) ya que podía generar ambigüedades semánticas \cite{ECMA}.
+Además, el uso histórico de la sentencia with que intentaba alterar dinámicamente pero solo lograba hacer el código ilegible. Tal como señala Bracha, estas variaciones reflejan una transición desde modelos más dinámicos hacia diseños con mayor claridad estructural \cite{G-Bracha}.
+
+Pese a sus diferencias sintácticas, estos lenguajes comparten patrones comunes. Todos parten de una base léxica pero incluyen excepciones dinámicas (palabras clave o estructuras del contexto global) que introducen elementos dinámicos. Esto crea modelos híbridos donde la claridad del alcance léxico coexiste con la necesidad de flexibilidad operativa en tiempo de ejecución.
+
+\section*{Ventajas de desventajas de los modelos mixtos}
+Los modelos mixtos de alcance combinan estructuras léxicas con mecanismos dinámicos, esta mezcla ofrece beneficios notables en lenguajes orientados a la extensibilidad y a la programación funcional.
+\begin{itemize}
+  \item \textbf{Flexibilidad}: Permiten introducir parámetros implícitos, ajustar comportamientos globales o representar configuraciones contextuales sin modificar explícitamente todas las funciones involucradas. Esto es útil en sistemas que requieren manejar el contexto de ejecución sin romper la estructura modular del programa.
+  \item \textbf{Compatibilidad}: Facilitan la evolución del lenguaje, permitiendo que características antiguas (como variables especiales o comportamientos heredados) convivan con mecanismos léxicos modernos.
+  \item \textbf{Control}: En el ámbito funcional, la coexistencia de closures con entornos dinámicos ofrece un control muy preciso del estado. Como señalan Abelson y Sussman, esto es clave para mantener la modularidad en diseños complejos \cite{H-Abelson}.
+\end{itemize}
+
+Sin embargo, estos beneficios vienen acompañados de desventajas:
+\begin{itemize}
+  \item \textbf{Complejidad}:El programador debe pensar en dos lógicas a la vez (estática y dinámica), lo que dificulta entender el código.
+  \item \textbf{Pérdida de seguridad}:Clarke y Drossopoulou advierten que, al permitir que un nombre se resuelva en tantos lugares, se rompe el encapsulamiento y se debilita el sistema \cite{D-Clarke}.
+  \item \textbf{Depuración difícil}:Es complicado rastrear errores cuando el valor de una variable depende de una cadena de llamadas compleja.
+  \item \textbf{Mantenimiento}: Según Erdweg, en proyectos grandes esto reduce la predictibilidad y hace difícil actualizar el software, especialmente si se usa metaprogramación \cite{S-Erdweg}.
+  \item \textbf{Rendimiento}:El sistema se vuelve más lento porque debe gestionar estructuras para ambos tipos de alcance.
+\end{itemize}
+
+\section*{Implementación práctica}
+\section*{Conclusiones}
 % ----- Bibliografía -----
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \addcontentsline{toc}{chapter}{Bibliografía}
 \begin{thebibliography}{99}
-\bibitem{ref1} \textcolor{links}
-Bibliografia
+
+\bibitem{ML-Scoot}
+M. L. Scott, Programming Language Pragmatics, 2nd ed. San Francisco, CA: Morgan Kaufmann, 2006.
+
+\bibitem{M-Felleisen}
+M. Felleisen, “On the expressive power of programming languages,” Science of Computer Programming, vol. 17,1991.
+
+\bibitem{DP-Friedman}
+D. P. Friedman and M. Wand, Essentials of Programming Languages, 3rd ed. Cambridge, MA: MIT Press, 2008.
+
+\bibitem{M-Abadi}
+M. Abadi, L. Cardelli, B. Pierce, and G. Plotkin, “Dynamic typing in a statically typed language,” ACM Transactions on Programming Languages and Systems, vol. 13, 1991.
+
+\bibitem{WD-Clinger}
+W. D. Clinger, “Proper tail recursion and space efficiency,” PLDI '98: Proceedings of the ACM SIGPLAN 1998 Conference on Programming Language Design and Implementation, 1998.
+
+\bibitem{GL-Steele}
+G. L. Steele, Common Lisp the Language, 2nd ed. Mountain View, CA: Digital Press, 1990.
+
+\bibitem{G-Kiczales}
+G. Kiczales et al., The Art of the Metaobject Protocol. Cambridge, MA: MIT Press, 1991.
+
+\bibitem{Python-Software}
+Python Software Foundation, “Python Documentation,” 2023.
+
+\bibitem{ECMA}
+ECMA International, ECMAScript® 2023 Language Specification, ECMA-262, 2023.
+
+\bibitem{G-Bracha}
+G. Bracha, “Blocks in Java,” OOPSLA Workshop on Closures, 2004.
+
+\bibitem{D-Clarke}
+D. Clarke and S. Drossopoulou, “Ownership, encapsulation, and the disjointness of type and effect,” OOPSLA, 2002.
+
+\bibitem{S-Erdweg}
+S. Erdweg et al., “Sound and predictable software evolution,” Onward!, 2015.
+
+\bibitem{H-Abelson}
+H. Abelson and G. J. Sussman, Structure and Interpretation of Computer Programs, 2nd ed., MIT Press, 1996.
+
 \end{thebibliography}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
