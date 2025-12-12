@@ -125,7 +125,7 @@
 Pregunta: ¿Por qué algunos lenguajes modernos (como Lisp, Python o JavaScript) adoptan reglas mixtas de alcance y cómo afecta eso al razonamiento sobre el código? Búsqueda: lexical scope vs dynamic scope in Lisp, Python scope chain, closures in JavaScript Programa: Implementar un mini-lenguaje con dos modos de alcance seleccionables,
 ejecutando un mismo programa bajo ambos y comparando los resultados.
 
-\section*{Introducción}
+\section{Introducción}
 En el diseño de lenguajes de programación existe una distinción conceptual entre
 \textbf{alcance léxico} y \textbf{alcance dinámico},el cual determina cómo se resuelven las referencias a variables y, por ende, cómo se razona sobre el comportamiento de un programa. Aunque el alcance
 léxico se ha consolidado como el modelo dominante, diversos lenguajes de programación
@@ -139,7 +139,7 @@ legibilidad y razonamiento del código, particularmente en contexto de \textit{c
 \underline{agregar que vamos hacer de implementación} , con el fin de observar de manera concreta el comportamiento derivado de sus reglas de alcance. Esta doble aproximación permite relacionar los fundamentos conceptuales con las consecuencias prácticas para el
 desarrollo de software y la comprensión de programas.
 
-\section*{Fundamentos teóricos}
+\section{Fundamentos teóricos}
 El concepto de \textbf{alcance} es uno de los pilares de la semántica de los lenguajes de programación, pues determina el contexto en el que un identificador puede ser utilizado y cómo se vincula con su valor. Las distintas estrategias de alcance han sido estudiadas y
 formalizadas extensamente en la literatura, dada su influencia directa en el razonamiento sobre programas, la implementación de ambientes y la expresividad del lenguaje.
 \subsection*{Alcance léxico (estático)}
@@ -176,7 +176,7 @@ Python basa su alcance en la estructura léxica, pero mantiene reglas dinámicas
   \item \textbf{Contextos de ejecución}: Son marcos creados al invocar funciones o bloques, que almacenan variables locales, parámetros y referencias a ambientes externos.
 \end{itemize}
 
-\section*{Análisis de lenguajes modernos}
+\section{Análisis de lenguajes modernos}
 Cada lenguaje mezcla los alcances según sus propios objetivos. En la historia de Lisp y Scheme, esto se ve claramente en la diferencia entre \textbf{let} (que crea un ambiente léxico fijo) y \textbf{let-dynamic} (que sigue el flujo de ejecución). Common Lisp estandarizó esto con las llamadas "variables especiales", que actúan de forma dinámica dentro de un sistema que es mayormente léxico \cite{GL-Steele}. Según Kiczales, estas variables son muy fuertes ya que permiten cambiar el comportamiento global sin tener que pasar parámetros extra, lo cual es la base de sistemas avanzados como los metaobjetos \cite{G-Kiczales}.
 
 Python organiza su alcance con la regla \textbf{LEGB}: Local, Enclosing, Global y Built-in.Este esquema es fundamentalmente léxico, pero incorpora mecanismos que permiten ajustar la resolución de nombres desde funciones anidadas: \textbf{nonlocal} permite modificar variables en un ambiente externo no global, mientras que \textbf{global} habilita cambios sobre nombres del módulo, introduciendo así flexibilidad dinámica en la manipulación de ámbitos \cite{Python-Software}. Estas reglas proporcionan un equilibrio entre claridad léxica y flexibilidad, siempre y cuando se preste atención al modificar variables dentro de funciones anidadas.
@@ -186,12 +186,12 @@ Además, el uso histórico de la sentencia with que intentaba alterar dinámicam
 
 Pese a sus diferencias sintácticas, estos lenguajes comparten patrones comunes. Todos parten de una base léxica pero incluyen excepciones dinámicas (palabras clave o estructuras del contexto global) que introducen elementos dinámicos. Esto crea modelos híbridos donde la claridad del alcance léxico coexiste con la necesidad de flexibilidad operativa en tiempo de ejecución.
 
-\section*{Ventajas de desventajas de los modelos mixtos}
+\section{Ventajas de desventajas de los modelos mixtos}
 Los modelos mixtos de alcance combinan estructuras léxicas con mecanismos dinámicos, esta mezcla ofrece beneficios notables en lenguajes orientados a la extensibilidad y a la programación funcional.
 \begin{itemize}
   \item \textbf{Flexibilidad}: Permiten introducir parámetros implícitos, ajustar comportamientos globales o representar configuraciones contextuales sin modificar explícitamente todas las funciones involucradas. Esto es útil en sistemas que requieren manejar el contexto de ejecución sin romper la estructura modular del programa.
   \item \textbf{Compatibilidad}: Facilitan la evolución del lenguaje, permitiendo que características antiguas (como variables especiales o comportamientos heredados) convivan con mecanismos léxicos modernos.
-  \item \textbf{Control}: En el ámbito funcional, la coexistencia de closures con entornos dinámicos ofrece un control muy preciso del estado. Como señalan Abelson y Sussman, esto es clave para mantener la modularidad en diseños complejos \cite{H-Abelson}.
+  \item \textbf{Control}: En el ámbito funcional, la coexistencia de closures con ambientes dinámicos ofrece un control muy preciso del estado. Como señalan Abelson y Sussman, esto es clave para mantener la modularidad en diseños complejos \cite{H-Abelson}.
 \end{itemize}
 
 Sin embargo, estos beneficios vienen acompañados de desventajas:
@@ -203,8 +203,224 @@ Sin embargo, estos beneficios vienen acompañados de desventajas:
   \item \textbf{Rendimiento}:El sistema se vuelve más lento porque debe gestionar estructuras para ambos tipos de alcance.
 \end{itemize}
 
-\section*{Implementación práctica}
-\section*{Conclusiones}
+\section{Implementación práctica}
+El propósito de esta sección es ilustrar de manera mas concreta el cómo se presentan las reglas de alcance léxico y dinámico, usando como base nuestra implementación de \textbf{MINILISP} (realzada como proyecto 1 de la asignatura de lenguajes de programación).
+
+\subsection*{Arquitectura del sistema}
+Implementamos un intérprete en Haskell para \textbf{MINILISP} funcional que soporta evaluación con alcance léxico(estatico) como dinámico.Esta arquitectura tiene un diseño que transforma el programa fuente gradualmente hata llegar al esultado final.
+
+Cada módulo transforma los datos de entrada de la siguiente manera:
+\begin{itemize}
+  \item \textbf{Entrada}: "(let (x 10) (+ x 5))"
+  \item \textbf{Lexer (Alex)}: [TokenPA, TokenLet, TokenPA, TokenVar "x", ...]
+  \item \textbf{Parser (Happy)}: Let "x" (Num 10) (Add [Var "x", Num 5]) 
+  \item \textbf{Desugar}: AppV (FunV "x" (AddV (VarV "x") (NumV 5))) (NumV 10)
+  \item \textbf{Evaluación (Static/Dynamic)}: NumV 15 
+\end{itemize}
+
+\subsection*{Componentes clave del sistema}
+\subsection{Sistema Léxico: Alex}
+En este parte de la implementación su función es la de convertir el texto plano en tokens.
+\begin{lstlisting}[style=haskellstyle, caption={Estructura del lexer con Alex}]
+tokens :-
+$white+                       ;  -- Ignorar espacios
+\(                            { \_ -> TokenPA }
+\)                            { \_ -> TokenPC }
+"lambda"                      { \_ -> TokenLambda }
+"-"?$digit+                   { \s -> TokenNum (read s) }
+$alpha($alnum)*               { \s -> TokenVar s }
+
+\end{lstlisting}
+
+\subsection{Sistema sintáctod: Parser}
+El parser se encarga de transformar los tokens en árbol sintáctico usando la herramienta \textbf{Happy}.
+Gramatica:
+\begin{lstlisting}[style=haskellstyle, caption={Gramática del parser (Happy)}]
+ASA : '(' "let" '(' var ASA ')' ASA ')'  { Let $4 $5 $7 }
+    | '(' "lambda" '(' vars ')' ASA ')'  { Lambda (reverse $4) $6 }
+    | '(' ASA appArgs ')'                { App $2 (reverse $3) }
+
+\end{lstlisting}
+
+Estructura de salida (ASA.hs):
+\begin{lstlisting}[style=haskellstyle, caption={Estructura del AST (ASA.hs)}]
+
+data ASA = Var String          --Variables 
+         | Num Int             --Numeros
+         | Let String ASA ASA  --Binding local
+         | Lambda [String] ASA --Funciones
+         | App ASA [ASA]       --Aplicacion
+         | Add [ASA]           --Operadores n-arios
+         deriving (Show, Eq)
+\end{lstlisting}
+
+\subsection{Desugar}
+La responsabilidad es de convertir el AST "azucarado" a su forma núcleo.
+Transformaciones (Desugar.hs):
+\begin{lstlisting}[style=haskellstyle, caption={Transformaciones del desazucarador (Desugar.hs)}]
+--1. Let aplicacion de funciones
+desugar (Let i v b) = AppV (FunV i (desugar b)) (desugar v)
+
+--2. Lambda multi-parametro y se currifica
+desugar (Lambda ps b) = desugarLmb ps b 
+
+--3. Operadores n-arios a binarios
+desugar (Add xs) = desugarOps AddV xs
+\end{lstlisting}
+
+Forma nucleo:
+\begin{lstlisting}[style=haskellstyle, caption={Estructura del núcleo (ASV.hs)}]
+data ASV = VarV String            -- Variables     
+         | NumV Int               -- Valores numericos
+         | BoolV Bool             -- Valores booleanos
+         | FunV String ASV        -- Funciones
+         | AppV ASV ASV           -- Aplicaciones
+         | Closure String ASV Env -- Clousures
+         | Operadores binarios (AddV, SubV, etc.)
+         deriving (Show, Eq)
+\end{lstlisting}
+
+\subsection{Evaluador Léxico (estático)}
+Esta parte se encarga de evaluar los programas con alcance léxico (estático).
+Mecanismo (StaticScope.hs)
+\begin{lstlisting}[style=haskellstyle, caption={}]
+-- 1. Creacion de clausures (CAPTURA el ambiente)
+pasitoLex (FunV p c) env = (Closure p c env, env)
+
+-- 2. Aplicacion con ambiente capturado
+pasitoLex (AppV (Closure p c e) a) env
+  | isValue a = (c, (p, a) : e)
+
+-- 3. Busqueda lexica
+pasitoLex (VarV i) env = (lookupEnv i env, env)
+\end{lstlisting}
+
+\subsection{Evaluador Dinámico}
+La responsabilidad es la de evaluar programas con alcance dinámico.
+Mecanismo (DynamicScope.hs)
+\begin{lstlisting}[style=haskellstyle, caption={}]
+-- 1. Funciones sin captura
+pasitoDyn (FunV p c) env = (FunV p c, env) 
+
+-- 2. Aplicacion con ambiente actual
+pasitoDyn (AppV (FunV p c) a) env
+  | isValue a = (c, (p, a) : env)  
+
+-- 3. Busqueda dinamica
+pasitoDyn (VarV i) env = (lookupEnv i env, env) 
+\end{lstlisting}
+
+\subsection{Interfaz principal}
+Es el coordinador del sistema.
+Main.hs
+
+\begin{lstlisting}[style=haskellstyle, caption={}]
+evalMode :: Bool -> Bool -> String -> IO ()
+evalMode static dynamic expr = do
+  let tokens = lexer expr     
+  let asa    = parse tokens   
+  let asv    = desugar asa   
+  
+  if static
+    then let res = evalStatic asv [] 
+         in putStrLn $ "[Estatico]: " ++ saca res
+    else return ()
+    
+  if dynamic
+    then let res = evalDynamic asv [] 
+         in putStrLn $ "[Dinamico]: " ++ saca res
+    else return ()
+\end{lstlisting}
+
+\section{Casos de Estudio}
+\subsection{ Closures en Alcance Léxico: El Caso de JavaScript}
+Una \textbf{closure} es una función que conserva acceso a variables de su ámbito externo, incluso después de que dicho ámbito haya terminado su ejecución. Este mecanismo permite que la función "recuerde" el ambiente en el cual fue creada, manteniendo acceso a variables que de otra manera estarían fuera de alcance.
+\begin{lstlisting}[style=haskellstyle, caption={}]
+function outer() {
+    let mensaje = "Hola";
+    function inner() {
+        console.log(mensaje);
+        mensaje = "Adios";
+    }
+    return inner;
+}
+
+const closure = outer();
+closure();  // Imprime: "Hola"
+closure();  // Imprime: "Adios"
+\end{lstlisting}
+
+¿Cómo funciona?
+\begin{itemize}
+  \item \textbf{Creación del ambiente}: Cuando \textbf{outer()} se ejecuta, crea un ambiente local con \textbf{mensaje = "Hola"}.
+  \item \textbf{Captura léxica}: \textbf{inner} se define dentro de este ambiente y, debido al alcance léxico de JavaScript, captura una referencia al ambiente completo.
+  \item \textbf{Persistencia}:  Aunque \textbf{outer()} termina su ejecución, el ambiente persiste porque \textbf{inner} mantiene una referencia activa a través de la clausura.
+  \item \textbf{Mutación compartida}: La segunda llamada a \textbf{closure()} accede al mismo ambiente capturado, donde \textbf{mensaje} ya fue modificado a "Adiós".
+\end{itemize}
+Este mecanismo de closures permite implementar variables privadas y estado encapsulado, características fundamentales para la programación modular y orientada a objetos.
+
+\subsection{Alcance Dinámico: El Caso de Bash}
+En contraste con el alcance léxico, el alcance dinámico resuelve las variables basándose en el contexto de ejecución actual, no en el ámbito de definición. Bash es uno de los pocos lenguajes modernos que preserva este paradigma.
+\begin{lstlisting}[style=haskellstyle, caption={}]
+#!/bin/bash
+
+var="global"
+
+function foo() {
+    echo "var: $var"
+}
+
+function bar() {
+    local var="local"
+    foo
+}
+
+bar  # Imprime: "var: local"
+\end{lstlisting}
+
+\begin{itemize}
+  \item \textbf{Creación del ambiente}: Cuando \textbf{outer()} se ejecuta, crea un ambiente local con \textbf{mensaje = "Hola"}.
+  \item \textbf{Ambiente inicial}: Antes de llamar a \textbf{bar}, el ambiente contiene \textbf{var = "global"}.
+  \item \textbf{Modificación dinámica}: \textbf{bar} crea una variable \textbf{local var = "local"}.
+  \item \textbf{Resolución en tiempo de ejeución}: Cuando \textbf{foo} se ejecuta, busca \textbf{var} en el ambiente actual de ejecución, encontrando la definición más reciente \textbf{("local")}.
+  \item \textbf{Ausencia de closures}: No hay closure de este ambiente; cada función accede al contexto de ejecución vigente.
+\end{itemize}
+La principal diferencia conceptual es que en alcance dinámico el entorno de una función es la cadena de activaciones en tiempo de ejecución, similar a una pila, en lugar de un ambiente estático conservado.
+
+\subsection{Modelado en MiniLisp}
+Para contrastar ambos comportamientos en nuestro intérprete, modelamos los ejemplos anteriores:
+\begin{lstlisting}[style=haskellstyle, caption={}]
+(let (x 21)
+     (let (foo (lambda (u) x))
+          (let (bar (lambda (v) (let (x 73) (foo 0))))
+               (bar 0))))
+\end{lstlisting}
+Resultados:
+\begin{lstlisting}[style=haskellstyle, caption={}]
+[MiniLisp]> compareScopes (let (x 21) (let (foo (lambda (u) x)) 
+                          (let (bar (lambda (v) (let (x 73) (foo 0)))) 
+                          (bar 0))))
+
+[Alcance Estatico]: 21
+[Alcance Dinamico]: 73
+\end{lstlisting}
+Expliación de los resultados:
+\begin{itemize}
+  \item \textbf{Alcance estático}:
+  \begin{itemize}
+    \item \textbf{foo} se define cuando \textbf{x = 21}.
+    \item Se crea un closure que captura este ambiente.
+    \item \textbf{(foo 0)} siempre accede al \textbf{x} capturado (21), independientemente del contexto de llamada
+  \end{itemize}
+  \item \textbf{Alcance dinámico}:
+  \begin{itemize}
+    \item \textbf{foo} no captura un ambiente.
+    \item \textbf{(foo 0)} busca \textbf{x} en el ambiente vigente durante la ejecución.
+    \item Como se llama dentro de \textbf{(let (x 73) ...)}, encuentra este binding más reciente.
+  \end{itemize}
+\end{itemize}
+
+\section{Conclusiones}
 % ----- Bibliografía -----
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \addcontentsline{toc}{chapter}{Bibliografía}
