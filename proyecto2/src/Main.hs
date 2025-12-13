@@ -39,7 +39,7 @@ minilisp =
 run :: String -> IO ()
 run input = catch (validate input) errors
 
--- Validamos el prefijo (static/dynamic/both) y evalua la expresion correspondiente
+-- Validamos el prefijo (static/dynamic/compare) y evalua la expresion correspondiente
 validate :: String -> IO ()
 validate input
   | "staticScope" `isPrefixOf` input = let expr = quitPrefix "staticScope" input
